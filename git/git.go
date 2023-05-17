@@ -20,8 +20,6 @@ type Git struct {
 	branch   string // specific branch to get, 'main' is not specified
 	user     string // what user to use
 	dir      string // where to put it
-
-	cwd string
 }
 
 // New returns a pointer to an intialized Git.
@@ -38,7 +36,7 @@ func New(upstream, branch, user, directory string) *Git {
 func (g *Git) run(args ...string) ([]byte, error) {
 	ctx := context.TODO()
 	cmd := exec.CommandContext(ctx, "git", args...)
-	cmd.Dir = g.cwd
+	cmd.Dir = g.dir
 	cmd.Env = []string{"GIT_CONFIG_GLOBAL=/dev/null", "GIT_CONFIG_SYSTEM=/dev/null"}
 	uid, gid := osutil.User(g.user)
 	cmd.SysProcAttr = &syscall.SysProcAttr{}
@@ -49,10 +47,6 @@ func (g *Git) run(args ...string) ([]byte, error) {
 	out, err := cmd.CombinedOutput()
 	if len(out) > 0 {
 		log.Debug(string(out))
-	}
-	metricGitOps.Inc()
-	if err != nil {
-		metricGitFail.Inc()
 	}
 
 	return bytes.TrimSpace(out), err
@@ -86,7 +80,6 @@ func (g *Git) Checkout() error {
 		}
 	}
 
-	g.cwd = ""
 	_, err := g.run("clone", "-b", g.branch, g.upstream, g.dir)
 	if err != nil {
 		return err
@@ -101,9 +94,6 @@ func (g *Git) Pull(names []string) (bool, error) {
 		return false, err
 	}
 
-	g.cwd = g.dir
-	defer func() { g.cwd = "" }()
-
 	out, err := g.run("pull", "--stat", "origin", g.branch)
 	if err != nil {
 		return false, err
@@ -114,9 +104,6 @@ func (g *Git) Pull(names []string) (bool, error) {
 // Hash returns the git hash of HEAD in the repo in g.dir. Empty string is returned in case of an error.
 // The hash is always truncated to 8 hex digits.
 func (g *Git) Hash() string {
-	g.cwd = g.dir
-	defer func() { g.cwd = "" }()
-
 	out, err := g.run("rev-parse", "HEAD")
 	if err != nil {
 		return ""
@@ -132,70 +119,8 @@ func (g *Git) Rollback(hash string) error {
 	if err := g.Stash(); err != nil {
 		return err
 	}
-
-	g.cwd = g.dir
-	defer func() { g.cwd = "" }()
 	_, err := g.run("checkout", hash)
 	return err
 }
 
-func (g *Git) Stash() error {
-	g.cwd = g.dir
-	defer func() { g.cwd = "" }()
-
-	_, err := g.run("stash")
-	return err
-}
-
-// these methods below are only used in gitopperhdr.
-
-// OriginURL returns the value of git config --get remote.origin.url
-// The working directory for the git command is set to PWD.
-func (g *Git) OriginURL() string {
-	wd, err := os.Getwd()
-	if err != nil {
-		return ""
-	}
-	g.cwd = wd
-	defer func() { g.cwd = "" }()
-
-	out, err := g.run("config", "--get", "remote.origin.url")
-	if err != nil {
-		return ""
-	}
-	return string(out)
-}
-
-// LsFile return the relative path of name inside the git repository.
-// The working directory for the git command is set to PWD.
-func (g *Git) LsFile(name string) string {
-	wd, err := os.Getwd()
-	if err != nil {
-		return ""
-	}
-	g.cwd = wd
-	defer func() { g.cwd = "" }()
-
-	out, err := g.run("ls-files", "--full-name", name)
-	if err != nil {
-		return ""
-	}
-	return string(out)
-}
-
-// BranchCurrent shows the current branch.
-// The working directory for the git command is set to PWD.
-func (g *Git) BranchCurrent() string {
-	wd, err := os.Getwd()
-	if err != nil {
-		return ""
-	}
-	g.cwd = wd
-	defer func() { g.cwd = "" }()
-
-	out, err := g.run("branch", "--show-current")
-	if err != nil {
-		return ""
-	}
-	return string(out)
-}
+func (g *Git) Stash() error { _, err := g.run("stash"); return err }
