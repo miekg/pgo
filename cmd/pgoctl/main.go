@@ -18,6 +18,7 @@ var routes = map[string]struct{}{
 	"up":   {},
 	"down": {},
 	"ps":   {},
+	"pull": {},
 	"logs": {},
 
 	"ping": {},

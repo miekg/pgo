@@ -76,6 +76,7 @@ var routes = map[string]func(*conf.Service, ssh.Session, []string){
 	"up":   ComposeUp,
 	"down": ComposeDown,
 	"ps":   ComposePs,
+	"pull": ComposePull,
 	"logs": ComposeLogs,
 	"ping": Ping,
 }
@@ -92,6 +93,11 @@ func ComposeDown(s *conf.Service, ses ssh.Session, _ []string) {
 
 func ComposePs(s *conf.Service, ses ssh.Session, _ []string) {
 	out, err := s.Compose.Ps()
+	exitSession(ses, out, err)
+}
+
+func ComposePull(s *conf.Service, ses ssh.Session, _ []string) {
+	out, err := s.Compose.Pull()
 	exitSession(ses, out, err)
 }
 
