@@ -11,7 +11,7 @@ import (
 	"golang.org/x/crypto/ssh"
 )
 
-func querySSH(ctx context.Context, machine, command string, args ...string) ([]byte, error) {
+func querySSH(ctx context.Context, machine, command string, args []string) ([]byte, error) {
 	ident := ctx.Value("i").(string)
 	if ident == "" {
 		return nil, fmt.Errorf("identity file not given, -i flag")

@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"fmt"
-	"os"
 	"strings"
 
 	flag "github.com/spf13/pflag"
@@ -32,23 +31,19 @@ func main() {
 	ctx = context.WithValue(ctx, "i", exec.Identity)
 	ctx = context.WithValue(ctx, "p", exec.Port)
 
+	var out []byte
 	switch command {
 	case "ps":
-		err = cmdPs(ctx, machine, name, command, os.Args[1:])
+		out, err = querySSH(ctx, machine, name+"//ps", flag.Args()[1:])
 	}
+	if len(out) > 0 {
+		log.Info(string(out))
+	}
+
 	if err != nil {
 		log.Error(err)
 	}
 
-}
-
-func cmdPs(ctx context.Context, machine, name, command string, args []string) error {
-	out, err := querySSH(ctx, machine, name+"//"+command, args...)
-	if err != nil {
-		return err
-	}
-	fmt.Print(out)
-	return nil
 }
 
 // parseCommand parses: machine:dhz//ps in name (dhz) and command (status)

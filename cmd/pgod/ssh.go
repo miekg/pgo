@@ -16,22 +16,16 @@ func newRouter(c *conf.Config) ssh.Handler {
 	return func(ses ssh.Session) {
 		pub := ses.PublicKey()
 		if pub == nil {
-			log.Warningf("Connection denied for user %q because no public key supplied", ses.User())
-			io.WriteString(ses, http.StatusText(http.StatusUnauthorized))
-			ses.Exit(http.StatusUnauthorized)
+			warnSession(ses, fmt.Sprintf("Connection denied for user %q because no public key supplied", ses.User()), http.StatusUnauthorized)
 			return
 		}
 		if len(ses.Command()) == 0 {
-			log.Warningf("No commands in connection for user %q", ses.User())
-			io.WriteString(ses, http.StatusText(http.StatusBadRequest))
-			ses.Exit(http.StatusBadRequest)
+			warnSession(ses, fmt.Sprintf("No commands in connection for user %q", ses.User()), http.StatusBadRequest)
 			return
 		}
 		name, command, args, err := parseCommand(ses.Command())
 		if err != nil {
-			log.Warningf("No correct commands in connection for user %q", ses.User())
-			io.WriteString(ses, http.StatusText(http.StatusBadRequest))
-			ses.Exit(http.StatusBadRequest)
+			warnSession(ses, fmt.Sprintf("No correct commands in connection for user %q", ses.User()), http.StatusBadRequest)
 			return
 		}
 		var s *conf.Service
@@ -43,17 +37,13 @@ func newRouter(c *conf.Config) ssh.Handler {
 		}
 
 		if s == nil {
-			log.Warningf("No service found with name %q", name)
-			io.WriteString(ses, http.StatusText(http.StatusNotFound))
-			ses.Exit(http.StatusNotFound)
+			warnSession(ses, fmt.Sprintf("No service found with name %q", name), http.StatusNotFound)
 			return
 		}
 		// Get the keys and chose *those*
 		pubkeys, err := s.PublicKeys()
 		if err != nil || len(pubkeys) == 0 {
-			log.Warningf("No public keys found for %q", name)
-			io.WriteString(ses, http.StatusText(http.StatusNotFound))
-			ses.Exit(http.StatusNotFound)
+			warnSession(ses, fmt.Sprintf("No public keys found for %q", name), http.StatusNotFound)
 			return
 		}
 
@@ -65,17 +55,13 @@ func newRouter(c *conf.Config) ssh.Handler {
 			}
 		}
 		if key == -1 {
-			log.Warningf("Key for user %q does not match any for name %s", ses.User(), s.Name)
-			io.WriteString(ses, http.StatusText(http.StatusUnauthorized))
-			ses.Exit(http.StatusUnauthorized)
+			warnSession(ses, fmt.Sprintf("Key for user %q does not match any for name %s", ses.User(), s.Name), http.StatusUnauthorized)
 			return
 		}
 
 		route, ok := routes[command]
 		if !ok {
-			log.Warningf("Command %q does not match any route", command)
-			io.WriteString(ses, http.StatusText(http.StatusNotAcceptable))
-			ses.Exit(http.StatusNotAcceptable)
+			warnSession(ses, fmt.Sprintf("Command %q does not match any route", command), http.StatusNotAcceptable)
 			return
 
 		}
@@ -97,6 +83,12 @@ func exitSession(ses ssh.Session, data []byte, err error) {
 	}
 	ses.Write(data)
 	ses.Exit(0)
+}
+
+func warnSession(ses ssh.Session, warn string, status int) {
+	log.Warning(warn)
+	io.WriteString(ses, http.StatusText(status)+": "+warn+"\n")
+	ses.Exit(status)
 }
 
 func ComposePs(s *conf.Service, ses ssh.Session, _ []string) {

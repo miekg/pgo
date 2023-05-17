@@ -51,6 +51,8 @@ func serveSSH(exec *ExecContext, controllerWG, workerWG *sync.WaitGroup, sshHand
 		return err
 	}
 	srv := &ssh.Server{Addr: exec.SAddr, Handler: sshHandler}
+	srv.SetOption(ssh.PublicKeyAuth(func(ctx ssh.Context, _ ssh.PublicKey) bool { return true }))
+
 	controllerWG.Add(1) // Ensure SSH server draining blocks application shutdown.
 	go func() {
 		defer controllerWG.Done()
