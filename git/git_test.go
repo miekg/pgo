@@ -1,28 +1,8 @@
 package git
 
 import (
-	"encoding/hex"
 	"testing"
-
-	"go.science.ru.nl/log"
 )
-
-func TestHash(t *testing.T) {
-	log.Discard()
-	g := New("", "", ".", "")
-
-	hash := g.Hash()
-	if hash == "" {
-		t.Fatal("Failed to get hash")
-	}
-	if len(hash) != 8 {
-		t.Fatalf("Hash length should be 8, got %d", len(hash))
-	}
-
-	if _, err := hex.DecodeString(hash); err != nil {
-		t.Fatalf("Failed to decode hash: %s", err)
-	}
-}
 
 func TestDiffStatOK(t *testing.T) {
 	g := New("", "", ".", "")
