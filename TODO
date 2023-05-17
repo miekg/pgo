@@ -1,0 +1,3 @@
+- check docker-compose.yml for ports and see if they matchup with the allowed ranges.
+- tailing logs with -f
+- webinterface to allow gitlab the same interface
