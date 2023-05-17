@@ -15,8 +15,11 @@ type ExecContext struct {
 }
 
 var routes = map[string]struct{}{
+	"up":   {},
+	"down": {},
 	"ps":   {},
 	"logs": {},
+
 	"ping": {},
 }
 

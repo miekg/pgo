@@ -73,26 +73,21 @@ func newRouter(c *conf.Config) ssh.Handler {
 }
 
 var routes = map[string]func(*conf.Service, ssh.Session, []string){
+	"up":   ComposeUp,
+	"down": ComposeDown,
 	"ps":   ComposePs,
 	"logs": ComposeLogs,
 	"ping": Ping,
 }
 
-func exitSession(ses ssh.Session, data []byte, err error) {
-	if err != nil {
-		log.Warning(err)
-		io.WriteString(ses, http.StatusText(http.StatusInternalServerError))
-		ses.Exit(http.StatusInternalServerError)
-		return
-	}
-	ses.Write(data)
-	ses.Exit(0)
+func ComposeUp(s *conf.Service, ses ssh.Session, _ []string) {
+	out, err := s.Compose.Up()
+	exitSession(ses, out, err)
 }
 
-func warnSession(ses ssh.Session, warn string, status int) {
-	log.Warning(warn)
-	io.WriteString(ses, http.StatusText(status)+": "+warn+"\n")
-	ses.Exit(status)
+func ComposeDown(s *conf.Service, ses ssh.Session, _ []string) {
+	out, err := s.Compose.Down()
+	exitSession(ses, out, err)
 }
 
 func ComposePs(s *conf.Service, ses ssh.Session, _ []string) {
@@ -119,4 +114,21 @@ func parseCommand(s []string) (name, command string, args []string, error error)
 	name = items[0]
 	command = items[1]
 	return name, command, s[1:], nil
+}
+
+func exitSession(ses ssh.Session, data []byte, err error) {
+	if err != nil {
+		log.Warning(err)
+		io.WriteString(ses, http.StatusText(http.StatusInternalServerError))
+		ses.Exit(http.StatusInternalServerError)
+		return
+	}
+	ses.Write(data)
+	ses.Exit(0)
+}
+
+func warnSession(ses ssh.Session, warn string, status int) {
+	log.Warning(warn)
+	io.WriteString(ses, http.StatusText(status)+": "+warn+"\n")
+	ses.Exit(status)
 }
