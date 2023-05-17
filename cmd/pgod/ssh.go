@@ -74,11 +74,13 @@ func newRouter(c *conf.Config) ssh.Handler {
 
 var routes = map[string]func(*conf.Service, ssh.Session, []string){
 	"ps":   ComposePs,
+	"logs": ComposeLogs,
 	"ping": Ping,
 }
 
 func exitSession(ses ssh.Session, data []byte, err error) {
 	if err != nil {
+		log.Warning(err)
 		io.WriteString(ses, http.StatusText(http.StatusInternalServerError))
 		ses.Exit(http.StatusInternalServerError)
 		return
@@ -95,6 +97,11 @@ func warnSession(ses ssh.Session, warn string, status int) {
 
 func ComposePs(s *conf.Service, ses ssh.Session, _ []string) {
 	out, err := s.Compose.Ps()
+	exitSession(ses, out, err)
+}
+
+func ComposeLogs(s *conf.Service, ses ssh.Session, _ []string) {
+	out, err := s.Compose.Logs()
 	exitSession(ses, out, err)
 }
 
