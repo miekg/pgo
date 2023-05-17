@@ -15,3 +15,12 @@ func User(u string) (int64, int64) {
 	gid, _ := strconv.ParseInt(u1.Gid, 10, 32)
 	return uid, gid
 }
+
+// User looks up the username u and return the home directory.
+func Home(u string) string {
+	u1, err := user.Lookup(u)
+	if err != nil {
+		return ""
+	}
+	return u1.HomeDir
+}

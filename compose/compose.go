@@ -3,6 +3,7 @@ package compose
 import (
 	"bytes"
 	"context"
+	"os"
 	"os/exec"
 	"syscall"
 
@@ -30,11 +31,17 @@ func (c *Compose) run(args ...string) ([]byte, error) {
 	ctx := context.TODO()
 	cmd := exec.CommandContext(ctx, "podman-compose", args...)
 	cmd.Dir = c.dir
-	uid, gid := osutil.User(c.user)
-	cmd.SysProcAttr = &syscall.SysProcAttr{}
-	cmd.SysProcAttr.Credential = &syscall.Credential{Uid: uint32(uid), Gid: uint32(gid)}
 
-	log.Debugf("running in %q as %q %v", cmd.Dir, c.user, cmd.Args)
+	if os.Geteuid() == 0 {
+		uid, gid := osutil.User(c.user)
+		cmd.SysProcAttr = &syscall.SysProcAttr{}
+		cmd.SysProcAttr.Credential = &syscall.Credential{Uid: uint32(uid), Gid: uint32(gid)}
+		home := osutil.Home(c.user)
+		path := "/usr/sbin:/usr/bin:/sbin:/bin"
+		cmd.Env = []string{env("HOME", home), env("PATH", path)}
+	}
+
+	log.Debugf("running in %q as %q %v (env: %v)", cmd.Dir, c.user, cmd.Args, cmd.Env)
 
 	out, err := cmd.CombinedOutput()
 	if len(out) > 0 {
@@ -43,6 +50,8 @@ func (c *Compose) run(args ...string) ([]byte, error) {
 
 	return bytes.TrimSpace(out), err
 }
+
+func env(k, v string) string { return k + "=" + v }
 
 func (c *Compose) Build() ([]byte, error) { return c.run("build") }
 func (c *Compose) Down() ([]byte, error)  { return c.run("down") }

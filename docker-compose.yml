@@ -19,8 +19,6 @@ services:
         ENV_IS_SET2:
       ports:
         - "8080"
-      links:
-        - redis:myredis
       labels:
         my.label: my_value
 

@@ -44,7 +44,7 @@ func main() {
 
 	out, err = querySSH(ctx, machine, name+"//"+command, flag.Args()[1:])
 	if len(out) > 0 {
-		log.Info(string(out))
+		fmt.Printf(string(out))
 	}
 
 	if err != nil {
