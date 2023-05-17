@@ -16,6 +16,7 @@ type Service struct {
 	Ports      []string
 
 	Git *git.Git `toml:"-"`
+	// Compose *compose.Compose // podman compose
 }
 
 type Config struct {
@@ -28,5 +29,13 @@ func Parse(doc []byte) (*Config, error) {
 	t.DisallowUnknownFields()
 	err := t.Decode(c)
 	return c, err
+}
 
+// OSTEMP DIR
+// GitTempDir is where we put our git repository each repository get a tmpdir there.
+var GitTempDir = "/scratch"
+
+func initializeGitAndCompose(*Service) {
+	// mkdir in Git
+	// associate name with ssh keys
 }
