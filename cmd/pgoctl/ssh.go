@@ -54,7 +54,6 @@ func querySSH(ctx context.Context, machine, command string, args ...string) ([]b
 	}
 	defer ss.Close()
 
-	// makes this buffer bounded...?
 	stdoutBuf := &bytes.Buffer{}
 	ss.Stdout = stdoutBuf
 

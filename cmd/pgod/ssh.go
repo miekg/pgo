@@ -16,7 +16,7 @@ func newRouter(c *conf.Config) ssh.Handler {
 	return func(ses ssh.Session) {
 		pub := ses.PublicKey()
 		if pub == nil {
-			log.Warningf("Connection denied for user %q", ses.User())
+			log.Warningf("Connection denied for user %q because no public key supplied", ses.User())
 			io.WriteString(ses, http.StatusText(http.StatusUnauthorized))
 			ses.Exit(http.StatusUnauthorized)
 			return
