@@ -14,7 +14,11 @@ type ExecContext struct {
 	Port     string
 }
 
-// <machine>:dhz//ps
+var routes = map[string]struct{}{
+	"ps":   {},
+	"ping": {},
+}
+
 func main() {
 	exec := ExecContext{}
 	flag.StringVarP(&exec.Identity, "identity", "i", "", "identify file")
@@ -32,10 +36,12 @@ func main() {
 	ctx = context.WithValue(ctx, "p", exec.Port)
 
 	var out []byte
-	switch command {
-	case "ps":
-		out, err = querySSH(ctx, machine, name+"//ps", flag.Args()[1:])
+	_, ok := routes[command]
+	if !ok {
+		log.Fatalf("Command %q doesn't match any route", command)
 	}
+
+	out, err = querySSH(ctx, machine, name+"//"+command, flag.Args()[1:])
 	if len(out) > 0 {
 		log.Info(string(out))
 	}

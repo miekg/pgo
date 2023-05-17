@@ -72,7 +72,8 @@ func newRouter(c *conf.Config) ssh.Handler {
 }
 
 var routes = map[string]func(*conf.Service, ssh.Session, []string){
-	"ps": ComposePs,
+	"ps":   ComposePs,
+	"ping": Ping,
 }
 
 func exitSession(ses ssh.Session, data []byte, err error) {
@@ -94,6 +95,11 @@ func warnSession(ses ssh.Session, warn string, status int) {
 func ComposePs(s *conf.Service, ses ssh.Session, _ []string) {
 	out, err := s.Compose.Ps()
 	exitSession(ses, out, err)
+}
+
+func Ping(s *conf.Service, ses ssh.Session, _ []string) {
+	out := []byte("pong!")
+	exitSession(ses, out, nil)
 }
 
 // parseCommand parses: dhz//ps in name (dhz) and command (status) and optional args after it, split on space.

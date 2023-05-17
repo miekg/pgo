@@ -20,7 +20,6 @@ func querySSH(ctx context.Context, machine, command string, args []string) ([]by
 	if port == "" {
 		port = "2222"
 	}
-	println(ident)
 	key, err := ioutil.ReadFile(ident)
 	if err != nil {
 		return nil, err
