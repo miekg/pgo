@@ -6,17 +6,17 @@ packages, "pgo" uses a `docker-compose.yml` as it's basis. It runs the compose v
 (Debian package exists). It allows for remote interaction via an SSH interface, which `pgoctl` makes
 easy to use.
 
-Each compose file runs under it's own user-account. That account can then acccess storage, or
-databases it has access too - provising that stuff is out-of-scope - assuming your infra can deal
+Each compose file runs under it's own user-account. That account can then access storage, or
+databases it has access too - provisioning that stuff is out-of-scope - assuming your infra can deal
 with all that stuff. And make that available on each server.
 
 Servers running "pgo" as still special in some regard, a developers needs to know which server runs
-their compose file *and* you need to adminstrate who own which port numbers. Moving services to a
+their compose file *and* you need to administrate who own which port numbers. Moving services to a
 different machine is as easy as starting the compose there, but you need to make sure your infra
 also updates externals records (DNS for example).
 
 The main idea here is that developers can push stuff easier to production and that you can have some
-of the goodies from Kubernetes, but not that bad stuff like the networking - the big tradeoff being
+of the goodies from Kubernetes, but not that bad stuff like the networking - the big trade-off being
 you need to administrate port-numbers *and* still run some proxy to forward URLs to the correct
 backend.
 
@@ -37,7 +37,7 @@ to have this go through an onboarding workflow, but that is done externally.
 
 To go over this file:
 
-- `name`: this is the name of the service, used to uniquely identify the service accross machines.
+- `name`: this is the name of the service, used to uniquely identify the service across machines.
 - `user`: which user to use to run the podman-compose under.
 - `repository` and `branch`: where to find the git repo belonging to this service
 - `urls`: what DNS names need to be assigned to this server and to what port should they forward.
@@ -48,7 +48,7 @@ To go over this file:
 To use "pgo" your project MUST have:
 
 - Public SSH keys stored in a `ssh/` directory in your git repo.
-- A `docker-compose.yml` in the toplevel of your git repo.
+- A `docker-compose.yml` in the top-level of your git repo.
 
 ## Quick Start
 
@@ -70,12 +70,48 @@ using podman version: 3.4.4
 2023/05/17 20:13:21 [DEBUG] running in "/tmp/pgo-3809413984" as "miek" [podman-compose up -d] (env: [HOME=/home/miek PATH=/usr/sbin:/usr/bin:/sbin:/bin])
 ~~~
 
-In other words: it clones the repo, builds, pulls, and starts the containers.
+In other words: it clones the repo, builds, pulls, and starts the containers. It then *tracks*
+upstream and whenever `docker-compose.yml` changes it will do an `down` and `up`. To force changes
+in that file you can use a `x-gpo-version` in the yaml and change that whenever you want to update
+"pgo"
 
+Now with `pgoctl` you can access and control this environment (well not you, because you don't have
+the private key belonging to the public key that sits in the `ssh/` directory). `pgoctl` want to
+see `<machine>:<name>//<operation>` string, i.e. `localhost:pgo//ps` which does a `podman-compose
+ps` for our stuff:
+
+~~~
+# ask for the status of pgo - denied because the correct key is not found in the repos
+% ./cmd/pgoctl/pgoctl -i ~/id_pgo2 localhost:pgo//ps
+Unauthorized: Key for user "miek" does not match any for name pgo
+2023/05/17 20:21:08 [ERROR] Process exited with status 401
+~~~
+
+Once our committed keys get pulled:
+~~~
+% ./cmd/pgoctl/pgoctl -i ~/id_pgo2 localhost:pgo//ps
+CONTAINER ID  IMAGE                             COMMAND               CREATED        STATUS            PORTS                    NAMES
+4fe30f61c4db  docker.io/library/busybox:latest  /bin/busybox http...  3 seconds ago  Up 3 seconds ago  0.0.0.0:40475->8080/tcp  pgo-609353550_frontend_1
+['podman', '--version', '']
+using podman version: 3.4.4
+podman ps -a --filter label=io.podman.compose.project=pgo-609353550
+exit code: 0%
+~~~
+
+Currently implemented are: `up`, `down`, `pull`, `ps`, `logs` and `ping` to see if the
+authentication works.
 
 ## pgod
 
-
-
+See the (soon to be created) manual page in cmd/pgod.
 
 ## pgoctl
+
+See the (soon to be created) manual page in cmd/pgoctl.
+
+# TODO
+
+- Check docker-compose.yml for ports and see if they matchup with the allowed ranges.
+- Tailing logs with -f.
+- Web interface to allow Gitlab the use same interface, but via the web (shiny buttons in Gitlab
+   GUI!)
