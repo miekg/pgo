@@ -13,7 +13,7 @@ name = "bliep"
 user = "miekg"
 group = "miekg"
 repository = "https://gitlab.science.ru.nl/bla/bliep"
-#ref = 'tag'/branch
+branch = "bla"
 urls = { "slashdot.org" = ":303" }
 ports = [ "5005/5", "1025/5" ]
 ```
