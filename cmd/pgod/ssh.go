@@ -8,6 +8,7 @@ import (
 
 	"github.com/gliderlabs/ssh"
 	"github.com/miekg/pgo/conf"
+	"github.com/miekg/pgo/osutil"
 	"go.science.ru.nl/log"
 )
 
@@ -98,7 +99,7 @@ func ComposePs(s *conf.Service, ses ssh.Session, _ []string) {
 }
 
 func Ping(s *conf.Service, ses ssh.Session, _ []string) {
-	out := []byte("pong!")
+	out := []byte("pong! - " + osutil.Hostname())
 	exitSession(ses, out, nil)
 }
 

@@ -96,8 +96,8 @@ func (s *Service) Track(ctx context.Context, duration time.Duration) {
 	}
 	log.Infof("Checked out git repo in %s for %q", s.dir, s.Name)
 
-	// compose dance
-	// check ports
+	s.Compose.Build()
+	s.Compose.Up()
 
 	for {
 		select {

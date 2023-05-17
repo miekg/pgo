@@ -1,0 +1,9 @@
+# example config
+[[services]]
+name = "pgo"
+user = "miek"  # under which user to run the podman
+group = "miek" # which group to run the podman // not used atm
+repository = "https://github.com/miekg/pgo"
+branch = "main"
+urls = { "slashdot.org" = ":303" }
+ports = [ "5005/5", "1025/5" ]
