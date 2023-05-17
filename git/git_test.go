@@ -1,4 +1,4 @@
-package gitcmd
+package git
 
 import (
 	"encoding/hex"
@@ -9,7 +9,7 @@ import (
 
 func TestHash(t *testing.T) {
 	log.Discard()
-	g := New("", "", ".", "", nil)
+	g := New("", "", ".", "")
 
 	hash := g.Hash()
 	if hash == "" {
@@ -25,7 +25,7 @@ func TestHash(t *testing.T) {
 }
 
 func TestDiffStatOK(t *testing.T) {
-	g := New("", "", ".", "", []string{"my/stuff"})
+	g := New("", "", ".", "")
 
 	data := []byte(`remote: Enumerating objects: 10, done.
 remote: Counting objects: 100% (10/10), done.
@@ -42,13 +42,13 @@ Fast-forward
  create mode 100644 provisioning-systems.md
 `)
 
-	if !g.OfInterest(data) {
+	if !g.OfInterest(data, []string{"my/stuff/file.md"}) {
 		t.Fatal("Expected to find paths of interest, got none")
 	}
 }
 
 func TestDiffStatFail(t *testing.T) {
-	g := New("", "", ".", "", []string{"other/stuff"})
+	g := New("", "", ".", "")
 
 	data := []byte(`remote: Enumerating objects: 10, done.
 remote: Counting objects: 100% (10/10), done.
@@ -65,7 +65,7 @@ Fast-forward
  create mode 100644 provisioning-systems.md
 `)
 
-	if g.OfInterest(data) {
+	if g.OfInterest(data, []string{"/other/stuff"}) {
 		t.Fatal("Expected to find _no_ paths of interest, but got some")
 	}
 }

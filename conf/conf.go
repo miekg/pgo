@@ -3,6 +3,7 @@ package conf
 import (
 	"bytes"
 
+	"github.com/miekg/pgo/git"
 	toml "github.com/pelletier/go-toml/v2"
 )
 
@@ -10,9 +11,10 @@ type Service struct {
 	Name  string
 	User  string
 	Group string
-	Git   string
+	Rpo   string
 	URLs  map[string]string
 	Ports []string
+	Git   *git.Git `toml:"-"`
 }
 
 type Config struct {

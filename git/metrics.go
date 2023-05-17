@@ -1,4 +1,4 @@
-package gitcmd
+package git
 
 import (
 	"github.com/prometheus/client_golang/prometheus"

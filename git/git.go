@@ -1,6 +1,6 @@
 // Package gitcmd has a bunch of convience functions to work with Git.
 // Each machine should use it's own Git.
-package gitcmd
+package git
 
 import (
 	"bytes"
@@ -89,44 +89,34 @@ func (g *Git) Checkout() error {
 	}
 
 	g.cwd = ""
-	_, err := g.run("clone", "-b", g.branch, "--filter=blob:none", "--no-checkout", g.upstream, g.dir)
+	_, err := g.run("clone", "-b", g.branch, g.upstream, g.dir)
 	if err != nil {
 		return err
 	}
 
-	g.cwd = g.dir
-	defer func() { g.cwd = "" }()
-	args := []string{"sparse-checkout", "set"}
-	args = append(args, g.dirs...)
-	_, err = g.run(args...)
-	if err != nil {
-		return err
-	}
-
-	_, err = g.run("checkout")
 	return err
 }
 
-// Pull pulls from upstream. If the returned bool is true there were updates.
-func (g *Git) Pull() (bool, error) {
+// Pull pulls from upstream. If the returned bool is true there were updates if on the files named in names.
+func (g *Git) Pull(names []string) (bool, error) {
 	if err := g.Stash(); err != nil {
 		return false, err
 	}
 
-	g.cwd = g.mount
+	g.cwd = g.dir
 	defer func() { g.cwd = "" }()
 
 	out, err := g.run("pull", "--stat", "origin", g.branch)
 	if err != nil {
 		return false, err
 	}
-	return g.OfInterest(out), nil
+	return g.OfInterest(out, names), nil
 }
 
-// Hash returns the git hash of HEAD in the repo in g.mount. Empty string is returned in case of an error.
+// Hash returns the git hash of HEAD in the repo in g.dir. Empty string is returned in case of an error.
 // The hash is always truncated to 8 hex digits.
 func (g *Git) Hash() string {
-	g.cwd = g.mount
+	g.cwd = g.dir
 	defer func() { g.cwd = "" }()
 
 	out, err := g.run("rev-parse", "HEAD")
@@ -145,14 +135,14 @@ func (g *Git) Rollback(hash string) error {
 		return err
 	}
 
-	g.cwd = g.mount
+	g.cwd = g.dir
 	defer func() { g.cwd = "" }()
 	_, err := g.run("checkout", hash)
 	return err
 }
 
 func (g *Git) Stash() error {
-	g.cwd = g.mount
+	g.cwd = g.dir
 	defer func() { g.cwd = "" }()
 
 	_, err := g.run("stash")

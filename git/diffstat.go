@@ -1,4 +1,4 @@
-package gitcmd
+package git
 
 import (
 	"bufio"
@@ -13,7 +13,7 @@ import (
 // Problem is here is to keep track _when_ things changed, i.e. we can look in the revlog, but then
 // we need to track that we saw a change. Parsing the diff stat seems simpler and more atomic in that
 // regard.
-func (g *Git) OfInterest(data []byte) bool {
+func (g *Git) OfInterest(data []byte, names []string) bool {
 	scanner := bufio.NewScanner(bytes.NewReader(data))
 	// Diff stat snippet:
 	//
@@ -29,8 +29,8 @@ func (g *Git) OfInterest(data []byte) bool {
 	for scanner.Scan() {
 		text := scanner.Text()
 		if strings.HasPrefix(text, " ") && strings.Contains(text, " | ") {
-			for _, d := range g.dirs {
-				if strings.Contains(text, d) {
+			for _, n := range names {
+				if strings.Contains(text, n) {
 					return true
 				}
 			}
