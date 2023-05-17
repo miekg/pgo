@@ -53,6 +53,7 @@ func (s *Service) InitGitAndCompose() error {
 
 	s.Git = git.New(s.Repository, s.User, s.Branch, dir)
 	s.Compose = compose.New(s.User, dir)
+	s.dir = dir
 	return nil
 }
 
@@ -89,17 +90,23 @@ func (s *Service) PublicKeys() ([]ssh.PublicKey, error) {
 func (s *Service) Track(ctx context.Context, duration time.Duration) {
 	log.Infof("Launched tracking routine for %q", s.Name)
 
+	if err := s.Git.Checkout(); err != nil {
+		log.Warningf("Failed to do initial checkout: %v", err)
+		return
+	}
+	log.Infof("Checked out git repo in %s for %q", s.dir, s.Name)
+
+	// compose dance
+	// check ports
+
 	for {
 		select {
 		case <-time.After(duration):
+		case <-ctx.Done():
+			return
 		}
 
-		if err := s.Git.Checkout(); err != nil {
-			log.Warningf("Failed to do initial checkout: %v", err)
-			continue
-		}
-
-		changed, err := s.Git.Pull([]string{"docker-compose.yml", "docker-compose.yaml"})
+		changed, err := s.Git.Pull([]string{"docker-compose.yml"})
 		if err != nil {
 			log.Warningf("Failed to pull: %v", err)
 			continue

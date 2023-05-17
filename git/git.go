@@ -23,7 +23,7 @@ type Git struct {
 }
 
 // New returns a pointer to an intialized Git.
-func New(upstream, branch, user, directory string) *Git {
+func New(upstream, user, branch, directory string) *Git {
 	g := &Git{
 		upstream: upstream,
 		user:     user,
@@ -38,9 +38,12 @@ func (g *Git) run(args ...string) ([]byte, error) {
 	cmd := exec.CommandContext(ctx, "git", args...)
 	cmd.Dir = g.dir
 	cmd.Env = []string{"GIT_CONFIG_GLOBAL=/dev/null", "GIT_CONFIG_SYSTEM=/dev/null"}
-	uid, gid := osutil.User(g.user)
-	cmd.SysProcAttr = &syscall.SysProcAttr{}
-	cmd.SysProcAttr.Credential = &syscall.Credential{Uid: uint32(uid), Gid: uint32(gid)}
+
+	if os.Geteuid() == 0 {
+		uid, gid := osutil.User(g.user)
+		cmd.SysProcAttr = &syscall.SysProcAttr{}
+		cmd.SysProcAttr.Credential = &syscall.Credential{Uid: uint32(uid), Gid: uint32(gid)}
+	}
 
 	log.Debugf("running in %q as %q %v", cmd.Dir, g.user, cmd.Args)
 
@@ -81,10 +84,6 @@ func (g *Git) Checkout() error {
 	}
 
 	_, err := g.run("clone", "-b", g.branch, g.upstream, g.dir)
-	if err != nil {
-		return err
-	}
-
 	return err
 }
 

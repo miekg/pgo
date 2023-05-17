@@ -119,10 +119,10 @@ func run(exec *ExecContext) error {
 	for _, s := range c.Services {
 		log.Infof("Service %q with upstream %q", s.Name, s.Repository)
 		workerWG.Add(1)
-		go func() {
+		go func(s1 *conf.Service) {
 			defer workerWG.Done()
-			s.Track(ctx, exec.Duration)
-		}()
+			s1.Track(ctx, exec.Duration)
+		}(s)
 	}
 
 	sshHandler := newRouter(c)
