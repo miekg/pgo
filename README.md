@@ -15,6 +15,9 @@ their compose file *and* you need to administrate who own which port numbers. Mo
 different machine is as easy as starting the compose there, but you need to make sure your infra
 also updates externals records (DNS for example).
 
+The interface into `pgod` is via SSH, but not the normal SSH running on the server, this is a
+completely seperate SSH interface implemented by both `pgod` and `pgoctl`.
+
 The main idea here is that developers can push stuff easier to production and that you can have some
 of the goodies from Kubernetes, but not that bad stuff like the networking - the big trade-off being
 you need to administrate port numbers *and* still run some proxy to forward URLs to the correct
@@ -47,7 +50,7 @@ To go over this file:
 
 To use "pgo" your project MUST have:
 
-- Public SSH keys stored in a `ssh/` directory in your git repo.
+- A public SSH key (or keys) stored in a `ssh/` directory in your git repo.
 - A `docker-compose.yml` in the top-level of your git repo.
 
 ## Quick Start
@@ -71,7 +74,7 @@ using podman version: 3.4.4
 ~~~
 
 In other words: it clones the repo, builds, pulls, and starts the containers. It then *tracks*
-upstream and whenever `docker-compose.yml` changes it will do an `down` and `up`. To force changes
+upstream and whenever `docker-compose.yml` changes it will do a `down` and `up`. To force changes
 in that file you can use a `x-gpo-version` in the yaml and change that whenever you want to update
 "pgo"
 
@@ -81,7 +84,7 @@ see `<machine>:<name>//<operation>` string, i.e. `localhost:pgo//ps` which does 
 ps` for our stuff:
 
 ~~~
-# ask for the status of pgo - denied because the correct key is not found in the repos
+# ask for the status of pgo - denied because the correct key is not found in the repo
 % ./cmd/pgoctl/pgoctl -i ~/id_pgo2 localhost:pgo//ps
 Unauthorized: Key for user "miek" does not match any for name pgo
 2023/05/17 20:21:08 [ERROR] Process exited with status 401
@@ -99,7 +102,47 @@ exit code: 0%
 ~~~
 
 Currently implemented are: `up`, `down`, `pull`, `ps`, `logs` and `ping` to see if the
-authentication works.
+authentication works. With `ping` you can check if the authentication is setup correctly, you should
+see a "pong!" reply if everything works.
+
+## Integrating with GitLab
+
+If you want to use PGO with GitLab you needs to setup
+[environments](https://docs.gitlab.com/ee/ci/environments/) that allow you to deploy to
+"production", here is an example gitlab-ci.yml that does this:
+
+~~~ yaml
+image: "registry.science.ru.nl/cncz/sys/image/cncz-debian-go:latest"
+
+stages:
+  - deploy
+
+deploy_production:
+  resource_group: production
+  stage: deploy
+  environment:
+    name: production
+    url: https://example.com
+    on_stop: stop_production
+  script:
+    - pgoctl -i $SSHKEY mymachine:project//pull
+    - pgoctl -i $SSHKEY mymachine:project//build
+    - pgoctl -i $SSHKEY mymachine:project//up
+  when: manual
+
+stop_production:
+  resource_group: production
+  stage: deploy
+  script:
+    - pgoctl -i $SSHKEY mymachine:project//down
+  environment:
+    name: production
+    action: stop
+  when: manual
+~~~
+
+With 'manual' you can still control when this actually happens. The `-i $SSHKEY` means `pgoctl` will
+use the environment variable `SSHKEY` as the private key for ssh-ing into `mymachine`.
 
 ## pgod
 
