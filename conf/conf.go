@@ -6,6 +6,7 @@ import (
 	"crypto/sha1"
 	"fmt"
 	"io/ioutil"
+	"math/rand"
 	"os"
 	"path"
 	"strconv"
@@ -130,7 +131,7 @@ func (s *Service) Track(ctx context.Context, duration time.Duration) {
 
 	for {
 		select {
-		case <-time.After(duration):
+		case <-time.After(jitter(duration)):
 		case <-ctx.Done():
 			return
 		}
@@ -181,4 +182,11 @@ func Track(ctx context.Context, file string, done chan<- os.Signal) {
 			return
 		}
 	}
+}
+
+// jitter will add a random amount of jitter [0, d/2] to d.
+func jitter(d time.Duration) time.Duration {
+	rand.Seed(time.Now().UnixNano())
+	max := d / 2
+	return d + time.Duration(rand.Int63n(int64(max)))
 }
