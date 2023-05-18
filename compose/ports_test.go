@@ -14,12 +14,27 @@ func TestLoadPorts(t *testing.T) {
 	}
 }
 
-func TestParsePorts(t *testing.T) {
-	a, b, err := ParsePorts("1000/5")
+func TestAllowedPorts(t *testing.T) {
+	c := &Compose{
+		user:  "",
+		dir:   "testdata",
+		ports: []PortRange{{1000, 1005}},
+	}
+	// disallowed
+	port, err := c.AllowedPorts()
+	if err == nil {
+		t.Fatal("expected error, got none")
+	}
+	if port != 8080 {
+		t.Fatalf("expected port 8080, got %d", port)
+	}
+	// allowed
+	c.ports = []PortRange{{8080, 8081}, {9090, 9091}}
+	port, err = c.AllowedPorts()
 	if err != nil {
 		t.Fatal(err)
 	}
-	if a != 1000 || b != 1005 {
-		t.Fatalf("expected 1000 and 1005, got %d and %d", a, b)
+	if port != 0 {
+		t.Fatalf("expected port 0 (=ok), got %d", port)
 	}
 }

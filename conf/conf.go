@@ -8,6 +8,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path"
+	"strconv"
 	"strings"
 	"syscall"
 	"time"
@@ -51,10 +52,37 @@ func (s *Service) InitGitAndCompose() error {
 		return err
 	}
 
+	pr := make([]compose.PortRange, len(s.Ports))
+	for i := range s.Ports {
+		lo, hi, err := parsePorts(s.Ports[i])
+		if err != nil {
+			return err
+		}
+		pr[i] = compose.PortRange{lo, hi}
+	}
+
 	s.Git = git.New(s.Repository, s.User, s.Branch, dir)
-	s.Compose = compose.New(s.User, dir, s.Ports)
+	s.Compose = compose.New(s.User, dir, pr)
 	s.dir = dir
 	return nil
+}
+
+// parsePorts pasrses a n/x string and returns n and n+x, or an error is the string isn't correctly formatted.
+func parsePorts(s string) (int, int, error) {
+	items := strings.Split(s, "/")
+	if len(items) != 2 {
+		return 0, 0, fmt.Errorf("format error, no slash found: %q", s)
+	}
+
+	lower, err := strconv.ParseUint(items[0], 10, 32)
+	if err != nil {
+		return 0, 0, fmt.Errorf("lower ports is not a number: %q", items[0])
+	}
+	upper, err := strconv.ParseUint(items[1], 10, 32)
+	if err != nil {
+		return 0, 0, fmt.Errorf("lower ports is not a number: %q", items[0])
+	}
+	return int(lower), int(lower) + int(upper), nil
 }
 
 // PublicKeys parses the public keys in the ssh/ directory of the repository.
