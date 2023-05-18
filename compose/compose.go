@@ -12,13 +12,13 @@ import (
 )
 
 type Compose struct {
-	user  string // what user to use
-	dir   string // where to put it
-	ports string // ports from config
+	user  string   // what user to use
+	dir   string   // where to put it
+	ports []string // ports from config
 }
 
 // New returns a pointer to an intialized Compose.
-func New(user, directory, ports string) *Compose {
+func New(user, directory string, ports []string) *Compose {
 	g := &Compose{
 		user:  user,
 		dir:   directory,
