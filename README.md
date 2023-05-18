@@ -17,7 +17,7 @@ also updates externals records (DNS for example).
 
 The main idea here is that developers can push stuff easier to production and that you can have some
 of the goodies from Kubernetes, but not that bad stuff like the networking - the big trade-off being
-you need to administrate port-numbers *and* still run some proxy to forward URLs to the correct
+you need to administrate port numbers *and* still run some proxy to forward URLs to the correct
 backend.
 
 A typical config file looks like this:
@@ -33,7 +33,7 @@ ports = [ "5005/5", "1025/5" ]
 ```
 
 This file is used by `pgod` and should be updated for each project you want to onboard. Our plan is
-to have this go through an onboarding workflow, but that is done externally.
+to have this go through an onboarding workflow.
 
 To go over this file:
 
@@ -111,7 +111,4 @@ See the (soon to be created) manual page in cmd/pgoctl.
 
 # TODO
 
-- Check docker-compose.yml for ports and see if they matchup with the allowed ranges.
 - Tailing logs with -f.
-- Web interface to allow Gitlab the use same interface, but via the web (shiny buttons in Gitlab
-   GUI!)

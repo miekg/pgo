@@ -29,10 +29,10 @@ type Service struct {
 	Branch     string
 	URLs       map[string]string
 	Ports      []string
-	dir        string // where is repo checked out
+	Git        *git.Git         `toml:"-"`
+	Compose    *compose.Compose `toml:"-"`
 
-	Git     *git.Git         `toml:"-"`
-	Compose *compose.Compose `toml:"-"`
+	dir string // where is repo checked out
 }
 
 type Config struct {
