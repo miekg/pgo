@@ -5,6 +5,7 @@ import (
 	"context"
 	"fmt"
 	"io/ioutil"
+	"os"
 	"os/user"
 	"strings"
 
@@ -14,7 +15,7 @@ import (
 func querySSH(ctx context.Context, machine, command string, args []string) ([]byte, error) {
 	ident := ctx.Value("i").(string)
 	if ident == "" {
-		return nil, fmt.Errorf("identity file not given, -i flag")
+		return nil, fmt.Errorf("identity not given, -i flag")
 	}
 	port := ctx.Value("p").(string)
 	if port == "" {
@@ -59,4 +60,23 @@ func querySSH(ctx context.Context, machine, command string, args []string) ([]by
 	cmdline := command + " " + strings.Join(args, " ")
 	err = ss.Run(cmdline)
 	return stdoutBuf.Bytes(), err
+}
+
+// ReadIdent read the public key to get the identity for this call. If the string start with a $ it is assume to be
+// an enviroment variable, and *its* contents are then returned.
+func ReadIdent(ident string) ([]byte, error) {
+	if !strings.HasPrefix(ident, "$") {
+
+		key, err := ioutil.ReadFile(ident)
+		if err != nil {
+			return nil, err
+		}
+		return key, nil
+	}
+	envvar := strings.TrimPrefix(ident, "$")
+	key := os.Getenv(envvar)
+	if key == "" {
+		return nil, fmt.Errorf("no enviroment variable found with name: %q", envvar)
+	}
+	return []byte(key), nil
 }
