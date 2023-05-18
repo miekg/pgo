@@ -123,6 +123,7 @@ func (s *Service) Track(ctx context.Context, duration time.Duration) {
 		return
 	}
 	log.Infof("Checked out git repo in %s for %q", s.dir, s.Name)
+	// check ports TODO(miek)
 
 	s.Compose.Build()
 	s.Compose.Up()
@@ -142,6 +143,9 @@ func (s *Service) Track(ctx context.Context, duration time.Duration) {
 		if !changed {
 			continue
 		}
+
+		// check ports TODO(miek)
+
 		s.Compose.Down()
 		s.Compose.Build()
 		s.Compose.Up()
