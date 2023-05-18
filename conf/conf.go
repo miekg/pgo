@@ -52,7 +52,7 @@ func (s *Service) InitGitAndCompose() error {
 	}
 
 	s.Git = git.New(s.Repository, s.User, s.Branch, dir)
-	s.Compose = compose.New(s.User, dir)
+	s.Compose = compose.New(s.User, dir, s.Ports)
 	s.dir = dir
 	return nil
 }

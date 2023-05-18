@@ -17,6 +17,7 @@ services:
         SECRET_KEY2: aabbcc
         ENV_IS_SET2:
       ports:
-        - "8080"
+        - "8080:10015"
+        - "9090-9091:8080-8081"
       labels:
         my.label: my_value
