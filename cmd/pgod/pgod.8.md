@@ -18,7 +18,12 @@ pgod - watch a git repository, pull changes and restart the podman compose servi
 ## Description
 
 `pgod` clones and pulls all repositories that are defined in the config file. It then exposes a SSH
-interface which you can interact with using `pgoctl` or plain `ssh`.
+interface (on port 2222) which you can interact with using pgoctl(1) or plain ssh(1) (not tested).
+
+It then directs podman-compose to pull, build and start the containers defined in the
+`docker-compose.yml` file. With pgoctl(1) you can then interact with these services. You can "up",
+"down", "ps", "pull", "logs", and "ping" currently. The syntax exposed is
+`<servicename>//<command>`, i.e. `pgo//ps`.
 
 The options are:
 
@@ -52,13 +57,41 @@ user = "miek"  # under which user to run the podman
 group = "miek" # which group to run the podman // not used atm
 repository = "https://github.com/miekg/pgo"
 branch = "main"
-urls = { "slashdot.org" = ":303" }
+urls = { "example.org" = ":5006" }
 ports = [ "5005/5", "1025/5" ]
 ~~~
 
-## Interface
+Here we define:
 
-(ssh stuff)
+name
+: `pgo`, how to address this service on this machine.
+
+user
+: `miek`, run podman under this user. This username only need to exist on the target machine and has
+no relation to the SSH user connecting to `pgod`. I.e. it could be `nobody`.
+
+group
+: `miek`, run podman with this group. Not used at the moment, the primary group of "user" is used.
+
+repository *and* branch
+: `https://github.com/miekg/pgo` and `main`, where to clone and pull from.
+
+urls
+: `{ "example.org" = ":5006" }` how to setup any forwarding to the listening ports. This isn't used yet,
+but when the containers go up this should connect the url `example.org` to `<thismachine>:5006`.
+
+ports
+: `[ "5005/5", "1025/5" ]`, this service can bind to ports nummbers: 5005-5010 and 1025-1030. This
+is checked by parsing the `docker-compose-yml`.
+
+## Authentication
+
+All remote access is authenticated and encrypted using SSH. The **public** keys you use *MUST* be
+put in `ssh` subdirectory in the top level of your repository. The **private** is used in
+combination with pgoctl(1).
+
+The generated key can't have a passphrase, to generate use: `ssh-keygen -t rsa -f id_pgo`. And copy
+and commit `id_pgo.pub` to the ssh directory.
 
 ## Metrics
 
@@ -66,7 +99,13 @@ There are no metrics yet.
 
 ## Exit Code
 
+Pgod has following exit codes:
+
+0 - normal exit
+1 - error seen (log.Fatal())
+2 - SIGHUP seen (signal to systemd to restart us)
+
 ## See Also
 
 See [this design doc](https://miek.nl/2022/november/15/provisioning-services/), and
-[gitopper](https://github.com/miekg/gitopper).
+[gitopper](https://github.com/miekg/gitopper). And see pgoctl(1) podman-compose(1).

@@ -13,7 +13,13 @@ pgod - watch a git repository, pull changes and restart the podman compose servi
 .SH "DESCRIPTION"
 .PP
 \fB\fCpgod\fR clones and pulls all repositories that are defined in the config file. It then exposes a SSH
-interface which you can interact with using \fB\fCpgoctl\fR or plain \fB\fCssh\fR.
+interface (on port 2222) which you can interact with using pgoctl(1) or plain ssh(1) (not tested).
+
+.PP
+It then directs podman-compose to pull, build and start the containers defined in the
+\fB\fCdocker-compose.yml\fR file. With pgoctl(1) you can then interact with these services. You can "up",
+"down", "ps", "pull", "logs", and "ping" currently. The syntax exposed is
+\fB\fC<servicename>//<command>\fR, i.e. \fB\fCpgo//ps\fR.
 
 .PP
 The options are:
@@ -53,25 +59,65 @@ user = "miek"  # under which user to run the podman
 group = "miek" # which group to run the podman // not used atm
 repository = "https://github.com/miekg/pgo"
 branch = "main"
-urls = { "slashdot.org" = ":303" }
+urls = { "example.org" = ":5006" }
 ports = [ "5005/5", "1025/5" ]
 
 .fi
 .RE
 
-.SH "INTERFACE"
 .PP
-(ssh stuff)
+Here we define:
+
+.TP
+name
+\fB\fCpgo\fR, how to address this service on this machine.
+.TP
+user
+\fB\fCmiek\fR, run podman under this user. This username only need to exist on the target machine and has
+no relation to the SSH user connecting to \fB\fCpgod\fR. I.e. it could be \fB\fCnobody\fR.
+.TP
+group
+\fB\fCmiek\fR, run podman with this group. Not used at the moment, the primary group of "user" is used.
+.TP
+repository \fIand\fP branch
+\fB\fChttps://github.com/miekg/pgo\fR and \fB\fCmain\fR, where to clone and pull from.
+.TP
+urls
+\fB\fC{ "example.org" = ":5006" }\fR how to setup any forwarding to the listening ports. This isn't used yet,
+but when the containers go up this should connect the url \fB\fCexample.org\fR to \fB\fC<thismachine>:5006\fR.
+.TP
+ports
+\fB\fC[ "5005/5", "1025/5" ]\fR, this service can bind to ports nummbers: 5005-5010 and 1025-1030. This
+is checked by parsing the \fB\fCdocker-compose-yml\fR.
+
+
+.SH "AUTHENTICATION"
+.PP
+All remote access is authenticated and encrypted using SSH. The \fBpublic\fP keys you use \fIMUST\fP be
+put in \fB\fCssh\fR subdirectory in the top level of your repository. The \fBprivate\fP is used in
+combination with pgoctl(1).
+
+.PP
+The generated key can't have a passphrase, to generate use: \fB\fCssh-keygen -t rsa -f id_pgo\fR. And copy
+and commit \fB\fCid_pgo.pub\fR to the ssh directory.
 
 .SH "METRICS"
 .PP
 There are no metrics yet.
 
 .SH "EXIT CODE"
+.PP
+Pgod has following exit codes:
+
+.PP
+0 - normal exit
+1 - error seen (log.Fatal())
+2 - SIGHUP seen (signal to systemd to restart us)
+
 .SH "SEE ALSO"
 .PP
 See this design doc
 \[la]https://miek.nl/2022/november/15/provisioning-services/\[ra], and
 gitopper
-\[la]https://github.com/miekg/gitopper\[ra].
+\[la]https://github.com/miekg/gitopper\[ra]. And see pgoctl(1) podman-compose(1).
 
