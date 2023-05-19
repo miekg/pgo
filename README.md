@@ -125,16 +125,16 @@ deploy_production:
     url: https://example.com
     on_stop: stop_production
   script:
-    - pgoctl -i $SSHKEY mymachine:project//pull
-    - pgoctl -i $SSHKEY mymachine:project//build
-    - pgoctl -i $SSHKEY mymachine:project//up
+    - pgoctl -i '$SSHKEY' mymachine:project//pull
+    - pgoctl -i '$SSHKEY' mymachine:project//build
+    - pgoctl -i '$SSHKEY' mymachine:project//up
   when: manual
 
 stop_production:
   resource_group: production
   stage: deploy
   script:
-    - pgoctl -i $SSHKEY mymachine:project//down
+    - pgoctl -i '$SSHKEY' mymachine:project//down
   environment:
     name: production
     action: stop
@@ -146,11 +146,11 @@ use the environment variable `SSHKEY` as the private key for ssh-ing into `mymac
 
 ## pgod
 
-See the (soon to be created) manual page in cmd/pgod.
+See the manual page in cmd/pgod.
 
 ## pgoctl
 
-See the (soon to be created) manual page in cmd/pgoctl.
+See the manual page in cmd/pgoctl.
 
 # TODO
 
