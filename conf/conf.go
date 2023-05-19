@@ -48,7 +48,7 @@ func Parse(doc []byte) (*Config, error) {
 }
 
 func (s *Service) InitGitAndCompose() error {
-	dir, err := ioutil.TempDir(os.TempDir(), "pgo-*")
+	dir, err := ioutil.TempDir(os.TempDir(), "pgo-"+s.Name)
 	if err != nil {
 		return err
 	}
