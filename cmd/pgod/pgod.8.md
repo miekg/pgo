@@ -20,10 +20,28 @@ pgod - watch a git repository, pull changes and restart the podman compose servi
 `pgod` clones and pulls all repositories that are defined in the config file. It then exposes a SSH
 interface (on port 2222) which you can interact with using pgoctl(1) or plain ssh(1) (not tested).
 
-It then directs podman-compose to pull, build and start the containers defined in the
-`docker-compose.yml` file. With pgoctl(1) you can then interact with these services. You can "up",
-"down", "ps", "pull", "logs", and "ping" currently. The syntax exposed is
-`<servicename>//<command>`, i.e. `pgo//ps`.
+Each compose file runs under it's own user-account. That account can then access storage, or
+databases it has access too - provisioning that stuff is out-of-scope - assuming your infra can deal
+with all that stuff. And make that available on each server.
+
+Servers running pgod(8) as still special in some regard, a developers needs to know which server runs
+their compose file *and* you need to administrate who own which port numbers. Moving services to a
+different machine is as easy as starting the compose there, but you need to make sure your infra
+also updates externals records (DNS for example).
+
+The interface into `pgod` is via SSH, but not the normal SSH running on the server, this is a
+completely seperate SSH interface implemented by both `pgod` and `pgoctl`.
+
+The main idea here is that developers can push stuff easier to production and that you can have some
+of the goodies from Kubernetes, but not that bad stuff like the networking - the big trade-off being
+you need to administrate port numbers *and* still run some proxy to forward URLs to the correct
+backend.
+
+For each repository it directs podman-compose to pull, build and start the containers defined in the
+`docker-compose.yml` file. Whenever this compose file changes this is redone.
+
+With pgoctl(1) you can then interact with these services. You can "up", "down", "ps", "pull",
+"logs", and "ping" currently. The syntax exposed is `<servicename>//<command>`, i.e. `pgo//ps`.
 
 The options are:
 

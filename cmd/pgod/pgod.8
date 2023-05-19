@@ -16,10 +16,33 @@ pgod - watch a git repository, pull changes and restart the podman compose servi
 interface (on port 2222) which you can interact with using pgoctl(1) or plain ssh(1) (not tested).
 
 .PP
-It then directs podman-compose to pull, build and start the containers defined in the
-\fB\fCdocker-compose.yml\fR file. With pgoctl(1) you can then interact with these services. You can "up",
-"down", "ps", "pull", "logs", and "ping" currently. The syntax exposed is
-\fB\fC<servicename>//<command>\fR, i.e. \fB\fCpgo//ps\fR.
+Each compose file runs under it's own user-account. That account can then access storage, or
+databases it has access too - provisioning that stuff is out-of-scope - assuming your infra can deal
+with all that stuff. And make that available on each server.
+
+.PP
+Servers running pgod(8) as still special in some regard, a developers needs to know which server runs
+their compose file \fIand\fP you need to administrate who own which port numbers. Moving services to a
+different machine is as easy as starting the compose there, but you need to make sure your infra
+also updates externals records (DNS for example).
+
+.PP
+The interface into \fB\fCpgod\fR is via SSH, but not the normal SSH running on the server, this is a
+completely seperate SSH interface implemented by both \fB\fCpgod\fR and \fB\fCpgoctl\fR.
+
+.PP
+The main idea here is that developers can push stuff easier to production and that you can have some
+of the goodies from Kubernetes, but not that bad stuff like the networking - the big trade-off being
+you need to administrate port numbers \fIand\fP still run some proxy to forward URLs to the correct
+backend.
+
+.PP
+For each repository it directs podman-compose to pull, build and start the containers defined in the
+\fB\fCdocker-compose.yml\fR file. Whenever this compose file changes this is redone.
+
+.PP
+With pgoctl(1) you can then interact with these services. You can "up", "down", "ps", "pull",
+"logs", and "ping" currently. The syntax exposed is \fB\fC<servicename>//<command>\fR, i.e. \fB\fCpgo//ps\fR.
 
 .PP
 The options are:
@@ -98,8 +121,8 @@ put in \fB\fCssh\fR subdirectory in the top level of your repository. The \fBpri
 combination with pgoctl(1).
 
 .PP
-The generated key can't have a passphrase, to generate use: \fB\fCssh-keygen -t rsa -f id_pgo\fR. And copy
-and commit \fB\fCid_pgo.pub\fR to the ssh directory.
+The generated key can't have a passphrase, to generate use: \fB\fCssh-keygen -t ed25519 -f ssh/id_pgo\fR.
+And add and commit \fB\fCid_pgo.pub\fR.
 
 .SH "METRICS"
 .PP

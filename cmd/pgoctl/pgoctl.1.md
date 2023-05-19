@@ -32,85 +32,38 @@ and must be quoted, i.e. it should not be expanded by the shell.
 **--port, -p port**
 :  remote port number to use (defaults to 2222)
 
-# EVERY BELOW HERE NEEDS UPDATING FOR PGOCTL - NOW SHOWS GITOPPER
+Start pgod(8) and look at some services:
 
 ~~~
-./gitopperctl -i ~/.ssh/id_ed25519_gitopper list machine @<host>
-./gitopperctl list service @<host>
-./gitopperctl list service  @<host> <service>
+% sudo ./cmd/pgod/pgod -c config.toml
+2023/05/19 08:34:47 [INFO ] Service "pgo" with upstream "https://github.com/miekg/pgo"
+2023/05/19 08:34:47 [INFO ] Launched tracking routine for "pgo"
+2023/05/19 08:34:47 [INFO ] Launched servers on port :2222 (ssh)
 ~~~
 
-In order:
-
-1. List all machines defined in the config file for gitopper running on `<host>`.
-2. List all services that are controlled on `<host>`.
-3. List a specific service on `<host>`.
-
-Each will output a simple table with the information:
+Then up the services, if not done already:
 
 ~~~
-./gitopperctl list service @localhost grafana-server
-SERVICE         HASH      STATE  INFO  SINCE
-grafana-server  606eb576  OK           2022-11-18 13:29:44.824004812 +0000 UTC
+% cmd/pgoctl/pgoctl -i ssh/id_pgo4 localhost:pgo//up
+61380c3c0cbe9827f335b5d6e7690d3a366317f755d87f969fcd9b1cb4b2254c
+['podman', '--version', '']
+using podman version: 3.4.4
+** excluding:  set()
+['podman', 'network', 'exists', 'pgo-3493677287_default']
+podman run --name=pgo-3493677287_frontend_1 ..... -p 8080 -w / busybox /bin/busybox httpd -f -p 8080
+exit code: 0%
 ~~~
 
-Use `--help` to show implemented subcommands.
-
-### Manipulating Services
-
-## Example
-
-This is a small example of this tool interacting with the daemon.
-
-- check current service
+Looking at the `ps`:
 
 ~~~
-./gitopperctl list service @localhost grafana-server
-SERVICE         HASH      STATE  INFO  SINCE
-grafana-server  606eb576  OK           0001-01-01 00:00:00 +0000 UTC
-~~~
-
--  rollback
-
-~~~
-./gitopperctl do rollback @localhost grafana-server 8df1b3db679253ba501d594de285cc3e9ed308ed
-~~~
-
-- check
-~~~
-./gitopperctl list service @localhost grafana-server
-SERVICE         HASH      STATE     INFO                                      SINCE
-grafana-server  606eb576  ROLLBACK  8df1b3db679253ba501d594de285cc3e9ed308ed  2022-11-18 13:28:42.619731556 +0000 UTC
-~~~
-
-- check do, rollback done. Now state is FREEZE
-
-~~~
-./gitopperctl list service @localhost grafana-server
-SERVICE         HASH      STATE   INFO                                                      SINCE
-grafana-server  8df1b3db  FREEZE  ROLLBACK: 8df1b3db679253ba501d594de285cc3e9ed308ed  2022-11-18 13:29:17.92401403 +0000 UTC
-~~~
-
-- unfreeze and let it pick up changes again
-
-~~~
-./gitopperctl do unfreeze @localhost grafana-server
-~~~
-
-- check the service
-
-~~~
-./gitopperctl list service @localhost grafana-server
-SERVICE         HASH      STATE  INFO  SINCE
-grafana-server  8df1b3db  OK           2022-11-18 13:29:44.824004812 +0000 UTC
-~~~
-
-- and updated to new hash
-
-~~~
-./gitopperctl list service @localhost grafana-server
-SERVICE         HASH      STATE  INFO  SINCE
-grafana-server  606eb576  OK           2022-11-18 13:29:44.824004812 +0000 UTC
+% cmd/pgoctl/pgoctl -i ssh/id_pgo4 localhost:pgo//ps
+CONTAINER ID  IMAGE                             COMMAND               CREATED             STATUS                 PORTS                    NAMES
+61380c3c0cbe  docker.io/library/busybox:latest  /bin/busybox http...  About a minute ago  Up About a minute ago  0.0.0.0:36391->8080/tcp  pgo-3493677287_frontend_1
+['podman', '--version', '']
+using podman version: 3.4.4
+podman ps -a --filter label=io.podman.compose.project=pgo-3493677287
+exit code: 0%
 ~~~
 
 ## Also See
