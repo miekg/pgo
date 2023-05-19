@@ -90,8 +90,8 @@ All remote access is authenticated and encrypted using SSH. The **public** keys 
 put in `ssh` subdirectory in the top level of your repository. The **private** is used in
 combination with pgoctl(1).
 
-The generated key can't have a passphrase, to generate use: `ssh-keygen -t rsa -f id_pgo`. And copy
-and commit `id_pgo.pub` to the ssh directory.
+The generated key can't have a passphrase, to generate use: `ssh-keygen -t ed25519 -f ssh/id_pgo`.
+And add and commit `id_pgo.pub`.
 
 ## Metrics
 
