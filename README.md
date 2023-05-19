@@ -155,3 +155,4 @@ See the (soon to be created) manual page in cmd/pgoctl.
 # TODO
 
 - Tailing logs with -f.
+- Cleaning up the podman-compose output.
