@@ -7,7 +7,7 @@ packages, "pgo" uses a `docker-compose.yml` as it's basis. It runs the compose v
 easy to use.
 
 Each compose file runs under it's own user-account. That account can then access storage, or
-databases it has access too - provisioning that stuff is out-of-scope - assuming your infra can deal
+databases it has access to - provisioning that stuff is out-of-scope - assuming your infra can deal
 with all that stuff. And make that available on each server.
 
 Servers running "pgo" as still special in some regard, a developers needs to know which server runs
@@ -146,11 +146,11 @@ use the environment variable `SSHKEY` as the private key for ssh-ing into `mymac
 
 ## pgod
 
-See the manual page in cmd/pgod.
+See the [manual page](./cmd/pgod/pgod.8.md) in [cmd/pgod](./cmd/pgod/).
 
 ## pgoctl
 
-See the manual page in cmd/pgoctl.
+See the [manual page](./cmd/pgoctl/pgoctl.1.md) in [cmd/pgoctl](./cmd/pgoctl).
 
 # TODO
 
