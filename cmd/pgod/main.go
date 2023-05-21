@@ -23,6 +23,7 @@ type ExecContext struct {
 	Debug        bool
 	Restart      bool
 	Root         bool
+	Dir          string
 	Duration     time.Duration
 }
 
@@ -33,15 +34,17 @@ func (exec *ExecContext) RegisterFlags(fs *flag.FlagSet) {
 	fs.SortFlags = false
 	fs.StringVarP(&exec.ConfigSource, "config", "c", "", "config file to read")
 	fs.StringVarP(&exec.SAddr, "ssh", "s", ":2222", "ssh address to listen on")
-	fs.BoolVarP(&exec.Debug, "debug", "d", false, "enable debug logging")
-	fs.BoolVarP(&exec.Restart, "restart", "r", false, "send SIGHUP when config changes")
-	fs.BoolVarP(&exec.Root, "root", "o", true, "require root permission, setting to false can aid in debugging")
+	fs.StringVarP(&exec.Dir, "dir", "d", ":2222", "ssh address to listen on")
+	fs.BoolVarP(&exec.Debug, "debug", "", false, "enable debug logging")
+	fs.BoolVarP(&exec.Restart, "restart", "", false, "send SIGHUP when config changes")
+	fs.BoolVarP(&exec.Root, "root", "", true, "require root permission, setting to false can aid in debugging")
 	fs.DurationVarP(&exec.Duration, "duration", "t", 5*time.Minute, "default duration between pulls")
 }
 
 var (
 	ErrNotRoot  = errors.New("not root")
 	ErrNoConfig = errors.New("-c flag is mandatory")
+	ErrNoDir    = errors.New("-d flag is mandatory")
 	ErrHUP      = errors.New("hangup requested")
 )
 
@@ -86,6 +89,10 @@ func run(exec *ExecContext) error {
 		return ErrNoConfig
 	}
 
+	if exec.Dir == "" {
+		return ErrNoDir
+	}
+
 	doc, err := os.ReadFile(exec.ConfigSource)
 	if err != nil {
 		return fmt.Errorf("reading config: %v", err)
@@ -95,7 +102,7 @@ func run(exec *ExecContext) error {
 		return fmt.Errorf("parsing config: %v", err)
 	}
 	for _, s := range c.Services {
-		if err := s.InitGitAndCompose(); err != nil {
+		if err := s.InitGitAndCompose(exec.Dir); err != nil {
 			return err
 		}
 	}

@@ -10,7 +10,6 @@ func TestValidConfig(t *testing.T) {
 [[services]]
 name = "bliep"
 user = "miekg"
-group = "miekg"
 repository = "https://gitlab.science.ru.nl/bla/bliep"
 urls = { "slashdot.org" = ":303" }
 ports = [ "5005/5", "1025/5" ]
