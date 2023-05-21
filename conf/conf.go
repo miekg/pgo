@@ -147,26 +147,26 @@ func (s *Service) Track(ctx context.Context, duration time.Duration) {
 	log.Infof("Launched tracking routine for %q", s.Name)
 
 	if err := s.Git.Checkout(); err != nil {
-		log.Warningf("Failed to do (initial) checkout: %v", err)
+		log.Warningf("[%s]: Failed to do (initial) checkout: %v", s.Name, err)
 		return
 	}
 	if _, err := s.Git.Pull(nil); err != nil {
-		log.Warningf("Failed to pull: %v", err)
+		log.Warningf("[%s]: Failed to pull: %v", s.Name, err)
 		return
 	}
 	if err := s.Git.Branch(s.Branch); err != nil {
-		log.Warningf("Failed to checkout branch %s: %v", s.Branch, err)
+		log.Warningf("[%s]: Failed to checkout branch %s: %v", s.Name, s.Branch, err)
 		return
 	}
 	pubkeys, err := s.PublicKeys()
 	if err != nil {
-		log.Warningf("Failed to get public keys: %v", err)
+		log.Warningf("[%s]: Failed to get public keys: %v", s.Name, err)
 	}
 
-	log.Infof("Checked out git repo in %s for %q (branch %s) with %d configured public keys", s.dir, s.Name, s.Branch, len(pubkeys))
+	log.Infof("[%s]: Checked out git repo in %s for %q (branch %s) with %d configured public keys", s.Name, s.dir, s.Name, s.Branch, len(pubkeys))
 
 	if _, err := s.Compose.AllowedPorts(); err != nil {
-		log.Warningf("Port usage outside of allowed ranges: %v", err)
+		log.Warningf("Port usage outside of allowed ranges: %v", s.Name, err)
 	} else {
 		s.Compose.Pull()
 		s.Compose.Build()
@@ -182,7 +182,7 @@ func (s *Service) Track(ctx context.Context, duration time.Duration) {
 
 		changed, err := s.Git.Pull(cli.DefaultFileNames)
 		if err != nil {
-			log.Warningf("Failed to pull: %v", err)
+			log.Warningf("[%s]: Failed to pull: %v", s.Name, err)
 			continue
 		}
 		if !changed {
@@ -190,7 +190,7 @@ func (s *Service) Track(ctx context.Context, duration time.Duration) {
 		}
 
 		if _, err := s.Compose.AllowedPorts(); err != nil {
-			log.Warningf("Port usage outside of allowed ranges: %v", err)
+			log.Warningf("[%s]: Port usage outside of allowed ranges: %v", s.Name, err)
 			continue
 		}
 

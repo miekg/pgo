@@ -93,7 +93,7 @@ func (g *Git) Pull(names []string) (bool, error) {
 		return false, err
 	}
 
-	out, err := g.run("pull", "--stat", "origin", g.branch)
+	out, err := g.run("pull", "--stat", "--ff-only", "origin", g.branch)
 	if err != nil {
 		return false, err
 	}
@@ -123,4 +123,4 @@ func (g *Git) Rollback(hash string) error {
 }
 
 func (g *Git) Stash() error           { _, err := g.run("stash"); return err }
-func (g *Git) Branch(br string) error { _, err := g.run("checkout", "-b", br); return err }
+func (g *Git) Branch(br string) error { _, err := g.run("checkout", br); return err }

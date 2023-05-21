@@ -34,7 +34,7 @@ func (exec *ExecContext) RegisterFlags(fs *flag.FlagSet) {
 	fs.SortFlags = false
 	fs.StringVarP(&exec.ConfigSource, "config", "c", "", "config file to read")
 	fs.StringVarP(&exec.SAddr, "ssh", "s", ":2222", "ssh address to listen on")
-	fs.StringVarP(&exec.Dir, "dir", "d", ":2222", "ssh address to listen on")
+	fs.StringVarP(&exec.Dir, "dir", "d", "", "directory to check out the git repositories")
 	fs.BoolVarP(&exec.Debug, "debug", "", false, "enable debug logging")
 	fs.BoolVarP(&exec.Restart, "restart", "", false, "send SIGHUP when config changes")
 	fs.BoolVarP(&exec.Root, "root", "", true, "require root permission, setting to false can aid in debugging")
@@ -138,7 +138,7 @@ func run(exec *ExecContext) error {
 	if err := serveSSH(exec, &controllerWG, &workerWG, sshHandler); err != nil {
 		return err
 	}
-	log.Infof("Launched servers on port %s (ssh)", exec.SAddr)
+	log.Infof("Launched servers on port %s (ssh) with %d services tracked", exec.SAddr, len(c.Services))
 
 	done := make(chan os.Signal, 1)
 	signal.Notify(done, syscall.SIGINT, syscall.SIGTERM, syscall.SIGHUP)
