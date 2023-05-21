@@ -1,6 +1,6 @@
 # PGO
 
-Podman Git Operation. This is a subsequent development (or successor?) of
+Podman Gitops. This is a subsequent development (or successor?) of
 <https://github.com/miekg/gitopper>. Where "gitopper" integrates with your OS, i.e. use Debian
 packages, "pgo" uses a `docker-compose.yml` as it's basis. It runs the compose via `podman-compose`
 (Debian package exists). It allows for remote interaction via an SSH interface, which `pgoctl` makes
@@ -33,7 +33,7 @@ A typical config file looks like this:
 name = "pgo"
 user = "miek"
 repository = "https://github.com/miekg/pgo"
-branch = "main"
+branch = "main" # defaults to main, is omitted.
 urls = { "pgo.science.ru.nl" = "5007" }
 ports = [ "5005/5", "1025/5" ]
 ```
@@ -54,7 +54,7 @@ To go over this file:
 To use "pgo" your project MUST have:
 
 - A public SSH key (or keys) stored in a `ssh/` directory in your git repo.
-- A `docker-compose.yml` in the top-level of your git repo.
+- A `docker-compose.yml` (or any of the variants) in the top-level of your git repo.
 
 ## Quick Start
 

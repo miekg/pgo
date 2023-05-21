@@ -83,7 +83,7 @@ this:
 .nf
 [[services]]
 name = "pgo"
-user = "miek"  # under which user to run the podman
+user = "miek"
 repository = "https://github.com/miekg/pgo"
 branch = "main"
 urls = { "example.org" = ":5006" }
@@ -104,7 +104,8 @@ user
 no relation to the SSH user connecting to \fB\fCpgod\fR. I.e. it could be \fB\fCnobody\fR.
 .TP
 repository \fIand\fP branch
-\fB\fChttps://github.com/miekg/pgo\fR and \fB\fCmain\fR, where to clone and pull from.
+\fB\fChttps://github.com/miekg/pgo\fR and \fB\fCmain\fR, where to clone and pull from. If branch is not
+specified \fB\fCmain\fR is assumed.
 .TP
 urls
 \fB\fC{ "example.org" = ":5006" }\fR how to setup any forwarding to the listening ports. This isn't used yet,

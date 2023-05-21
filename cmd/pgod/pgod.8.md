@@ -76,7 +76,7 @@ this:
 ~~~ toml
 [[services]]
 name = "pgo"
-user = "miek"  # under which user to run the podman
+user = "miek"
 repository = "https://github.com/miekg/pgo"
 branch = "main"
 urls = { "example.org" = ":5006" }
@@ -93,7 +93,8 @@ user
 no relation to the SSH user connecting to `pgod`. I.e. it could be `nobody`.
 
 repository *and* branch
-: `https://github.com/miekg/pgo` and `main`, where to clone and pull from.
+: `https://github.com/miekg/pgo` and `main`, where to clone and pull from. If branch is not
+specified `main` is assumed.
 
 urls
 : `{ "example.org" = ":5006" }` how to setup any forwarding to the listening ports. This isn't used yet,
