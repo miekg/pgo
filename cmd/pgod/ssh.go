@@ -67,48 +67,21 @@ func newRouter(c *conf.Config) ssh.Handler {
 
 		}
 		log.Infof("Routing to %q for user %q", command, ses.User())
-		route(s, ses, args)
+		out, err := route(s, args)
+		exitSession(ses, out, err)
 		return
 	}
 }
 
-var routes = map[string]func(*conf.Service, ssh.Session, []string){
-	"up":   ComposeUp,
-	"down": ComposeDown,
-	"ps":   ComposePs,
-	"pull": ComposePull,
-	"logs": ComposeLogs,
-	"ping": Ping,
-}
-
-func ComposeUp(s *conf.Service, ses ssh.Session, _ []string) {
-	out, err := s.Compose.Up()
-	exitSession(ses, out, err)
-}
-
-func ComposeDown(s *conf.Service, ses ssh.Session, _ []string) {
-	out, err := s.Compose.Down()
-	exitSession(ses, out, err)
-}
-
-func ComposePs(s *conf.Service, ses ssh.Session, _ []string) {
-	out, err := s.Compose.Ps()
-	exitSession(ses, out, err)
-}
-
-func ComposePull(s *conf.Service, ses ssh.Session, _ []string) {
-	out, err := s.Compose.Pull()
-	exitSession(ses, out, err)
-}
-
-func ComposeLogs(s *conf.Service, ses ssh.Session, _ []string) {
-	out, err := s.Compose.Logs()
-	exitSession(ses, out, err)
-}
-
-func Ping(s *conf.Service, ses ssh.Session, _ []string) {
-	out := []byte("pong! - " + osutil.Hostname())
-	exitSession(ses, out, nil)
+var routes = map[string]func(s *conf.Service, args []string) ([]byte, error){
+	"up":   func(c *conf.Service, args []string) ([]byte, error) { return c.Compose.Up(args) },
+	"down": func(c *conf.Service, args []string) ([]byte, error) { return c.Compose.Down(args) },
+	"ps":   func(c *conf.Service, args []string) ([]byte, error) { return c.Compose.Ps(args) },
+	"pull": func(c *conf.Service, args []string) ([]byte, error) { return c.Compose.Pull(args) },
+	"logs": func(c *conf.Service, args []string) ([]byte, error) { return c.Compose.Logs(args) },
+	"ping": func(c *conf.Service, _ []string) ([]byte, error) {
+		return []byte("pong! - " + osutil.Hostname() + "\n"), nil
+	},
 }
 
 // parseCommand parses: dhz//ps in name (dhz) and command (status) and optional args after it, split on space.
