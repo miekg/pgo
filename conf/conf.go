@@ -150,20 +150,25 @@ func (s *Service) Track(ctx context.Context, duration time.Duration) {
 		log.Warningf("[%s]: Failed to do (initial) checkout: %v", s.Name, err)
 		return
 	}
+	var errok error
 	if _, err := s.Git.Pull(nil); err != nil {
 		log.Warningf("[%s]: Failed to pull: %v", s.Name, err)
-		return
+		errok = err
 	}
 	if err := s.Git.Branch(s.Branch); err != nil {
 		log.Warningf("[%s]: Failed to checkout branch %s: %v", s.Name, s.Branch, err)
-		return
+		errok = err
 	}
 	pubkeys, err := s.PublicKeys()
 	if err != nil {
 		log.Warningf("[%s]: Failed to get public keys: %v", s.Name, err)
 	}
 
-	log.Infof("[%s]: Checked out git repo in %s for %q (branch %s) with %d configured public keys", s.Name, s.dir, s.Name, s.Branch, len(pubkeys))
+	if errok == nil {
+		log.Infof("[%s]: Checked out git repo in %s for %q (branch %s) with %d configured public keys", s.Name, s.dir, s.Name, s.Branch, len(pubkeys))
+	} else {
+		log.Infof("[%s]: Git repo exist, will fix state in next iteration, last error: %v", s.Name, errok)
+	}
 
 	if _, err := s.Compose.AllowedPorts(); err != nil {
 		log.Warningf("Port usage outside of allowed ranges: %v", s.Name, err)
