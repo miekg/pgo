@@ -36,16 +36,16 @@ Start pgod(8) and look at some services:
 
 ~~~
 % sudo ./cmd/pgod/pgod -d /tmp -c pgo.toml
-INFO ] Service "pgo" with upstream "https://github.com/miekg/pgo"
-INFO ] Launched tracking routine for "pgo"
-INFO ] Launched servers on port :2222 (ssh) with 1 services tracked
-INFO ] Reading public key "/tmp/pgo-pgo/ssh/id_pgo.pub"
-INFO ] Reading public key "/tmp/pgo-pgo/ssh/id_pgo3.pub"
-INFO ] Reading public key "/tmp/pgo-pgo/ssh/id_pgo4.pub"
-INFO ] [pgo]: Checked out git repo in /tmp/pgo-pgo for "pgo" (branch main) with 3 configured public keys
-INFO ] Service "pgo" with upstream "https://github.com/miekg/pgo"
-INFO ] Launched tracking routine for "pgo"
-INFO ] Launched servers on port :2222 (ssh)
+[INFO ] Service "pgo" with upstream "https://github.com/miekg/pgo"
+[INFO ] Launched tracking routine for "pgo"
+[INFO ] Launched servers on port :2222 (ssh) with 1 services tracked
+[INFO ] Reading public key "/tmp/pgo-pgo/ssh/id_pgo.pub"
+[INFO ] Reading public key "/tmp/pgo-pgo/ssh/id_pgo3.pub"
+[INFO ] Reading public key "/tmp/pgo-pgo/ssh/id_pgo4.pub"
+[INFO ] [pgo]: Checked out git repo in /tmp/pgo-pgo for "pgo" (branch main) with 3 configured public keys
+[INFO ] Service "pgo" with upstream "https://github.com/miekg/pgo"
+[INFO ] Launched tracking routine for "pgo"
+[INFO ] Launched servers on port :2222 (ssh)
 ~~~
 
 Then up the services, if not done already:

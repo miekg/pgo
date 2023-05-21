@@ -64,16 +64,16 @@ Start `pgod`: `sudo ./cmd/pgod/pgod -c config.toml -d /tmp --debug`. That will o
 data, condensed here:
 
 ~~~ txt
-2023/05/17 20:13:20 [INFO ] Service "pgo" with upstream "https://github.com/miekg/pgo"
-2023/05/17 20:13:20 [INFO ] Launched tracking routine for "pgo"
-2023/05/17 20:13:20 [INFO ] Launched servers on port :2222 (ssh)
-2023/05/17 20:13:20 [DEBUG] running in "/tmp/pgo-pgo" as "miek" [git clone -b main https://github.com/miekg/pgo /tmp/pgo-3809413984]
-2023/05/17 20:13:20 [DEBUG] Cloning into '/tmp/pgo-pgo'...
-2023/05/17 20:13:20 [INFO ] Checked out git repo in /tmp/pgo-pgo for "pgo"
-2023/05/17 20:13:20 [DEBUG] running in "/tmp/pgo-pgo" as "miek" [podman-compose build] (env: [HOME=/home/miek PATH=/usr/sbin:/usr/bin:/sbin:/bin])
-2023/05/17 20:13:21 [DEBUG] ['podman', '--version', '']
+[INFO ] Service "pgo" with upstream "https://github.com/miekg/pgo"
+[INFO ] Launched tracking routine for "pgo"
+[INFO ] Launched servers on port :2222 (ssh)
+[DEBUG] running in "/tmp/pgo-pgo" as "miek" [git clone -b main https://github.com/miekg/pgo /tmp/pgo-3809413984]
+[DEBUG] Cloning into '/tmp/pgo-pgo'...
+[INFO ] Checked out git repo in /tmp/pgo-pgo for "pgo"
+[DEBUG] running in "/tmp/pgo-pgo" as "miek" [podman-compose build] (env: [HOME=/home/miek PATH=/usr/sbin:/usr/bin:/sbin:/bin])
+[DEBUG] ['podman', '--version', '']
 using podman version: 3.4.4
-2023/05/17 20:13:21 [DEBUG] running in "/tmp/pgo-pgo" as "miek" [podman-compose up -d] (env: [HOME=/home/miek PATH=/usr/sbin:/usr/bin:/sbin:/bin])
+[DEBUG] running in "/tmp/pgo-pgo" as "miek" [podman-compose up -d] (env: [HOME=/home/miek PATH=/usr/sbin:/usr/bin:/sbin:/bin])
 ~~~
 
 In other words: it clones the repo, builds, pulls, and starts the containers. It then *tracks*
