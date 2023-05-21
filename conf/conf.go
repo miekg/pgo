@@ -182,8 +182,16 @@ func (s *Service) Track(ctx context.Context, duration time.Duration) {
 
 		changed, err := s.Git.Pull(cli.DefaultFileNames)
 		if err != nil {
-			log.Warningf("[%s]: Failed to pull: %v", s.Name, err)
-			continue
+			log.Warningf("[%s]: Failed to pull: %v, deleting repository in %d, and cloning again", s.Name, err)
+			if err := s.Git.RemoveAll(); err != nil {
+				log.Errorf("[%s]: Failed to remove repository: %v", s.Name, err)
+				continue
+			}
+			if err := s.Git.Checkout(); err != nil {
+				log.Warningf("[%s]: Failed to do checkout: %v", s.Name, err)
+				continue
+			}
+			changed = true // force action
 		}
 		if !changed {
 			continue

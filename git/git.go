@@ -124,3 +124,4 @@ func (g *Git) Rollback(hash string) error {
 
 func (g *Git) Stash() error           { _, err := g.run("stash"); return err }
 func (g *Git) Branch(br string) error { _, err := g.run("checkout", br); return err }
+func (g *Git) RemoveAll() error       { err := os.RemoveAll(g.dir); return err }
