@@ -90,9 +90,6 @@ user
 : `miek`, run podman under this user. This username only need to exist on the target machine and has
 no relation to the SSH user connecting to `pgod`. I.e. it could be `nobody`.
 
-group
-: `miek`, run podman with this group. Not used at the moment, the primary group of "user" is used.
-
 repository *and* branch
 : `https://github.com/miekg/pgo` and `main`, where to clone and pull from.
 
