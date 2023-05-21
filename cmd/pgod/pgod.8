@@ -38,7 +38,9 @@ backend.
 
 .PP
 For each repository it directs podman-compose to pull, build and start the containers defined in the
-\fB\fCdocker-compose.yml\fR file. Whenever this compose file changes this is redone.
+\fB\fCdocker-compose.yml\fR file. Whenever this compose file changes this is redone. Current the following
+compose file variants are supported: "compose.yaml", "compose.yml", "docker-compose.yml" and
+"docker-compose.yaml".
 
 .PP
 With pgoctl(1) you can then interact with these services. You can "up", "down", "ps", "pull",
@@ -54,17 +56,20 @@ config file to read
 \fB-s, --ssh string\fP
 ssh address to listen on (default ":2222")
 .TP
-\fB-d, --debug\fP
-enable debug logging
-.TP
-\fB-r, --restart\fP
-send SIGHUP to ourselves when config changes
-.TP
-\fB-o, --root\fP
-require root permission, setting to false can aid in debugging (default true)
-.TP
 \fB-t, --duration duration\fP
 default duration between pulls (default 5m0s)
+.TP
+\fB-d, --dir string\fP
+directory where to check out the git repositories
+.TP
+\fB--debug\fP
+enable debug logging
+.TP
+\fB--restart\fP
+send SIGHUP to ourselves when config changes
+.TP
+\fB--root\fP
+require root permission, setting to false can aid in debugging (default true)
 
 
 .SH "CONFIG FILE"
@@ -79,7 +84,6 @@ this:
 [[services]]
 name = "pgo"
 user = "miek"  # under which user to run the podman
-group = "miek" # which group to run the podman // not used atm
 repository = "https://github.com/miekg/pgo"
 branch = "main"
 urls = { "example.org" = ":5006" }
@@ -98,9 +102,6 @@ name
 user
 \fB\fCmiek\fR, run podman under this user. This username only need to exist on the target machine and has
 no relation to the SSH user connecting to \fB\fCpgod\fR. I.e. it could be \fB\fCnobody\fR.
-.TP
-group
-\fB\fCmiek\fR, run podman with this group. Not used at the moment, the primary group of "user" is used.
 .TP
 repository \fIand\fP branch
 \fB\fChttps://github.com/miekg/pgo\fR and \fB\fCmain\fR, where to clone and pull from.

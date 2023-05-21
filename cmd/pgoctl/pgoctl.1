@@ -58,7 +58,7 @@ Then up the services, if not done already:
 using podman version: 3.4.4
 ** excluding:  set()
 ['podman', 'network', 'exists', 'pgo\-3493677287\_default']
-podman run \-\-name=pgo\-3493677287\_frontend\_1 \-d \-\-label my.label=my\_value \-\-label io.podman.compose.config\-hash=123 \-\-label io.podman.compose.project=pgo\-3493677287 \-\-label io.podman.compose.version=0.0.1 \-\-label com.docker.compose.project=pgo\-3493677287 \-\-label com.docker.compose.project.working\_dir=/tmp/pgo\-3493677287 \-\-label com.docker.compose.project.config\_files=docker\-compose.yml \-\-label com.docker.compose.container\-number=1 \-\-label com.docker.compose.service=frontend \-e SECRET\_KEY2=aabbcc \-e ENV\_IS\_SET2 \-\-net pgo\-3493677287\_default \-\-network\-alias frontend \-p 8080 \-w / busybox /bin/busybox httpd \-f \-p 8080
+podman run \-\-name=pgo\-3493677287\_frontend\_1 ..... \-p 8080 \-w / busybox /bin/busybox httpd \-f \-p 8080
 exit code: 0%
 
 .fi
