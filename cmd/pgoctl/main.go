@@ -64,9 +64,10 @@ func parseCommand(s string) (machine, name, command string, error error) {
 		return "", "", "", fmt.Errorf("expected machine:name//command, got %s", s)
 	}
 	machine = items[0]
-	items = strings.Split(items[1], "//")
+	rest := items[1]
+	items = strings.Split(rest, "//")
 	if len(items) != 2 {
-		return "", "", "", fmt.Errorf("expected name//command, got %s", items[1])
+		return "", "", "", fmt.Errorf("expected name//command, got %s", rest)
 	}
 	name = items[0]
 	command = items[1]

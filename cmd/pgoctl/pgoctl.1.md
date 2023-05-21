@@ -22,9 +22,9 @@ pgoctl is an utility to inspect and control pgod(8) remotely.
 There are only a few options:
 
 **-i value**
-: identity file to use for SSH, this flag is mandatory. You can use `'$VAR'` then the private key
-will be read from the environment variable `VAR`. Note the "$" must be the first character of value
-and must be quoted, i.e. it should not be expanded by the shell.
+: identity file to use for SSH, this flag is mandatory, but if an environment variable named
+"PGOCTL_ID" exists and has a value, that value will be used as the private key identity. If no
+such variable exist `-i` _is_ mandatory.
 
 **--help, -h**
 :  show help
@@ -35,10 +35,17 @@ and must be quoted, i.e. it should not be expanded by the shell.
 Start pgod(8) and look at some services:
 
 ~~~
-% sudo ./cmd/pgod/pgod -c config.toml
-2023/05/19 08:34:47 [INFO ] Service "pgo" with upstream "https://github.com/miekg/pgo"
-2023/05/19 08:34:47 [INFO ] Launched tracking routine for "pgo"
-2023/05/19 08:34:47 [INFO ] Launched servers on port :2222 (ssh)
+% sudo ./cmd/pgod/pgod -d /tmp -c pgo.toml
+INFO ] Service "pgo" with upstream "https://github.com/miekg/pgo"
+INFO ] Launched tracking routine for "pgo"
+INFO ] Launched servers on port :2222 (ssh) with 1 services tracked
+INFO ] Reading public key "/tmp/pgo-pgo/ssh/id_pgo.pub"
+INFO ] Reading public key "/tmp/pgo-pgo/ssh/id_pgo3.pub"
+INFO ] Reading public key "/tmp/pgo-pgo/ssh/id_pgo4.pub"
+INFO ] [pgo]: Checked out git repo in /tmp/pgo-pgo for "pgo" (branch main) with 3 configured public keys
+INFO ] Service "pgo" with upstream "https://github.com/miekg/pgo"
+INFO ] Launched tracking routine for "pgo"
+INFO ] Launched servers on port :2222 (ssh)
 ~~~
 
 Then up the services, if not done already:

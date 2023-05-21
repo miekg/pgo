@@ -13,17 +13,26 @@ import (
 )
 
 func querySSH(ctx context.Context, machine, command string, args []string) ([]byte, error) {
+	var (
+		key []byte
+		err error
+	)
 	ident := ctx.Value("i").(string)
-	if ident == "" {
-		return nil, fmt.Errorf("identity not given, -i flag")
+	switch ident {
+	default:
+		key, err = ioutil.ReadFile(ident)
+		if err != nil {
+			return nil, err
+		}
+	case "":
+		key, err = IDFromEnv()
+		if err != nil {
+			return nil, fmt.Errorf("identity not given, -i flag; %v", err)
+		}
 	}
 	port := ctx.Value("p").(string)
 	if port == "" {
 		port = "2222"
-	}
-	key, err := ioutil.ReadFile(ident)
-	if err != nil {
-		return nil, err
 	}
 
 	// Create the Signer for this private key.
@@ -62,21 +71,10 @@ func querySSH(ctx context.Context, machine, command string, args []string) ([]by
 	return stdoutBuf.Bytes(), err
 }
 
-// ReadIdent read the public key to get the identity for this call. If the string start with a $ it is assume to be
-// an enviroment variable, and *its* contents are then returned.
-func ReadIdent(ident string) ([]byte, error) {
-	if !strings.HasPrefix(ident, "$") {
-
-		key, err := ioutil.ReadFile(ident)
-		if err != nil {
-			return nil, err
-		}
-		return key, nil
-	}
-	envvar := strings.TrimPrefix(ident, "$")
-	key := os.Getenv(envvar)
+func IDFromEnv() ([]byte, error) {
+	key := os.Getenv("PGOCTL_ID")
 	if key == "" {
-		return nil, fmt.Errorf("no enviroment variable found with name: %q", envvar)
+		return nil, fmt.Errorf("no enviroment variable found with name: %q", "PGOCTL_ID")
 	}
 	return []byte(key), nil
 }
