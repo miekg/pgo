@@ -112,7 +112,7 @@ see a "pong!" reply if everything works.
 
 If you want to use PGO with GitLab you needs to setup
 [environments](https://docs.gitlab.com/ee/ci/environments/) that allow you to deploy to
-"production", here is an example gitlab-ci.yml that does this:
+"production", here is an example `.gitlab-ci.yml` that does this:
 
 ~~~ yaml
 image: "registry.science.ru.nl/cncz/sys/image/cncz-debian-go:latest"
