@@ -10,7 +10,7 @@ func TestValidConfig(t *testing.T) {
 name = "bliep"
 user = "miekg"
 repository = "https://gitlab.science.ru.nl/bla/bliep"
-urls = { "slashdot.org" = ":5005" }
+urls = { "slashdot.org" = 5005 }
 ports = [ "5005/5", "1025/5" ]
 `
 	_, err := Parse([]byte(conf))

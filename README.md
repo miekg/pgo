@@ -6,6 +6,9 @@ packages, "pgo" uses a `docker-compose.yml` as it's basis. It runs the compose v
 (Debian package exists). It allows for remote interaction via an SSH interface, which `pgoctl` makes
 easy to use.
 
+Current the following compose file variants are supported: "compose.yaml", "compose.yml",
+"docker-compose.yml" and "docker-compose.yaml".
+
 Each compose file runs under it's own user-account. That account can then access storage, or
 databases it has access too - provisioning that stuff is out-of-scope - assuming your infra can deal
 with all that stuff. And make that available on each server.

@@ -3,7 +3,6 @@ package compose
 import (
 	"fmt"
 	"os"
-	"path"
 	"strconv"
 
 	"github.com/compose-spec/compose-go/loader"
@@ -30,7 +29,7 @@ func LoadPorts(file string) ([]int, error) {
 	}
 	configs := []types.ConfigFile{
 		{
-			Filename: "docker-compose.yml",
+			Filename: file,
 			Config:   dict,
 		},
 	}
@@ -61,7 +60,8 @@ func LoadPorts(file string) ([]int, error) {
 // AllowedPorts checks if ports are allowed in the compose file. It returns the first port that is denied, or 0 if
 // they are all OK. Any other error is reported via the returned error.
 func (c *Compose) AllowedPorts() (int, error) {
-	ports, err := LoadPorts(path.Join(c.dir, "docker-compose.yml"))
+	comp := Find(c.dir)
+	ports, err := LoadPorts(comp)
 	if err != nil {
 		return 0, err
 	}

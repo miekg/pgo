@@ -15,6 +15,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/compose-spec/compose-go/cli"
 	"github.com/gliderlabs/ssh"
 	"github.com/miekg/pgo/compose"
 	"github.com/miekg/pgo/git"
@@ -165,7 +166,7 @@ func (s *Service) Track(ctx context.Context, duration time.Duration) {
 			return
 		}
 
-		changed, err := s.Git.Pull([]string{"docker-compose.yml"})
+		changed, err := s.Git.Pull(cli.DefaultFileNames)
 		if err != nil {
 			log.Warningf("Failed to pull: %v", err)
 			continue
