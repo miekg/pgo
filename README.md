@@ -31,7 +31,7 @@ name = "pgo"
 user = "miek"
 repository = "https://github.com/miekg/pgo"
 branch = "main"
-urls = { "pgo.science.ru.nl" = ":5007" }
+urls = { "pgo.science.ru.nl" = "5007" }
 ports = [ "5005/5", "1025/5" ]
 ```
 
@@ -57,20 +57,20 @@ To use "pgo" your project MUST have:
 
 Assuming a working Go compiler you can issue a `make` to compile the binaries. Then.
 
-Start `pgod`: `sudo ./cmd/pgod/pgod -c config.toml -d`. That will output some debug data, condensed
-here:
+Start `pgod`: `sudo ./cmd/pgod/pgod -c config.toml -d /tmp --debug`. That will output some debug
+data, condensed here:
 
 ~~~ txt
 2023/05/17 20:13:20 [INFO ] Service "pgo" with upstream "https://github.com/miekg/pgo"
 2023/05/17 20:13:20 [INFO ] Launched tracking routine for "pgo"
 2023/05/17 20:13:20 [INFO ] Launched servers on port :2222 (ssh)
-2023/05/17 20:13:20 [DEBUG] running in "/tmp/pgo-3809413984" as "miek" [git clone -b main https://github.com/miekg/pgo /tmp/pgo-3809413984]
-2023/05/17 20:13:20 [DEBUG] Cloning into '/tmp/pgo-3809413984'...
-2023/05/17 20:13:20 [INFO ] Checked out git repo in /tmp/pgo-3809413984 for "pgo"
-2023/05/17 20:13:20 [DEBUG] running in "/tmp/pgo-3809413984" as "miek" [podman-compose build] (env: [HOME=/home/miek PATH=/usr/sbin:/usr/bin:/sbin:/bin])
+2023/05/17 20:13:20 [DEBUG] running in "/tmp/pgo-pgo" as "miek" [git clone -b main https://github.com/miekg/pgo /tmp/pgo-3809413984]
+2023/05/17 20:13:20 [DEBUG] Cloning into '/tmp/pgo-pgo'...
+2023/05/17 20:13:20 [INFO ] Checked out git repo in /tmp/pgo-pgo for "pgo"
+2023/05/17 20:13:20 [DEBUG] running in "/tmp/pgo-pgo" as "miek" [podman-compose build] (env: [HOME=/home/miek PATH=/usr/sbin:/usr/bin:/sbin:/bin])
 2023/05/17 20:13:21 [DEBUG] ['podman', '--version', '']
 using podman version: 3.4.4
-2023/05/17 20:13:21 [DEBUG] running in "/tmp/pgo-3809413984" as "miek" [podman-compose up -d] (env: [HOME=/home/miek PATH=/usr/sbin:/usr/bin:/sbin:/bin])
+2023/05/17 20:13:21 [DEBUG] running in "/tmp/pgo-pgo" as "miek" [podman-compose up -d] (env: [HOME=/home/miek PATH=/usr/sbin:/usr/bin:/sbin:/bin])
 ~~~
 
 In other words: it clones the repo, builds, pulls, and starts the containers. It then *tracks*
@@ -94,10 +94,10 @@ Once our committed keys get pulled:
 ~~~
 % ./cmd/pgoctl/pgoctl -i ~/id_pgo2 localhost:pgo//ps
 CONTAINER ID  IMAGE                             COMMAND               CREATED        STATUS            PORTS                    NAMES
-4fe30f61c4db  docker.io/library/busybox:latest  /bin/busybox http...  3 seconds ago  Up 3 seconds ago  0.0.0.0:40475->8080/tcp  pgo-609353550_frontend_1
+4fe30f61c4db  docker.io/library/busybox:latest  /bin/busybox http...  3 seconds ago  Up 3 seconds ago  0.0.0.0:40475->8080/tcp  pgo-pgo_frontend_1
 ['podman', '--version', '']
 using podman version: 3.4.4
-podman ps -a --filter label=io.podman.compose.project=pgo-609353550
+podman ps -a --filter label=io.podman.compose.project=pgo-pgo
 exit code: 0%
 ~~~
 

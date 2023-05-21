@@ -68,7 +68,6 @@ func (c *Compose) AllowedPorts() (int, error) {
 	for _, p := range ports {
 		ok := false
 		for _, pr := range c.ports {
-			println(p, pr.Lo, pr.Hi)
 			if p >= pr.Lo && p <= pr.Hi {
 				ok = true
 			}
