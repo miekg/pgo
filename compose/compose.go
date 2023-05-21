@@ -53,9 +53,19 @@ func (c *Compose) run(args ...string) ([]byte, error) {
 
 func env(k, v string) string { return k + "=" + v }
 
-func (c *Compose) Build() ([]byte, error) { return c.run("build") }
-func (c *Compose) Down() ([]byte, error)  { return c.run("down") }
-func (c *Compose) Up() ([]byte, error)    { return c.run("up", "-d") }
-func (c *Compose) Pull() ([]byte, error)  { return c.run("pull") }
-func (c *Compose) Logs() ([]byte, error)  { return c.run("logs") } // logs -f needs more work
-func (c *Compose) Ps() ([]byte, error)    { return c.run("ps") }
+func (c *Compose) Build(args []string) ([]byte, error) {
+	return c.run(append([]string{"build"}, args...)...)
+}
+func (c *Compose) Down(args []string) ([]byte, error) {
+	return c.run(append([]string{"down"}, args...)...)
+}
+func (c *Compose) Up(args []string) ([]byte, error) {
+	return c.run(append([]string{"up", "-d"}, args...)...)
+}
+func (c *Compose) Pull(args []string) ([]byte, error) {
+	return c.run(append([]string{"pull"}, args...)...)
+}
+func (c *Compose) Logs(args []string) ([]byte, error) {
+	return c.run(append([]string{"logs"}, args...)...)
+}
+func (c *Compose) Ps(args []string) ([]byte, error) { return c.run(append([]string{"ps"}, args...)...) }

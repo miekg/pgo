@@ -173,9 +173,9 @@ func (s *Service) Track(ctx context.Context, duration time.Duration) {
 	if _, err := s.Compose.AllowedPorts(); err != nil {
 		log.Warningf("[%s]: Port usage outside of allowed ranges: %v", s.Name, err)
 	} else {
-		s.Compose.Pull()
-		s.Compose.Build()
-		s.Compose.Up()
+		s.Compose.Pull(nil)
+		s.Compose.Build(nil)
+		s.Compose.Up(nil)
 	}
 
 	for {
@@ -207,9 +207,9 @@ func (s *Service) Track(ctx context.Context, duration time.Duration) {
 			continue
 		}
 
-		s.Compose.Down()
-		s.Compose.Build()
-		s.Compose.Up()
+		s.Compose.Down(nil)
+		s.Compose.Build(nil)
+		s.Compose.Up(nil)
 	}
 }
 
