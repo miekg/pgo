@@ -1,7 +1,7 @@
-#[[services]]
-#name = "pgo"
-#user = "miek"
-#repository = "https://github.com/miekg/pgo"
-#branch = "main"
-#urls = { "slashdot.org" = 5010 }
-#ports = [ "5005/5", "1025/5" ]
+[[services]]
+name = "pgo"
+user = "miek"
+repository = "https://github.com/miekg/pgo"
+branch = "main"
+urls = { "slashdot.org" = 5010 }
+ports = [ "5005/5", "1025/5" ]
