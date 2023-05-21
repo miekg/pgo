@@ -50,6 +50,12 @@ func Parse(doc []byte) (*Config, error) {
 	}
 	uniq := map[string]struct{}{}
 	for _, s := range c.Services {
+		if s == nil {
+			return c, fmt.Errorf("incomplete service definition")
+		}
+		if s.Name == "" || s.User == "" || s.Repository == "" {
+			return c, fmt.Errorf("expect at least name, user and repository for a service")
+		}
 		if _, ok := uniq[s.Name]; ok {
 			return c, fmt.Errorf("service name %q is not unique", s.Name)
 		}
@@ -59,6 +65,9 @@ func Parse(doc []byte) (*Config, error) {
 			if _, err := url.Parse(u); err != nil {
 				return c, fmt.Errorf("bad url %s for service %q", s.Name, u)
 			}
+		}
+		if s.Branch == "" {
+			s.Branch = "main"
 		}
 	}
 
@@ -149,7 +158,12 @@ func (s *Service) Track(ctx context.Context, duration time.Duration) {
 		log.Warningf("Failed to checkout branch %s: %v", s.Branch, err)
 		return
 	}
-	log.Infof("Checked out git repo in %s for %q (branch %s)", s.dir, s.Name, s.Branch)
+	pubkeys, err := s.PublicKeys()
+	if err != nil {
+		log.Warningf("Failed to get public keys: %v", err)
+	}
+
+	log.Infof("Checked out git repo in %s for %q (branch %s) with %d configured public keys", s.dir, s.Name, s.Branch, len(pubkeys))
 
 	if _, err := s.Compose.AllowedPorts(); err != nil {
 		log.Warningf("Port usage outside of allowed ranges: %v", err)
