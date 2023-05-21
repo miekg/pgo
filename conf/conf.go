@@ -171,7 +171,7 @@ func (s *Service) Track(ctx context.Context, duration time.Duration) {
 	}
 
 	if _, err := s.Compose.AllowedPorts(); err != nil {
-		log.Warningf("Port usage outside of allowed ranges: %v", s.Name, err)
+		log.Warningf("[%s]: Port usage outside of allowed ranges: %v", s.Name, err)
 	} else {
 		s.Compose.Pull()
 		s.Compose.Build()
@@ -187,7 +187,7 @@ func (s *Service) Track(ctx context.Context, duration time.Duration) {
 
 		changed, err := s.Git.Pull(cli.DefaultFileNames)
 		if err != nil {
-			log.Warningf("[%s]: Failed to pull: %v, deleting repository in %d, and cloning again", s.Name, err)
+			log.Warningf("[%s]: Failed to pull: %v, deleting repository in %d, and cloning again", s.Name, s.Repository, err)
 			if err := s.Git.RemoveAll(); err != nil {
 				log.Errorf("[%s]: Failed to remove repository: %v", s.Name, err)
 				continue
