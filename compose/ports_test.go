@@ -26,7 +26,7 @@ func TestAllowedPorts(t *testing.T) {
 		t.Fatal("expected error, got none")
 	}
 	if port != 8080 {
-		t.Fatalf("expected port 8080, got %d", port)
+		t.Fatalf("expected port 8080, got %d: %s", port, err)
 	}
 	// allowed
 	c.ports = []PortRange{{8080, 8081}, {9090, 9091}}

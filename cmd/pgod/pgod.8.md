@@ -38,7 +38,9 @@ you need to administrate port numbers *and* still run some proxy to forward URLs
 backend.
 
 For each repository it directs podman-compose to pull, build and start the containers defined in the
-`docker-compose.yml` file. Whenever this compose file changes this is redone.
+`docker-compose.yml` file. Whenever this compose file changes this is redone. Current the following
+compose file variants are supported: "compose.yaml", "compose.yml", "docker-compose.yml" and
+"docker-compose.yaml".
 
 With pgoctl(1) you can then interact with these services. You can "up", "down", "ps", "pull",
 "logs", and "ping" currently. The syntax exposed is `<servicename>//<command>`, i.e. `pgo//ps`.

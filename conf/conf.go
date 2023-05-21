@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"math/rand"
+	"net/url"
 	"os"
 	"path"
 	"strconv"
@@ -14,6 +15,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/compose-spec/compose-go/cli"
 	"github.com/gliderlabs/ssh"
 	"github.com/miekg/pgo/compose"
 	"github.com/miekg/pgo/git"
@@ -26,7 +28,7 @@ type Service struct {
 	User       string
 	Repository string
 	Branch     string
-	URLs       map[string]string
+	URLs       map[string]int
 	Ports      []string
 	Git        *git.Git         `toml:"-"`
 	Compose    *compose.Compose `toml:"-"`
@@ -49,9 +51,15 @@ func Parse(doc []byte) (*Config, error) {
 	uniq := map[string]struct{}{}
 	for _, s := range c.Services {
 		if _, ok := uniq[s.Name]; ok {
-			return c, fmt.Errorf("name %q is not unique in config", s.Name)
+			return c, fmt.Errorf("service name %q is not unique", s.Name)
 		}
 		uniq[s.Name] = struct{}{}
+
+		for u := range s.URLs {
+			if _, err := url.Parse(u); err != nil {
+				return c, fmt.Errorf("bad url %s for service %q", s.Name, u)
+			}
+		}
 	}
 
 	return c, nil
@@ -158,7 +166,7 @@ func (s *Service) Track(ctx context.Context, duration time.Duration) {
 			return
 		}
 
-		changed, err := s.Git.Pull([]string{"docker-compose.yml"})
+		changed, err := s.Git.Pull(cli.DefaultFileNames)
 		if err != nil {
 			log.Warningf("Failed to pull: %v", err)
 			continue
