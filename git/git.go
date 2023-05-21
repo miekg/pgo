@@ -122,4 +122,5 @@ func (g *Git) Rollback(hash string) error {
 	return err
 }
 
-func (g *Git) Stash() error { _, err := g.run("stash"); return err }
+func (g *Git) Stash() error           { _, err := g.run("stash"); return err }
+func (g *Git) Branch(br string) error { _, err := g.run("checkout", "-b", br); return err }

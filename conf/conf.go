@@ -24,7 +24,6 @@ import (
 type Service struct {
 	Name       string
 	User       string
-	Group      string
 	Repository string
 	Branch     string
 	URLs       map[string]string
@@ -44,11 +43,22 @@ func Parse(doc []byte) (*Config, error) {
 	t := toml.NewDecoder(bytes.NewReader(doc))
 	t.DisallowUnknownFields()
 	err := t.Decode(c)
-	return c, err
+	if err != nil {
+		return c, err
+	}
+	uniq := map[string]struct{}{}
+	for _, s := range c.Services {
+		if _, ok := uniq[s.Name]; ok {
+			return c, fmt.Errorf("name %q is not unique in config", s.Name)
+		}
+		uniq[s.Name] = struct{}{}
+	}
+
+	return c, nil
 }
 
-func (s *Service) InitGitAndCompose() error {
-	dir := path.Join(os.TempDir(), "pgo-"+s.Name)
+func (s *Service) InitGitAndCompose(dir string) error {
+	dir = path.Join(dir, "pgo-"+s.Name)
 	if err := os.MkdirAll(dir, 0700); err != nil {
 		return err
 	}
@@ -120,14 +130,26 @@ func (s *Service) Track(ctx context.Context, duration time.Duration) {
 	log.Infof("Launched tracking routine for %q", s.Name)
 
 	if err := s.Git.Checkout(); err != nil {
-		log.Warningf("Failed to do initial checkout: %v", err)
+		log.Warningf("Failed to do (initial) checkout: %v", err)
 		return
 	}
-	log.Infof("Checked out git repo in %s for %q", s.dir, s.Name)
-	// check ports TODO(miek)
+	if _, err := s.Git.Pull(nil); err != nil {
+		log.Warningf("Failed to pull: %v", err)
+		return
+	}
+	if err := s.Git.Branch(s.Branch); err != nil {
+		log.Warningf("Failed to checkout branch %s: %v", s.Branch, err)
+		return
+	}
+	log.Infof("Checked out git repo in %s for %q (branch %s)", s.dir, s.Name, s.Branch)
 
-	s.Compose.Build()
-	s.Compose.Up()
+	if _, err := s.Compose.AllowedPorts(); err != nil {
+		log.Warningf("Port usage outside of allowed ranges: %v", err)
+	} else {
+		s.Compose.Pull()
+		s.Compose.Build()
+		s.Compose.Up()
+	}
 
 	for {
 		select {
@@ -145,7 +167,10 @@ func (s *Service) Track(ctx context.Context, duration time.Duration) {
 			continue
 		}
 
-		// check ports TODO(miek)
+		if _, err := s.Compose.AllowedPorts(); err != nil {
+			log.Warningf("Port usage outside of allowed ranges: %v", err)
+			continue
+		}
 
 		s.Compose.Down()
 		s.Compose.Build()
