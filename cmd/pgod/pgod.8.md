@@ -51,17 +51,20 @@ The options are:
 **-s, --ssh string**
 :  ssh address to listen on (default ":2222")
 
-**-d, --debug**
-:  enable debug logging
-
-**-r, --restart**
-:   send SIGHUP to ourselves when config changes
-
-**-o, --root**
-:  require root permission, setting to false can aid in debugging (default true)
-
 **-t, --duration duration**
 :  default duration between pulls (default 5m0s)
+
+**-d, --dir string**
+:  directory where to check out the git repositories
+
+**--debug**
+:  enable debug logging
+
+**--restart**
+:   send SIGHUP to ourselves when config changes
+
+**--root**
+:  require root permission, setting to false can aid in debugging (default true)
 
 ## Config File
 
@@ -72,7 +75,6 @@ this:
 [[services]]
 name = "pgo"
 user = "miek"  # under which user to run the podman
-group = "miek" # which group to run the podman // not used atm
 repository = "https://github.com/miekg/pgo"
 branch = "main"
 urls = { "example.org" = ":5006" }

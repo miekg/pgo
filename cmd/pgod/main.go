@@ -44,6 +44,7 @@ func (exec *ExecContext) RegisterFlags(fs *flag.FlagSet) {
 var (
 	ErrNotRoot  = errors.New("not root")
 	ErrNoConfig = errors.New("-c flag is mandatory")
+	ErrNoDir    = errors.New("-d flag is mandatory")
 	ErrHUP      = errors.New("hangup requested")
 )
 
@@ -86,6 +87,10 @@ func run(exec *ExecContext) error {
 
 	if exec.ConfigSource == "" {
 		return ErrNoConfig
+	}
+
+	if exec.Dir == "" {
+		return ErrNoDir
 	}
 
 	doc, err := os.ReadFile(exec.ConfigSource)
