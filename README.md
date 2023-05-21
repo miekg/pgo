@@ -2,7 +2,7 @@
 
 Podman Gitops. This is a subsequent development (or successor?) of
 <https://github.com/miekg/gitopper>. Where "gitopper" integrates with your OS, i.e. use Debian
-packages, "pgo" uses a `docker-compose.yml` as it's basis. It runs the compose via `podman-compose`
+packages, "pgo" uses a `compose.yaml` as it's basis. It runs the compose via `podman-compose`
 (Debian package exists). It allows for remote interaction via an SSH interface, which `pgoctl` makes
 easy to use.
 
@@ -54,7 +54,7 @@ To go over this file:
 To use "pgo" your project MUST have:
 
 - A public SSH key (or keys) stored in a `ssh/` directory in your git repo.
-- A `docker-compose.yml` (or any of the variants) in the top-level of your git repo.
+- A `compose.yaml` (or any of the variants) in the top-level of your git repo.
 
 ## Quick Start
 
@@ -77,7 +77,7 @@ using podman version: 3.4.4
 ~~~
 
 In other words: it clones the repo, builds, pulls, and starts the containers. It then *tracks*
-upstream and whenever `docker-compose.yml` changes it will do a `down` and `up`. To force changes
+upstream and whenever `compose.yaml` changes it will do a `down` and `up`. To force changes
 in that file you can use a `x-gpo-version` in the yaml and change that whenever you want to update
 "pgo"
 
