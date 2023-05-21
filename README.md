@@ -128,9 +128,9 @@ deploy_production:
     url: https://example.com
     on_stop: stop_production
   script:
-    - pgoctl -i '$SSHKEY' mymachine:project//pull
-    - pgoctl -i '$SSHKEY' mymachine:project//build
-    - pgoctl -i '$SSHKEY' mymachine:project//up
+    - pgoctl mymachine:project//pull  # looks for PGOCTL_ID env var
+    - pgoctl mymachine:project//build
+    - pgoctl mymachine:project//up
   when: manual
 
 stop_production:
@@ -144,8 +144,7 @@ stop_production:
   when: manual
 ~~~
 
-With 'manual' you can still control when this actually happens. The `-i $SSHKEY` means `pgoctl` will
-use the environment variable `SSHKEY` as the private key for ssh-ing into `mymachine`.
+With 'manual' you can still control when this actually happens.
 
 ## pgod
 
