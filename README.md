@@ -53,14 +53,15 @@ To go over this file:
 
 To use "pgo" your project MUST have:
 
-- A public SSH key (or keys) stored in a `ssh/` directory in your git repo.
+- A public SSH key (or keys) stored in a `ssh/` directory in your git repo. This keys can **not** have a
+  passphrase protecting them
 - A `compose.yaml` (or any of the variants) in the top-level of your git repo.
 
 ## Quick Start
 
-Assuming a working Go compiler you can issue a `make` to compile the binaries. Then.
+Assuming a working Go compiler you can issue a `make` to compile the binaries. Then:
 
-Start `pgod`: `sudo ./cmd/pgod/pgod -c config.toml -d /tmp --debug`. That will output some debug
+start `pgod`: `sudo ./cmd/pgod/pgod -c pgo.toml -d /tmp --debug`. That will output some debug
 data, condensed here:
 
 ~~~ txt
