@@ -57,7 +57,9 @@ The options are:
 :  default duration between pulls (default 5m0s)
 
 **-d, --dir string**
-:  directory where to check out the git repositories
+:  directory where to check out the git repositories, this must be a directory that is not wiped
+   when the system reboots; the directory must also be accessible for all user accounts defined
+   in the configuration file
 
 **--debug**
 :  enable debug logging
