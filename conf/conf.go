@@ -76,21 +76,13 @@ func Parse(doc []byte) (*Config, error) {
 }
 
 func (s *Service) InitGitAndCompose(dir string) error {
-	tmpdir, err := os.MkdirTemp(dir, "pgo-*")
-	if err != nil {
-		return err
-	}
-
-	dir = path.Join(tmpdir, s.Name)
+	dir = path.Join(dir, s.Name)
 	if err := os.MkdirAll(dir, 0700); err != nil {
 		return err
 	}
 	if os.Geteuid() == 0 {
 		// chown entire path to correct user
 		uid, gid := osutil.User(s.User)
-		if err := os.Chown(tmpdir, int(uid), int(gid)); err != nil {
-			return err
-		}
 		if err := os.Chown(dir, int(uid), int(gid)); err != nil {
 			return err
 		}
