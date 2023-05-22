@@ -147,6 +147,13 @@ stop_production:
 
 With 'manual' you can still control when this actually happens.
 
+If you want to clone a repository that is private, you can create an access token with
+'read_repository' and the "developer" role. This can be then used as:
+
+~~~ toml
+repository = "https://oauth2:<token>@gitlab.science.ru.nl/..."
+~~~
+
 ## pgod
 
 See the [manual page](./cmd/pgod/pgod.8.md) in [cmd/pgod](./cmd/pgod/).
@@ -154,8 +161,3 @@ See the [manual page](./cmd/pgod/pgod.8.md) in [cmd/pgod](./cmd/pgod/).
 ## pgoctl
 
 See the [manual page](./cmd/pgoctl/pgoctl.1.md) in [cmd/pgoctl](./cmd/pgoctl).
-
-# TODO
-
-- Tailing logs with -f.
-- Cleaning up the podman-compose output.
