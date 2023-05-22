@@ -161,7 +161,3 @@ See the [manual page](./cmd/pgod/pgod.8.md) in [cmd/pgod](./cmd/pgod/).
 ## pgoctl
 
 See the [manual page](./cmd/pgoctl/pgoctl.1.md) in [cmd/pgoctl](./cmd/pgoctl).
-
-# TODO
-
-- Tailing logs with -f.
