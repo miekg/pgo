@@ -18,7 +18,8 @@ pgoctl - interact remotely with pgod(8)
 ## Description
 
 pgoctl is an utility to inspect and control pgod(8) remotely. The exit status from the
-podman-compose is reflected in the exist status of pgoctl.
+podman-compose is reflected in the exist status of pgoctl. Almost all commands from podman-compose
+are implemented.
 
 There are only a few options:
 
