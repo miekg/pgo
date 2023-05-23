@@ -81,6 +81,8 @@ name = "pgo"
 user = "miek"
 repository = "https://github.com/miekg/pgo"
 branch = "main"
+ignore = false
+compose = "my-compose.yaml"
 urls = { "example.org" = ":5006" }
 ports = [ "5005/5", "1025/5" ]
 ~~~
@@ -97,6 +99,12 @@ no relation to the SSH user connecting to `pgod`. I.e. it could be `nobody`.
 repository *and* branch
 : `https://github.com/miekg/pgo` and `main`, where to clone and pull from. If branch is not
 specified `main` is assumed.
+
+ignore
+: `false`, ignore changes to the compose yaml files and *do not* restart containers.
+
+compose
+: `my-compose.yaml`, specify an alternate compose file to use, outside of the supported variants.
 
 urls
 : `{ "example.org" = ":5006" }` how to setup any forwarding to the listening ports. This isn't used yet,
