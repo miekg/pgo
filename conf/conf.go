@@ -139,13 +139,13 @@ func (s *Service) PublicKeys() ([]ssh.PublicKey, error) {
 		}
 		pubfile := path.Join(s.dir, "ssh")
 		pubfile = path.Join(pubfile, entry.Name())
-		log.Infof("Reading public key %q", pubfile)
 		data, err := ioutil.ReadFile(pubfile)
 		if err != nil {
 			continue
 		}
 		a, _, _, _, err := ssh.ParseAuthorizedKey(data)
 		if err != nil {
+			log.Warningf("[%s]: Reading public key %q failed: %v", s.Name, pubfile, err)
 			continue
 		}
 		keys = append(keys, a)
@@ -154,7 +154,7 @@ func (s *Service) PublicKeys() ([]ssh.PublicKey, error) {
 }
 
 func (s *Service) Track(ctx context.Context, duration time.Duration) {
-	log.Infof("Launched tracking routine for %q", s.Name)
+	log.Infof("[%s]: Launched tracking routine for %q", s.Name, s.Name)
 
 	if err := s.Git.Checkout(); err != nil {
 		log.Warningf("[%s]: Failed to do (initial) checkout: %v", s.Name, err)

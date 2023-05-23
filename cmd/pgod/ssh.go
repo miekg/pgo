@@ -66,7 +66,7 @@ func newRouter(c *conf.Config) ssh.Handler {
 			return
 
 		}
-		log.Infof("Routing to %q for user %q", command, ses.User())
+		log.Infof("[%s]: Routing for user %q, running %q %v", name, ses.User(), command, args)
 		out, err := route(s, args)
 		exitSession(ses, out, err)
 		return

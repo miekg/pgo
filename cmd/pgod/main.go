@@ -126,7 +126,7 @@ func run(exec *ExecContext) error {
 	}()
 
 	for _, s := range c.Services {
-		log.Infof("Service %q with upstream %q", s.Name, s.Repository)
+		log.Infof("[%s]: Service %q with upstream %q", s.Name, s.Name, s.Repository)
 		workerWG.Add(1)
 		go func(s1 *conf.Service) {
 			defer workerWG.Done()
