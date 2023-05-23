@@ -199,7 +199,7 @@ func (s *Service) Track(ctx context.Context, duration time.Duration) {
 			return
 		}
 
-		log.Infof("[%s]: Current hash is %q", s.Git.Hash())
+		log.Infof("[%s]: Current hash is %q", s.Name, s.Git.Hash())
 
 		changed, err := s.Git.Pull(namesOfInterest)
 		if err != nil {
