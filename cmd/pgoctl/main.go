@@ -20,6 +20,7 @@ var routes = map[string]struct{}{
 	"ps":   {},
 	"pull": {},
 	"logs": {},
+	"exec": {},
 
 	"ping": {},
 }
@@ -48,11 +49,11 @@ func main() {
 
 	out, err = querySSH(ctx, machine, name+"//"+command, flag.Args()[1:])
 	if len(out) > 0 {
-		fmt.Printf(string(out))
+		fmt.Println(string(out))
 	}
 
 	if err != nil {
-		log.Error(err)
+		log.Fatal(err)
 	}
 
 }

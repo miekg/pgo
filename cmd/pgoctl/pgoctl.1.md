@@ -17,7 +17,8 @@ pgoctl - interact remotely with pgod(8)
 
 ## Description
 
-pgoctl is an utility to inspect and control pgod(8) remotely.
+pgoctl is an utility to inspect and control pgod(8) remotely. The exit status from the
+podman-compose is reflected in the exist status of pgoctl.
 
 There are only a few options:
 
@@ -51,7 +52,7 @@ Start pgod(8) and look at some services:
 Then up the services, if not done already:
 
 ~~~
-% cmd/pgoctl/pgoctl -i ssh/id_pgo4 localhost:pgo//up
+% cmd/pgoctl/pgoctl -i ssh/id_pgo localhost:pgo//up
 61380c3c0cbe9827f335b5d6e7690d3a366317f755d87f969fcd9b1cb4b2254c
 ['podman', '--version', '']
 using podman version: 3.4.4
@@ -64,13 +65,26 @@ exit code: 0%
 Looking at the `ps`:
 
 ~~~
-% cmd/pgoctl/pgoctl -i ssh/id_pgo4 localhost:pgo//ps
+% cmd/pgoctl/pgoctl -i ssh/id_pgo localhost:pgo//ps
 CONTAINER ID  IMAGE                             COMMAND               CREATED             STATUS                 PORTS                    NAMES
 61380c3c0cbe  docker.io/library/busybox:latest  /bin/busybox http...  About a minute ago  Up About a minute ago  0.0.0.0:36391->8080/tcp  pgo-3493677287_frontend_1
 ['podman', '--version', '']
 using podman version: 3.4.4
 podman ps -a --filter label=io.podman.compose.project=pgo-3493677287
 exit code: 0%
+~~~
+
+Or `exec` inside a container/service. Podman-compose expect the service to be used here, this is the
+service *as specfied in the compose.yaml*.
+
+~~~
+% cmd/pgoctl/pgoctl -i id_pgo -- localhost:pgo//exec frontend /bin/ls
+bin    etc    lib    proc   run    tmp    var
+dev    home   lib64  root   sys    usr
+['podman', '--version', '']
+using podman version: 3.4.4
+podman exec --interactive --tty --env SECRET_KEY2=aabbcc --env ENV_IS_SET2=None pgo_frontend_1 /bin/ls
+exit code: 0
 ~~~
 
 ## Also See

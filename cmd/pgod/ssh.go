@@ -79,6 +79,8 @@ var routes = map[string]func(s *conf.Service, args []string) ([]byte, error){
 	"ps":   func(c *conf.Service, args []string) ([]byte, error) { return c.Compose.Ps(args) },
 	"pull": func(c *conf.Service, args []string) ([]byte, error) { return c.Compose.Pull(args) },
 	"logs": func(c *conf.Service, args []string) ([]byte, error) { return c.Compose.Logs(args) },
+	"exec": func(c *conf.Service, args []string) ([]byte, error) { return c.Compose.Exec(args) },
+
 	"ping": func(c *conf.Service, _ []string) ([]byte, error) {
 		return []byte("pong! - " + osutil.Hostname() + "\n"), nil
 	},

@@ -199,6 +199,8 @@ func (s *Service) Track(ctx context.Context, duration time.Duration) {
 			return
 		}
 
+		log.Infof("[%s]: Current hash is %q", s.Git.Hash())
+
 		changed, err := s.Git.Pull(namesOfInterest)
 		if err != nil {
 			log.Warningf("[%s]: Failed to pull: %v, deleting repository in %d, and cloning again", s.Name, s.Repository, err)

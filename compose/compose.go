@@ -73,4 +73,9 @@ func (c *Compose) Pull(args []string) ([]byte, error) {
 func (c *Compose) Logs(args []string) ([]byte, error) {
 	return c.run(append([]string{"logs"}, args...)...)
 }
-func (c *Compose) Ps(args []string) ([]byte, error) { return c.run(append([]string{"ps"}, args...)...) }
+func (c *Compose) Ps(args []string) ([]byte, error) {
+	return c.run(append([]string{"ps"}, args...)...)
+}
+func (c *Compose) Exec(args []string) ([]byte, error) {
+	return c.run(append([]string{"exec"}, args...)...)
+}
