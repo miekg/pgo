@@ -25,14 +25,16 @@ import (
 )
 
 type Service struct {
-	Name       string
-	User       string
-	Repository string
-	Branch     string
-	URLs       map[string]int
-	Ports      []string
-	Git        *git.Git         `toml:"-"`
-	Compose    *compose.Compose `toml:"-"`
+	Name        string
+	User        string
+	Repository  string
+	Ignore      bool   // don't restart compose after it got updated if true
+	ComposeFile string `toml:"compose,omitempty"` // alternative compose file
+	Branch      string
+	URLs        map[string]int
+	Ports       []string
+	Git         *git.Git         `toml:"-"`
+	Compose     *compose.Compose `toml:"-"`
 
 	dir string // where is repo checked out
 }
@@ -94,11 +96,11 @@ func (s *Service) InitGitAndCompose(dir string) error {
 		if err != nil {
 			return err
 		}
-		pr[i] = compose.PortRange{lo, hi}
+		pr[i] = compose.PortRange{Lo: lo, Hi: hi}
 	}
 
 	s.Git = git.New(s.Repository, s.User, s.Branch, dir)
-	s.Compose = compose.New(s.User, dir, pr)
+	s.Compose = compose.New(s.User, dir, s.ComposeFile, pr)
 	s.dir = dir
 	return nil
 }
@@ -186,6 +188,10 @@ func (s *Service) Track(ctx context.Context, duration time.Duration) {
 		s.Compose.Up(nil)
 	}
 
+	namesOfInterest := cli.DefaultFileNames
+	if s.ComposeFile != "" {
+		namesOfInterest = []string{"s.ComposeFile"}
+	}
 	for {
 		select {
 		case <-time.After(jitter(duration)):
@@ -193,7 +199,7 @@ func (s *Service) Track(ctx context.Context, duration time.Duration) {
 			return
 		}
 
-		changed, err := s.Git.Pull(cli.DefaultFileNames)
+		changed, err := s.Git.Pull(namesOfInterest)
 		if err != nil {
 			log.Warningf("[%s]: Failed to pull: %v, deleting repository in %d, and cloning again", s.Name, s.Repository, err)
 			if err := s.Git.RemoveAll(); err != nil {
@@ -213,6 +219,10 @@ func (s *Service) Track(ctx context.Context, duration time.Duration) {
 		if _, err := s.Compose.AllowedPorts(); err != nil {
 			log.Warningf("[%s]: Port usage outside of allowed ranges: %v", s.Name, err)
 			continue
+		}
+
+		if s.Ignore {
+			log.Infof("[%s]: Ignore is set, not restarting any containers", s.Name)
 		}
 
 		s.Compose.Down(nil)
