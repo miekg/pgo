@@ -15,20 +15,25 @@ type Compose struct {
 	user  string      // what user to use
 	dir   string      // where to put it
 	ports []PortRange // ports from config
+	file  string      // alternate compose file name
 }
 
 // New returns a pointer to an intialized Compose.
-func New(user, directory string, ports []PortRange) *Compose {
+func New(user, directory, file string, ports []PortRange) *Compose {
 	g := &Compose{
 		user:  user,
 		dir:   directory,
 		ports: ports,
+		file:  file,
 	}
 	return g
 }
 
 func (c *Compose) run(args ...string) ([]byte, error) {
 	ctx := context.TODO()
+	if c.file != "" {
+		args = append([]string{"-f", c.file}, args...)
+	}
 	cmd := exec.CommandContext(ctx, "podman-compose", args...)
 	cmd.Dir = c.dir
 

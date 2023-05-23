@@ -33,7 +33,9 @@ A typical config file looks like this:
 name = "pgo"
 user = "miek"
 repository = "https://github.com/miekg/pgo"
+compose = "compose.yaml" # alternate, non-default compose file.
 branch = "main" # defaults to main, is omitted.
+ignore = false # when true don't restart podman-compose when it changes
 urls = { "pgo.science.ru.nl" = "5007" }
 ports = [ "5005/5", "1025/5" ]
 ```
@@ -138,7 +140,7 @@ stop_production:
   resource_group: production
   stage: deploy
   script:
-    - pgoctl -i '$SSHKEY' mymachine:project//down
+    - pgoctl mymachine:project//down
   environment:
     name: production
     action: stop
