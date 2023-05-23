@@ -74,11 +74,16 @@ func newRouter(c *conf.Config) ssh.Handler {
 }
 
 var routes = map[string]func(s *conf.Service, args []string) ([]byte, error){
-	"up":   func(c *conf.Service, args []string) ([]byte, error) { return c.Compose.Up(args) },
-	"down": func(c *conf.Service, args []string) ([]byte, error) { return c.Compose.Down(args) },
-	"ps":   func(c *conf.Service, args []string) ([]byte, error) { return c.Compose.Ps(args) },
-	"pull": func(c *conf.Service, args []string) ([]byte, error) { return c.Compose.Pull(args) },
-	"logs": func(c *conf.Service, args []string) ([]byte, error) { return c.Compose.Logs(args) },
+	"up":      func(c *conf.Service, args []string) ([]byte, error) { return c.Compose.Up(args) },
+	"down":    func(c *conf.Service, args []string) ([]byte, error) { return c.Compose.Down(args) },
+	"stop":    func(c *conf.Service, args []string) ([]byte, error) { return c.Compose.Stop(args) },
+	"start":   func(c *conf.Service, args []string) ([]byte, error) { return c.Compose.Start(args) },
+	"restart": func(c *conf.Service, args []string) ([]byte, error) { return c.Compose.ReStart(args) },
+	"ps":      func(c *conf.Service, args []string) ([]byte, error) { return c.Compose.Ps(args) },
+	"pull":    func(c *conf.Service, args []string) ([]byte, error) { return c.Compose.Pull(args) },
+	"logs":    func(c *conf.Service, args []string) ([]byte, error) { return c.Compose.Logs(args) },
+	"exec":    func(c *conf.Service, args []string) ([]byte, error) { return c.Compose.Exec(args) },
+
 	"ping": func(c *conf.Service, _ []string) ([]byte, error) {
 		return []byte("pong! - " + osutil.Hostname() + "\n"), nil
 	},

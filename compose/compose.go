@@ -64,8 +64,17 @@ func (c *Compose) Build(args []string) ([]byte, error) {
 func (c *Compose) Down(args []string) ([]byte, error) {
 	return c.run(append([]string{"down"}, args...)...)
 }
+func (c *Compose) Stop(args []string) ([]byte, error) {
+	return c.run(append([]string{"stop"}, args...)...)
+}
 func (c *Compose) Up(args []string) ([]byte, error) {
 	return c.run(append([]string{"up", "-d"}, args...)...)
+}
+func (c *Compose) Start(args []string) ([]byte, error) {
+	return c.run(append([]string{"start"}, args...)...)
+}
+func (c *Compose) ReStart(args []string) ([]byte, error) {
+	return c.run(append([]string{"start"}, args...)...)
 }
 func (c *Compose) Pull(args []string) ([]byte, error) {
 	return c.run(append([]string{"pull"}, args...)...)
@@ -73,4 +82,9 @@ func (c *Compose) Pull(args []string) ([]byte, error) {
 func (c *Compose) Logs(args []string) ([]byte, error) {
 	return c.run(append([]string{"logs"}, args...)...)
 }
-func (c *Compose) Ps(args []string) ([]byte, error) { return c.run(append([]string{"ps"}, args...)...) }
+func (c *Compose) Ps(args []string) ([]byte, error) {
+	return c.run(append([]string{"ps"}, args...)...)
+}
+func (c *Compose) Exec(args []string) ([]byte, error) {
+	return c.run(append([]string{"exec"}, args...)...)
+}
