@@ -33,9 +33,9 @@ A typical config file looks like this:
 name = "pgo"
 user = "miek"
 repository = "https://github.com/miekg/pgo"
-compose = "compose.yaml" # alternate, non-default compose file.
-branch = "main" # defaults to main, is omitted.
-ignore = false # when true don't restart podman-compose when it changes
+compose = "compose.yaml"
+branch = "main"
+ignore = false
 urls = { "pgo.science.ru.nl" = "5007" }
 ports = [ "5005/5", "1025/5" ]
 ```
@@ -47,7 +47,9 @@ To go over this file:
 
 - `name`: this is the name of the service, used to uniquely identify the service across machines.
 - `user`: which user to use to run the podman-compose under.
-- `repository` and `branch`: where to find the git repo belonging to this service
+- `repository` and `branch`: where to find the git repo belonging to this service.
+- `compose`: alternate compose file to use.
+- `ignore`: don't restart podman when a compose file changes.
 - `urls`: what DNS names need to be assigned to this server and to what port should they forward.
 - `ports`: which ports can this service bind to.
 

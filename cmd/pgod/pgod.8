@@ -38,7 +38,7 @@ backend.
 
 .PP
 For each repository it directs podman-compose to pull, build and start the containers defined in the
-\fB\fCdocker-compose.yml\fR file. Whenever this compose file changes this is redone. Current the following
+\fB\fCcompose.yaml\fR file. Whenever this compose file changes this is redone. Current the following
 compose file variants are supported: "compose.yaml", "compose.yml", "docker-compose.yml" and
 "docker-compose.yaml".
 
@@ -51,16 +51,18 @@ The options are:
 
 .TP
 \fB-c, --config string\fP
-config file to read
+config file to read, when not given this default to \fB\fC/etc/pgo.toml\fR
+.TP
+\fB-d, --dir string\fP
+directory where to check out the git repositories, this must be a directory that is not wiped
+when the system reboots; the directory must also be accessible for all user accounts defined
+in the configuration file; this default to \fB\fC/var/lib/pgo\fR.
 .TP
 \fB-s, --ssh string\fP
 ssh address to listen on (default ":2222")
 .TP
 \fB-t, --duration duration\fP
 default duration between pulls (default 5m0s)
-.TP
-\fB-d, --dir string\fP
-directory where to check out the git repositories
 .TP
 \fB--debug\fP
 enable debug logging
@@ -86,6 +88,8 @@ name = "pgo"
 user = "miek"
 repository = "https://github.com/miekg/pgo"
 branch = "main"
+ignore = false
+compose = "my\-compose.yaml"
 urls = { "example.org" = ":5006" }
 ports = [ "5005/5", "1025/5" ]
 
@@ -107,13 +111,19 @@ repository \fIand\fP branch
 \fB\fChttps://github.com/miekg/pgo\fR and \fB\fCmain\fR, where to clone and pull from. If branch is not
 specified \fB\fCmain\fR is assumed.
 .TP
+ignore
+\fB\fCfalse\fR, ignore changes to the compose yaml files and \fIdo not\fP restart containers.
+.TP
+compose
+\fB\fCmy-compose.yaml\fR, specify an alternate compose file to use, outside of the supported variants.
+.TP
 urls
 \fB\fC{ "example.org" = ":5006" }\fR how to setup any forwarding to the listening ports. This isn't used yet,
 but when the containers go up this should connect the url \fB\fCexample.org\fR to \fB\fC<thismachine>:5006\fR.
 .TP
 ports
 \fB\fC[ "5005/5", "1025/5" ]\fR, this service can bind to ports nummbers: 5005-5010 and 1025-1030. This
-is checked by parsing the \fB\fCdocker-compose-yml\fR.
+is checked by parsing the \fB\fCcompose.yaml\fR.
 
 
 .SH "AUTHENTICATION"

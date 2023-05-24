@@ -48,7 +48,12 @@ With pgoctl(1) you can then interact with these services. You can "up", "down", 
 The options are:
 
 **-c, --config string**
-:  config file to read
+:  config file to read, when not given this default to `/etc/pgo.toml`
+
+**-d, --dir string**
+:  directory where to check out the git repositories, this must be a directory that is not wiped
+   when the system reboots; the directory must also be accessible for all user accounts defined
+   in the configuration file; this default to `/var/lib/pgo`.
 
 **-s, --ssh string**
 :  ssh address to listen on (default ":2222")
@@ -56,10 +61,6 @@ The options are:
 **-t, --duration duration**
 :  default duration between pulls (default 5m0s)
 
-**-d, --dir string**
-:  directory where to check out the git repositories, this must be a directory that is not wiped
-   when the system reboots; the directory must also be accessible for all user accounts defined
-   in the configuration file
 
 **--debug**
 :  enable debug logging
