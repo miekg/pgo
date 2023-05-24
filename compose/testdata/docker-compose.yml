@@ -21,3 +21,9 @@ services:
         - "9090-9091:8080-8081"
       labels:
         my.label: my_value
+
+networks:
+  reverseproxy:
+    external: true
+    name: reverse_proxy
+  ip:

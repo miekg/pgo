@@ -61,6 +61,9 @@ func LoadPorts(file string) ([]int, error) {
 // they are all OK. Any other error is reported via the returned error.
 func (c *Compose) AllowedPorts() (int, error) {
 	comp := Find(c.dir)
+	if c.file != "" {
+		comp = c.file
+	}
 	ports, err := LoadPorts(comp)
 	if err != nil {
 		return 0, err

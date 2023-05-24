@@ -33,6 +33,7 @@ type Service struct {
 	Branch      string
 	URLs        map[string]int
 	Ports       []string
+	Networks    []string
 	Git         *git.Git         `toml:"-"`
 	Compose     *compose.Compose `toml:"-"`
 
@@ -100,7 +101,7 @@ func (s *Service) InitGitAndCompose(dir string) error {
 	}
 
 	s.Git = git.New(s.Repository, s.User, s.Branch, dir)
-	s.Compose = compose.New(s.User, dir, s.ComposeFile, pr)
+	s.Compose = compose.New(s.User, dir, s.ComposeFile, pr, s.Networks)
 	s.dir = dir
 	return nil
 }
@@ -182,6 +183,8 @@ func (s *Service) Track(ctx context.Context, duration time.Duration) {
 
 	if _, err := s.Compose.AllowedPorts(); err != nil {
 		log.Warningf("[%s]: Port usage outside of allowed ranges: %v", s.Name, err)
+	} else if err := s.Compose.AllowedExternalNetworks(); err != nil {
+		log.Warningf("[%s]: External network usage outside of allowed networks: %v", s.Name, err)
 	} else {
 		s.Compose.Pull(nil)
 		s.Compose.Build(nil)
@@ -220,6 +223,10 @@ func (s *Service) Track(ctx context.Context, duration time.Duration) {
 
 		if _, err := s.Compose.AllowedPorts(); err != nil {
 			log.Warningf("[%s]: Port usage outside of allowed ranges: %v", s.Name, err)
+			continue
+		}
+		if err := s.Compose.AllowedExternalNetworks(); err != nil {
+			log.Warningf("[%s]: External network usage outside of allowed networks: %v", s.Name, err)
 			continue
 		}
 
