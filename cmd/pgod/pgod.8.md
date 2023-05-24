@@ -86,6 +86,7 @@ ignore = false
 compose = "my-compose.yaml"
 urls = { "example.org" = ":5006" }
 ports = [ "5005/5", "1025/5" ]
+networks = [ "reverse_proxy" ]
 ~~~
 
 Here we define:
@@ -114,6 +115,9 @@ but when the containers go up this should connect the url `example.org` to `<thi
 ports
 : `[ "5005/5", "1025/5" ]`, this service can bind to ports nummbers: 5005-5010 and 1025-1030. This
 is checked by parsing the `compose.yaml`.
+
+networks:
+: `[ "reverse_proxy" ]`, allowed external networks. If empty all networks are allowed to be used.
 
 ## Authentication
 

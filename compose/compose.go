@@ -15,15 +15,17 @@ type Compose struct {
 	user  string      // what user to use
 	dir   string      // where to put it
 	ports []PortRange // ports from config
+	nets  []string    // allowed networks from config
 	file  string      // alternate compose file name
 }
 
 // New returns a pointer to an intialized Compose.
-func New(user, directory, file string, ports []PortRange) *Compose {
+func New(user, directory, file string, ports []PortRange, nets []string) *Compose {
 	g := &Compose{
 		user:  user,
 		dir:   directory,
 		ports: ports,
+		nets:  nets,
 		file:  file,
 	}
 	return g
