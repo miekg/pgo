@@ -60,6 +60,9 @@ func LoadPorts(file string) ([]int, error) {
 // AllowedPorts checks if ports are allowed in the compose file. It returns the first port that is denied, or 0 if
 // they are all OK. Any other error is reported via the returned error.
 func (c *Compose) AllowedPorts() (int, error) {
+	if len(c.ports) == 0 {
+		return 0, nil
+	}
 	comp := Find(c.dir)
 	if c.file != "" {
 		comp = c.file
