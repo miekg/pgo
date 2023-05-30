@@ -4,13 +4,14 @@ Podman Gitops. This is a subsequent development (or successor?) of
 <https://github.com/miekg/gitopper>. Where "gitopper" integrates with your OS, i.e. use Debian
 packages, "pgo" uses a `compose.yaml` as it's basis. It runs the compose via `podman-compose`
 (Debian package exists). It allows for remote interaction via an SSH interface, which `pgoctl` makes
-easy to use.
+easy to use. For this SSH interface no local users need to exist on the target system.
 
 You can restrict which ports are used by a service so multiple services on the same host don't stomp
 on each other. And optionally you can also restrict which external networks can be used.
 
 Current the following compose file variants are supported: "compose.yaml", "compose.yml",
-"docker-compose.yml" and "docker-compose.yaml".
+"docker-compose.yml" and "docker-compose.yaml". If you need more flexibilty you can point to a
+specific compose file.
 
 Each compose file runs under it's own user-account. That account can then access storage, or
 databases it has access to - provisioning that stuff is out-of-scope - assuming your infra can deal
