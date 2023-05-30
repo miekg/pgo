@@ -34,6 +34,9 @@ such variable exist `-i` _is_ mandatory.
 **--port, -p port**
 :  remote port number to use (defaults to 2222)
 
+**-v**
+:  show version and exit
+
 Start pgod(8) and look at some services:
 
 ~~~

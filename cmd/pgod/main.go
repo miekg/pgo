@@ -25,6 +25,7 @@ type ExecContext struct {
 	Root         bool
 	Dir          string
 	Duration     time.Duration
+	Version      bool
 }
 
 func (exec *ExecContext) RegisterFlags(fs *flag.FlagSet) {
@@ -38,6 +39,7 @@ func (exec *ExecContext) RegisterFlags(fs *flag.FlagSet) {
 	fs.BoolVarP(&exec.Debug, "debug", "", false, "enable debug logging")
 	fs.BoolVarP(&exec.Restart, "restart", "", false, "send SIGHUP when config changes")
 	fs.BoolVarP(&exec.Root, "root", "", true, "require root permission, setting to false can aid in debugging")
+	fs.BoolVarP(&exec.Version, "", "v", false, "show version and exit")
 	fs.DurationVarP(&exec.Duration, "duration", "t", 5*time.Minute, "default duration between pulls")
 }
 
@@ -171,10 +173,16 @@ func run(exec *ExecContext) error {
 	return nil
 }
 
+var version = "n/a"
+
 func main() {
 	exec := ExecContext{}
 	exec.RegisterFlags(nil)
 	flag.Parse()
+	if exec.Version {
+		fmt.Println(version)
+		os.Exit(0)
+	}
 	err := run(&exec)
 	switch {
 	case err == nil:

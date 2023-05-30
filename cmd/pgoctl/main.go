@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"os"
 	"strings"
 
 	flag "github.com/spf13/pflag"
@@ -12,6 +13,7 @@ import (
 type ExecContext struct {
 	Identity string
 	Port     string
+	Version  bool
 }
 
 var routes = map[string]struct{}{
@@ -28,12 +30,19 @@ var routes = map[string]struct{}{
 	"ping": {},
 }
 
+var version = "n/a"
+
 func main() {
 	exec := ExecContext{}
 	flag.StringVarP(&exec.Identity, "identity", "i", "", "identify file")
 	flag.StringVarP(&exec.Port, "port", "p", "2222", "remote ssh port to use")
+	flag.BoolVarP(&exec.Version, "", "v", false, "show version and exit")
 
 	flag.Parse()
+	if exec.Version {
+		fmt.Println(version)
+		os.Exit(0)
+	}
 
 	machine, name, command, err := parseCommand(flag.Arg(0))
 	if err != nil {

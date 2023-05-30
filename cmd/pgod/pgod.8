@@ -72,6 +72,9 @@ send SIGHUP to ourselves when config changes
 .TP
 \fB--root\fP
 require root permission, setting to false can aid in debugging (default true)
+.TP
+\fB-v\fP
+show version and exit
 
 
 .SH "CONFIG FILE"
@@ -92,6 +95,7 @@ ignore = false
 compose = "my\-compose.yaml"
 urls = { "example.org" = ":5006" }
 ports = [ "5005/5", "1025/5" ]
+networks = [ "reverse\_proxy" ]
 
 .fi
 .RE
@@ -124,6 +128,9 @@ but when the containers go up this should connect the url \fB\fCexample.org\fR t
 ports
 \fB\fC[ "5005/5", "1025/5" ]\fR, this service can bind to ports nummbers: 5005-5010 and 1025-1030. This
 is checked by parsing the \fB\fCcompose.yaml\fR.
+.TP
+networks:
+\fB\fC[ "reverse_proxy" ]\fR, allowed external networks. If empty all networks are allowed to be used.
 
 
 .SH "AUTHENTICATION"

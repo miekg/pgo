@@ -71,6 +71,9 @@ The options are:
 **--root**
 :  require root permission, setting to false can aid in debugging (default true)
 
+**-v**
+:  show version and exit
+
 ## Config File
 
 `pgod` requires a TOML config file where the services are defined, an example config file looks like
