@@ -86,7 +86,7 @@ repository = "https://github.com/miekg/pgo"
 branch = "main"
 ignore = false
 compose = "my-compose.yaml"
-env = [ "MYVAR=VALUE" ],
+env = [ "MYVAR=VALUE" ]
 urls = { "example.org" = ":5006" }
 ports = [ "5005/5", "1025/5" ]
 networks = [ "reverse_proxy" ]
