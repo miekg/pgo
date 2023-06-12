@@ -32,6 +32,7 @@ type Service struct {
 	ComposeFile string `toml:"compose,omitempty"` // alternative compose file
 	Branch      string
 	URLs        map[string]int
+	Env         []string
 	Ports       []string
 	Networks    []string
 	Git         *git.Git         `toml:"-"`
