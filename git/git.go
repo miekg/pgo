@@ -9,16 +9,13 @@ import (
 	"os"
 	"os/exec"
 	"path"
-	"syscall"
 
-	"github.com/miekg/pgo/osutil"
 	"go.science.ru.nl/log"
 )
 
 type Git struct {
 	upstream string // upstream git repo
 	branch   string // specific branch to get, 'main' is not specified
-	user     string // what user to use
 	dir      string // where to put it
 }
 
@@ -26,7 +23,6 @@ type Git struct {
 func New(upstream, user, branch, directory string) *Git {
 	g := &Git{
 		upstream: upstream,
-		user:     user,
 		branch:   branch,
 		dir:      directory,
 	}
@@ -39,13 +35,7 @@ func (g *Git) run(args ...string) ([]byte, error) {
 	cmd.Dir = g.dir
 	cmd.Env = []string{"GIT_CONFIG_GLOBAL=/dev/null", "GIT_CONFIG_SYSTEM=/dev/null"}
 
-	if os.Geteuid() == 0 {
-		uid, gid := osutil.User(g.user)
-		cmd.SysProcAttr = &syscall.SysProcAttr{}
-		cmd.SysProcAttr.Credential = &syscall.Credential{Uid: uint32(uid), Gid: uint32(gid)}
-	}
-
-	log.Debugf("running in %q as %q %v", cmd.Dir, g.user, cmd.Args)
+	log.Debugf("running in %q %v", cmd.Dir, cmd.Args)
 
 	out, err := cmd.CombinedOutput()
 	if len(out) > 0 {
@@ -73,14 +63,6 @@ func (g *Git) Checkout() error {
 	if err := os.MkdirAll(g.dir, 0775); err != nil {
 		log.Errorf("Directory %q can not be created", g.dir)
 		return fmt.Errorf("failed to create directory %q: %s", g.dir, err)
-	}
-
-	if os.Geteuid() == 0 { // set g.dir to the correct owner, if we are root
-		uid, gid := osutil.User(g.user)
-		if err := os.Chown(g.dir, int(uid), int(gid)); err != nil {
-			log.Errorf("Directory %q can not be chown-ed to %q: %s", g.dir, g.user, err)
-			return fmt.Errorf("failed to chown directory %q to %q: %s", g.dir, g.user, err)
-		}
 	}
 
 	_, err := g.run("clone", "-b", g.branch, g.upstream, g.dir)
