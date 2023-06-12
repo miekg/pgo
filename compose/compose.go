@@ -22,13 +22,14 @@ type Compose struct {
 }
 
 // New returns a pointer to an intialized Compose.
-func New(user, directory, file string, ports []PortRange, nets []string) *Compose {
+func New(user, directory, file string, ports []PortRange, nets []string, env []string) *Compose {
 	g := &Compose{
 		user:  user,
 		dir:   directory,
 		ports: ports,
 		nets:  nets,
 		file:  file,
+		env:   env,
 	}
 	return g
 }

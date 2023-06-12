@@ -102,7 +102,7 @@ func (s *Service) InitGitAndCompose(dir string) error {
 	}
 
 	s.Git = git.New(s.Repository, s.User, s.Branch, dir)
-	s.Compose = compose.New(s.User, dir, s.ComposeFile, pr, s.Networks)
+	s.Compose = compose.New(s.User, dir, s.ComposeFile, pr, s.Networks, s.Env)
 	s.dir = dir
 	return nil
 }
