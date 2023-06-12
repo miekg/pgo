@@ -5,6 +5,7 @@ import (
 	"context"
 	"os"
 	"os/exec"
+	"strings"
 	"syscall"
 
 	"github.com/miekg/pgo/osutil"
@@ -16,6 +17,7 @@ type Compose struct {
 	dir   string      // where to put it
 	ports []PortRange // ports from config
 	nets  []string    // allowed networks from config
+	env   []string    // extra environment variables
 	file  string      // alternate compose file name
 }
 
@@ -48,7 +50,14 @@ func (c *Compose) run(args ...string) ([]byte, error) {
 		cmd.Env = []string{env("HOME", home), env("PATH", path)}
 	}
 
-	log.Debugf("running in %q as %q %v (env: %v)", cmd.Dir, c.user, cmd.Args, cmd.Env)
+	envnames := make([]string, len(c.env))
+	for i := range c.env {
+		cmd.Env = append(cmd.Env, c.env[i])
+		fs := strings.Split(c.env[i], "=")
+		envnames[i] = fs[0]
+	}
+
+	log.Debugf("running in %q as %q %v (env: %v)", cmd.Dir, c.user, cmd.Args, envnames)
 
 	out, err := cmd.CombinedOutput()
 	if len(out) > 0 {
