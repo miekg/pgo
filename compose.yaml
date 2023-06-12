@@ -14,5 +14,5 @@ services:
     frontend2:
       image: busybox
       command: ["echo", "BLA", "$SECRET"]
-      environment:
-        SECRET:
+        #      environment:
+        #SECRET:
