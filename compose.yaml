@@ -13,7 +13,4 @@ services:
         my.label: my_value
     frontend2:
       image: busybox
-      command: ["/bin/busybox", "echo", "$SECRET"]
-      environment:
-        SECRET_KEY2: aabbcc
-        ENV_IS_SET2:
+      command: ["echo", "BLA", "$SECRET"]
