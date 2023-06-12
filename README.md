@@ -10,7 +10,7 @@ You can restrict which ports are used by a service so multiple services on the s
 on each other. And optionally you can also restrict which external networks can be used.
 
 Current the following compose file variants are supported: "compose.yaml", "compose.yml",
-"docker-compose.yml" and "docker-compose.yaml". If you need more flexibilty you can point to a
+"docker-compose.yml" and "docker-compose.yaml". If you need more flexibility you can point to a
 specific compose file.
 
 Each compose file runs under it's own user-account. That account can then access storage, or
@@ -40,13 +40,14 @@ repository = "https://github.com/miekg/pgo"
 compose = "compose.yaml"
 branch = "main"
 ignore = false
+env = [ "MYENV=bla", "OTHERENV=bliep"]
 urls = { "pgo.science.ru.nl" = "5007" }
 ports = [ "5005/5", "1025/5" ]
 networks = [ "reverse_proxy" ]
 ```
 
 This file is used by `pgod` and should be updated for each project you want to onboard. Our plan is
-to have this go through an onboarding workflow.
+to have this go through an on boarding workflow.
 
 To go over this file:
 
@@ -57,7 +58,8 @@ To go over this file:
 - `ignore`: don't restart podman when a compose file changes.
 - `urls`: what DNS names need to be assigned to this server and to what port should they forward.
 - `ports`: which ports can this service bind to.
-- `networks`: which external network can this service use. Empty is all.
+- `networks`: which external network can this service use. Empty means all.
+- `env`: specify extra environment variables in "VAR=VALUE" notation.
 
 ## Requisites
 
@@ -71,7 +73,7 @@ To use "pgo" your project MUST have:
 
 Assuming a working Go compiler you can issue a `make` to compile the binaries. Then:
 
-start `pgod`: `sudo ./cmd/pgod/pgod -c pgo.toml -d /tmp --debug`. That will output some debug
+Start `pgod`: `sudo ./cmd/pgod/pgod -c pgo.toml -d /tmp --debug`. That will output some debug
 data, condensed here:
 
 ~~~ txt

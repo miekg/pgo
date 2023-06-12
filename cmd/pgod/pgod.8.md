@@ -61,7 +61,6 @@ The options are:
 **-t, --duration duration**
 :  default duration between pulls (default 5m0s)
 
-
 **--debug**
 :  enable debug logging
 
@@ -87,6 +86,7 @@ repository = "https://github.com/miekg/pgo"
 branch = "main"
 ignore = false
 compose = "my-compose.yaml"
+env = [ "MYVAR=VALUE" ]
 urls = { "example.org" = ":5006" }
 ports = [ "5005/5", "1025/5" ]
 networks = [ "reverse_proxy" ]
@@ -110,6 +110,9 @@ ignore
 
 compose
 : `my-compose.yaml`, specify an alternate compose file to use, outside of the supported variants.
+
+env
+: `"MYVAR=VALUE"`, specify environment variables to be exposed to the service.
 
 urls
 : `{ "example.org" = ":5006" }` how to setup any forwarding to the listening ports. This isn't used yet,
