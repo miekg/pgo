@@ -81,7 +81,7 @@ func Parse(doc []byte) (*Config, error) {
 
 func (s *Service) InitGitAndCompose(dir string) error {
 	dir = path.Join(dir, s.Name)
-	if err := os.MkdirAll(dir, 0700); err != nil {
+	if err := os.MkdirAll(dir, 0777); err != nil { // all users (possible) in the config, need to access this dir
 		return err
 	}
 	if os.Geteuid() == 0 {
@@ -102,7 +102,7 @@ func (s *Service) InitGitAndCompose(dir string) error {
 	}
 
 	s.Git = git.New(s.Repository, s.User, s.Branch, dir)
-	s.Compose = compose.New(s.User, dir, s.ComposeFile, pr, s.Networks)
+	s.Compose = compose.New(s.User, dir, s.ComposeFile, pr, s.Networks, s.Env)
 	s.dir = dir
 	return nil
 }
