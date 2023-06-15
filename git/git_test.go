@@ -5,7 +5,7 @@ import (
 )
 
 func TestDiffStatOK(t *testing.T) {
-	g := New("", "", ".", "")
+	g := New("test", "", "", ".", "")
 
 	data := []byte(`remote: Enumerating objects: 10, done.
 remote: Counting objects: 100% (10/10), done.
@@ -28,7 +28,7 @@ Fast-forward
 }
 
 func TestDiffStatFail(t *testing.T) {
-	g := New("", "", ".", "")
+	g := New("test", "", "", ".", "")
 
 	data := []byte(`remote: Enumerating objects: 10, done.
 remote: Counting objects: 100% (10/10), done.
