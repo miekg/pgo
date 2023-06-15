@@ -42,6 +42,7 @@ ignore = false
 env = [ "MYENV=bla", "OTHERENV=bliep"]
 urls = { "pgo.science.ru.nl" = "pgo:5007" }
 networks = [ "reverse_proxy" ]
+# import = "Caddyfile-import"
 ```
 
 This file is used by `pgod` and should be updated for each project you want to onboard. Our plan is
@@ -57,6 +58,7 @@ To go over this file:
 - `urls`: what DNS names need to be assigned to this server and to what port should they forward.
 - `networks`: which external network can this service use. Empty means all.
 - `env`: specify extra environment variables in "VAR=VALUE" notation.
+- `import`: create a Caddyfile snippet with reverse proxy statements for all URLs in all services.
 
 ## Requisites
 
@@ -162,6 +164,10 @@ If you want to clone a repository that is private, you can create an access toke
 ~~~ toml
 repository = "https://oauth2:<token>@gitlab.science.ru.nl/..."
 ~~~
+
+## Networking and Reverse Proxy
+
+Default how to do a caddy setup.
 
 ## pgod
 
