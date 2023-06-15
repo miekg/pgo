@@ -4,5 +4,5 @@ user = "miek"
 repository = "https://github.com/miekg/pgo"
 branch = "main"
 env = [ "SECRET=mysecret" ]
-urls = { "slashdot.org" = 5010 }
-ports = [ "5005/5", "1025/5" ]
+urls = { "slashdot.org" = "pgo:5010" }
+import = "myCaddyfile"

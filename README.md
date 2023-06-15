@@ -6,8 +6,7 @@ packages, "pgo" uses a `compose.yaml` as it's basis. It runs the compose via `po
 (Debian package exists). It allows for remote interaction via an SSH interface, which `pgoctl` makes
 easy to use. For this SSH interface no local users need to exist on the target system.
 
-You can restrict which ports are used by a service so multiple services on the same host don't stomp
-on each other. And optionally you can also restrict which external networks can be used.
+You can restrict which external networks can be used.
 
 Current the following compose file variants are supported: "compose.yaml", "compose.yml",
 "docker-compose.yml" and "docker-compose.yaml". If you need more flexibility you can point to a
@@ -41,8 +40,7 @@ compose = "compose.yaml"
 branch = "main"
 ignore = false
 env = [ "MYENV=bla", "OTHERENV=bliep"]
-urls = { "pgo.science.ru.nl" = "5007" }
-ports = [ "5005/5", "1025/5" ]
+urls = { "pgo.science.ru.nl" = "pgo:5007" }
 networks = [ "reverse_proxy" ]
 ```
 
@@ -57,7 +55,6 @@ To go over this file:
 - `compose`: alternate compose file to use.
 - `ignore`: don't restart podman when a compose file changes.
 - `urls`: what DNS names need to be assigned to this server and to what port should they forward.
-- `ports`: which ports can this service bind to.
 - `networks`: which external network can this service use. Empty means all.
 - `env`: specify extra environment variables in "VAR=VALUE" notation.
 
