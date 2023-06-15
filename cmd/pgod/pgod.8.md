@@ -59,12 +59,12 @@ The options are:
 :  enable debug logging
 
 **--restart**
-:   send SIGHUP to ourselves when config changes
+:   send SIGHUP to ourselves when config changes (default true)
 
 **--root**
 :  require root permission, setting to false can aid in debugging (default true)
 
-**-v**
+**-v**, **--version**
 :  show version and exit
 
 ## Config File
@@ -83,6 +83,7 @@ compose = "my-compose.yaml"
 env = [ "MYVAR=VALUE" ]
 urls = { "example.org" = "pgo:5006" }
 networks = [ "reverse_proxy" ]
+import = "Caddyfile-import"
 ~~~
 
 Here we define:
@@ -113,6 +114,10 @@ but when the containers go up this should connect the url `example.org` to `<ser
 
 networks:
 : `[ "reverse_proxy" ]`, allowed external networks. If empty all networks are allowed to be used.
+
+import:
+: `"Caddyfile-import"`, generate a Caddy (import) file that sets up the reverse proxies for *all*
+services that are defined.
 
 ## Authentication
 

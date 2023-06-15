@@ -37,16 +37,16 @@ func (c *Compose) run(args ...string) ([]byte, error) {
 	if c.file != "" {
 		args = append([]string{"-f", c.file}, args...)
 	}
+	path := "/usr/sbin:/usr/bin:/sbin:/bin"
+	home := osutil.Home(c.user)
 	cmd := exec.CommandContext(ctx, "podman-compose", args...)
 	cmd.Dir = c.dir
+	cmd.Env = []string{env("HOME", home), env("PATH", path)}
 
 	if os.Geteuid() == 0 {
 		uid, gid := osutil.User(c.user)
 		cmd.SysProcAttr = &syscall.SysProcAttr{}
 		cmd.SysProcAttr.Credential = &syscall.Credential{Uid: uint32(uid), Gid: uint32(gid)}
-		home := osutil.Home(c.user)
-		path := "/usr/sbin:/usr/bin:/sbin:/bin"
-		cmd.Env = []string{env("HOME", home), env("PATH", path)}
 	}
 
 	envnames := make([]string, len(c.env))
