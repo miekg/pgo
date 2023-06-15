@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"net"
+	"net/http"
 	"os"
 	"os/signal"
 	"sync"
@@ -13,6 +14,7 @@ import (
 
 	"github.com/gliderlabs/ssh"
 	"github.com/miekg/pgo/conf"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	flag "github.com/spf13/pflag"
 	"go.science.ru.nl/log"
 )
@@ -20,6 +22,7 @@ import (
 type ExecContext struct {
 	ConfigSource string
 	SAddr        string
+	MAddr        string
 	Debug        bool
 	Restart      bool
 	Root         bool
@@ -34,7 +37,8 @@ func (exec *ExecContext) RegisterFlags(fs *flag.FlagSet) {
 	}
 	fs.SortFlags = false
 	fs.StringVarP(&exec.ConfigSource, "config", "c", "/etc/pgo.toml", "config file to read")
-	fs.StringVarP(&exec.SAddr, "ssh", "s", ":2222", "ssh address to listen on")
+	fs.StringVarP(&exec.SAddr, "ssh", "s", ":2222", "address for SSH to listen on")
+	fs.StringVarP(&exec.MAddr, "metric", "m", ":9112", "address for Promethues metrics to listen on")
 	fs.StringVarP(&exec.Dir, "dir", "d", "/var/lib/pgo", "directory to check out the git repositories")
 	fs.BoolVarP(&exec.Debug, "debug", "", false, "enable debug logging")
 	fs.BoolVarP(&exec.Restart, "restart", "", true, "send SIGHUP when config changes")
@@ -136,11 +140,17 @@ func run(exec *ExecContext) error {
 		}(s)
 	}
 
+	http.Handle("/metrics", promhttp.Handler())
+	go func() {
+		log.Fatal(http.ListenAndServe(exec.MAddr, nil))
+	}()
+	log.Infof("Launched server on port %s (prometheus)", exec.MAddr)
+
 	sshHandler := newRouter(c)
 	if err := serveSSH(exec, &controllerWG, &workerWG, sshHandler); err != nil {
 		return err
 	}
-	log.Infof("Launched servers on port %s (ssh) with %d services tracked", exec.SAddr, len(c.Services))
+	log.Infof("Launched server on port %s (ssh) with %d services tracked", exec.SAddr, len(c.Services))
 
 	done := make(chan os.Signal, 1)
 	signal.Notify(done, syscall.SIGINT, syscall.SIGTERM, syscall.SIGHUP)
