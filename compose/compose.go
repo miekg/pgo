@@ -8,11 +8,13 @@ import (
 	"strings"
 	"syscall"
 
+	"github.com/miekg/pgo/metric"
 	"github.com/miekg/pgo/osutil"
 	"go.science.ru.nl/log"
 )
 
 type Compose struct {
+	name string
 	user string   // what user to use
 	dir  string   // where to put it
 	nets []string // allowed networks from config
@@ -21,8 +23,9 @@ type Compose struct {
 }
 
 // New returns a pointer to an intialized Compose.
-func New(user, directory, file string, nets, env []string) *Compose {
+func New(name, user, directory, file string, nets, env []string) *Compose {
 	g := &Compose{
+		name: name,
 		user: user,
 		dir:  directory,
 		nets: nets,
@@ -56,11 +59,16 @@ func (c *Compose) run(args ...string) ([]byte, error) {
 		envnames[i] = fs[0]
 	}
 
+	metric.CmdCount.WithLabelValues(c.name, "podman-compose", args[0]).Inc()
+
 	log.Debugf("running in %q as %q %v (env: %v)", cmd.Dir, c.user, cmd.Args, envnames)
 
 	out, err := cmd.CombinedOutput()
 	if len(out) > 0 {
 		log.Debug(string(out))
+	}
+	if err != nil {
+		metric.CmdErrorCount.WithLabelValues(c.name, "podman-compose", args[0]).Inc()
 	}
 
 	return bytes.TrimSpace(out), err

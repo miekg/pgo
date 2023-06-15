@@ -11,11 +11,13 @@ import (
 	"path"
 	"syscall"
 
+	"github.com/miekg/pgo/metric"
 	"github.com/miekg/pgo/osutil"
 	"go.science.ru.nl/log"
 )
 
 type Git struct {
+	name     string
 	upstream string // upstream git repo
 	branch   string // specific branch to get, 'main' is not specified
 	user     string // what user to use
@@ -23,7 +25,7 @@ type Git struct {
 }
 
 // New returns a pointer to an intialized Git.
-func New(upstream, user, branch, directory string) *Git {
+func New(name, upstream, user, branch, directory string) *Git {
 	g := &Git{
 		upstream: upstream,
 		user:     user,
@@ -45,11 +47,16 @@ func (g *Git) run(args ...string) ([]byte, error) {
 		cmd.SysProcAttr.Credential = &syscall.Credential{Uid: uint32(uid), Gid: uint32(gid)}
 	}
 
+	metric.CmdCount.WithLabelValues(g.name, "git", args[0]).Inc()
+
 	log.Debugf("running in %q as %q %v", cmd.Dir, g.user, cmd.Args)
 
 	out, err := cmd.CombinedOutput()
 	if len(out) > 0 {
 		log.Debug(string(out))
+	}
+	if err != nil {
+		metric.CmdErrorCount.WithLabelValues(g.name, "git", args[0]).Inc()
 	}
 
 	return bytes.TrimSpace(out), err
