@@ -5,3 +5,4 @@ repository = "https://github.com/miekg/pgo"
 branch = "main"
 env = [ "SECRET=mysecret" ]
 urls = { "slashdot.org" = "pgo:5010" }
+import = "myCaddyfile"

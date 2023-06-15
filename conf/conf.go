@@ -31,13 +31,15 @@ type Service struct {
 	Ignore      bool   // don't restart compose after it got updated if true
 	ComposeFile string `toml:"compose,omitempty"` // alternative compose file
 	Branch      string
+	Import      string            // filename of caddy file to generate
 	URLs        map[string]string // url -> host:port
 	Env         []string
 	Networks    []string
 	Git         *git.Git         `toml:"-"`
 	Compose     *compose.Compose `toml:"-"`
 
-	dir string // where is repo checked out
+	dir        string // where is repo checked out
+	importdata []byte // caddy's import file data
 }
 
 type Config struct {
@@ -75,6 +77,9 @@ func Parse(doc []byte) (*Config, error) {
 		}
 		if s.Branch == "" {
 			s.Branch = "main"
+		}
+		if s.Import != "" {
+			s.importdata = MakeCaddyImport(c)
 		}
 	}
 
@@ -155,6 +160,12 @@ func (s *Service) Track(ctx context.Context, duration time.Duration) {
 		log.Infof("[%s]: Checked out git repo in %s for %q (branch %s) with %d configured public keys", s.Name, s.dir, s.Name, s.Branch, len(pubkeys))
 	} else {
 		log.Infof("[%s]: Git repo exist, will fix state in next iteration, last error: %v", s.Name, errok)
+	}
+
+	if s.Import != "" && len(s.importdata) > 0 {
+		name := path.Join(s.dir, s.Import)
+		log.Infof("[%s]: Writing Caddy import file %q", s.Name, s.Import)
+		os.WriteFile(name, s.importdata, 0644) // with 644 we shouldn't care about ownership
 	}
 
 	if err := s.Compose.AllowedExternalNetworks(); err != nil {
