@@ -7,10 +7,10 @@ import (
 	"fmt"
 	"io/ioutil"
 	"math/rand"
+	"net"
 	"net/url"
 	"os"
 	"path"
-	"strconv"
 	"strings"
 	"syscall"
 	"time"
@@ -31,9 +31,8 @@ type Service struct {
 	Ignore      bool   // don't restart compose after it got updated if true
 	ComposeFile string `toml:"compose,omitempty"` // alternative compose file
 	Branch      string
-	URLs        map[string]int
+	URLs        map[string]string // url -> host:port
 	Env         []string
-	Ports       []string
 	Networks    []string
 	Git         *git.Git         `toml:"-"`
 	Compose     *compose.Compose `toml:"-"`
@@ -70,6 +69,9 @@ func Parse(doc []byte) (*Config, error) {
 			if _, err := url.Parse(u); err != nil {
 				return c, fmt.Errorf("bad url %s for service %q", s.Name, u)
 			}
+			if _, _, err := net.SplitHostPort(s.URLs[u]); err != nil {
+				return c, fmt.Errorf("bad service:port %s for service %q", s.Name, s.URLs[u])
+			}
 		}
 		if s.Branch == "" {
 			s.Branch = "main"
@@ -92,37 +94,10 @@ func (s *Service) InitGitAndCompose(dir string) error {
 		}
 	}
 
-	pr := make([]compose.PortRange, len(s.Ports))
-	for i := range s.Ports {
-		lo, hi, err := parsePorts(s.Ports[i])
-		if err != nil {
-			return err
-		}
-		pr[i] = compose.PortRange{Lo: lo, Hi: hi}
-	}
-
 	s.Git = git.New(s.Repository, s.User, s.Branch, dir)
-	s.Compose = compose.New(s.User, dir, s.ComposeFile, pr, s.Networks, s.Env)
+	s.Compose = compose.New(s.User, dir, s.ComposeFile, s.Networks, s.Env)
 	s.dir = dir
 	return nil
-}
-
-// parsePorts pasrses a n/x string and returns n and n+x, or an error is the string isn't correctly formatted.
-func parsePorts(s string) (int, int, error) {
-	items := strings.Split(s, "/")
-	if len(items) != 2 {
-		return 0, 0, fmt.Errorf("format error, no slash found: %q", s)
-	}
-
-	lower, err := strconv.ParseUint(items[0], 10, 32)
-	if err != nil {
-		return 0, 0, fmt.Errorf("lower ports is not a number: %q", items[0])
-	}
-	upper, err := strconv.ParseUint(items[1], 10, 32)
-	if err != nil {
-		return 0, 0, fmt.Errorf("lower ports is not a number: %q", items[0])
-	}
-	return int(lower), int(lower) + int(upper), nil
 }
 
 // PublicKeys parses the public keys in the ssh/ directory of the repository.
@@ -182,9 +157,7 @@ func (s *Service) Track(ctx context.Context, duration time.Duration) {
 		log.Infof("[%s]: Git repo exist, will fix state in next iteration, last error: %v", s.Name, errok)
 	}
 
-	if _, err := s.Compose.AllowedPorts(); err != nil {
-		log.Warningf("[%s]: Port usage outside of allowed ranges: %v", s.Name, err)
-	} else if err := s.Compose.AllowedExternalNetworks(); err != nil {
+	if err := s.Compose.AllowedExternalNetworks(); err != nil {
 		log.Warningf("[%s]: External network usage outside of allowed networks: %v", s.Name, err)
 	} else {
 		s.Compose.Pull(nil)
@@ -222,10 +195,6 @@ func (s *Service) Track(ctx context.Context, duration time.Duration) {
 			continue
 		}
 
-		if _, err := s.Compose.AllowedPorts(); err != nil {
-			log.Warningf("[%s]: Port usage outside of allowed ranges: %v", s.Name, err)
-			continue
-		}
 		if err := s.Compose.AllowedExternalNetworks(); err != nil {
 			log.Warningf("[%s]: External network usage outside of allowed networks: %v", s.Name, err)
 			continue

@@ -24,18 +24,12 @@ Each compose file runs under it's own user-account. That account can then access
 databases it has access too - provisioning that stuff is out-of-scope - assuming your infra can deal
 with all that stuff. And make that available on each server.
 
-Servers running pgod(8) as still special in some regard, a developers needs to know which server runs
-their compose file *and* you need to administrate who own which port numbers. Moving services to a
-different machine is as easy as starting the compose there, but you need to make sure your infra
-also updates externals records (DNS for example).
+Servers running pgod(8) as still special in some regard, a developers needs to know which server
+runs their compose file. Moving services to a different machine is as easy as starting the compose
+there, but you need to make sure your infra also updates externals records (DNS for example).
 
 The interface into `pgod` is via SSH, but not the normal SSH running on the server, this is a
 completely seperate SSH interface implemented by both `pgod` and `pgoctl`.
-
-The main idea here is that developers can push stuff easier to production and that you can have some
-of the goodies from Kubernetes, but not that bad stuff like the networking - the big trade-off being
-you need to administrate port numbers *and* still run some proxy to forward URLs to the correct
-backend.
 
 For each repository it directs podman-compose to pull, build and start the containers defined in the
 `compose.yaml` file. Whenever this compose file changes this is redone. Current the following
@@ -87,8 +81,7 @@ branch = "main"
 ignore = false
 compose = "my-compose.yaml"
 env = [ "MYVAR=VALUE" ]
-urls = { "example.org" = ":5006" }
-ports = [ "5005/5", "1025/5" ]
+urls = { "example.org" = "pgo:5006" }
 networks = [ "reverse_proxy" ]
 ~~~
 
@@ -115,12 +108,8 @@ env
 : `"MYVAR=VALUE"`, specify environment variables to be exposed to the service.
 
 urls
-: `{ "example.org" = ":5006" }` how to setup any forwarding to the listening ports. This isn't used yet,
-but when the containers go up this should connect the url `example.org` to `<thismachine>:5006`.
-
-ports
-: `[ "5005/5", "1025/5" ]`, this service can bind to ports nummbers: 5005-5010 and 1025-1030. This
-is checked by parsing the `compose.yaml`.
+: `{ "example.org" = "pgo:5006" }` how to setup any forwarding to the listening ports.
+but when the containers go up this should connect the url `example.org` to `<service>:5006`.
 
 networks:
 : `[ "reverse_proxy" ]`, allowed external networks. If empty all networks are allowed to be used.
