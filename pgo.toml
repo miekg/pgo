@@ -1,8 +1,13 @@
 [[services]]
+name = "default"
+user = "root"
+repository = "https://github.com/miekg/pgo-caddy"
+import = "caddy/Caddyfile-import"
+
+[[services]]
 name = "pgo"
 user = "miek"
 repository = "https://github.com/miekg/pgo"
 branch = "main"
 env = [ "SECRET=mysecret" ]
 urls = { "slashdot.org" = "pgo:5010" }
-import = "myCaddyfile"
