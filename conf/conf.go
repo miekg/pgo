@@ -171,9 +171,18 @@ func (s *Service) Track(ctx context.Context, duration time.Duration) {
 	if err := s.Compose.AllowedExternalNetworks(); err != nil {
 		log.Warningf("[%s]: External network usage outside of allowed networks: %v", s.Name, err)
 	} else {
-		s.Compose.Pull(nil)
-		s.Compose.Build(nil)
-		s.Compose.Up(nil)
+		log.Infof("[%s]: Pulling containers", s.Name)
+		if _, err := s.Compose.Pull(nil); err != nil {
+			log.Warningf("[%s]: Failed pulling containers: %v", s.Name, err)
+		}
+		log.Infof("[%s]: Building images", s.Name)
+		if _, err := s.Compose.Build(nil); err != nil {
+			log.Warningf("[%s]: Failed building containers: %v", s.Name, err)
+		}
+		log.Infof("[%s]: Upping services", s.Name)
+		if _, err := s.Compose.Up(nil); err != nil {
+			log.Warningf("[%s]: Failed upping services: %v", s.Name, err)
+		}
 	}
 
 	namesOfInterest := cli.DefaultFileNames
@@ -215,9 +224,18 @@ func (s *Service) Track(ctx context.Context, duration time.Duration) {
 			log.Infof("[%s]: Ignore is set, not restarting any containers", s.Name)
 		}
 
-		s.Compose.Down(nil)
-		s.Compose.Build(nil)
-		s.Compose.Up(nil)
+		log.Infof("[%s]: Downing services", s.Name)
+		if _, err := s.Compose.Down(nil); err != nil {
+			log.Warningf("[%s]: Failed downing services: %v", s.Name, err)
+		}
+		log.Infof("[%s]: Building images", s.Name)
+		if _, err := s.Compose.Build(nil); err != nil {
+			log.Warningf("[%s]: Failed building containers: %v", s.Name, err)
+		}
+		log.Infof("[%s]: Upping services", s.Name)
+		if _, err := s.Compose.Up(nil); err != nil {
+			log.Warningf("[%s]: Failed upping services: %v", s.Name, err)
+		}
 	}
 }
 
