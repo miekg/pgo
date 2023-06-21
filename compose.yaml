@@ -11,4 +11,3 @@ services:
         - "8080"
       labels:
         my.label: my_value
-    networks:
