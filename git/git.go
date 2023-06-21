@@ -49,7 +49,7 @@ func (g *Git) run(args ...string) ([]byte, error) {
 
 	metric.CmdCount.WithLabelValues(g.name, "git", args[0]).Inc()
 
-	log.Debugf("running in %q as %q %v", cmd.Dir, g.user, cmd.Args)
+	log.Debugf("[%s]: running in %q as %q %v", g.name, cmd.Dir, g.user, cmd.Args)
 
 	out, err := cmd.CombinedOutput()
 	if len(out) > 0 {

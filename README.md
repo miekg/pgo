@@ -75,21 +75,8 @@ To use "pgo" your project MUST have:
 
 Assuming a working Go compiler you can issue a `make` to compile the binaries. Then:
 
-Start `pgod`: `sudo ./cmd/pgod/pgod -c pgo.toml -d /tmp --debug`. That will output some debug
-data, condensed here:
-
-~~~ txt
-[INFO ] Service "pgo" with upstream "https://github.com/miekg/pgo"
-[INFO ] Launched tracking routine for "pgo"
-[INFO ] Launched servers on port :2222 (ssh)
-[DEBUG] running in "/tmp/pgo-pgo" as "miek" [git clone -b main https://github.com/miekg/pgo /tmp/pgo-3809413984]
-[DEBUG] Cloning into '/tmp/pgo-pgo'...
-[INFO ] Checked out git repo in /tmp/pgo-pgo for "pgo"
-[DEBUG] running in "/tmp/pgo-pgo" as "miek" [podman-compose build] (env: [HOME=/home/miek PATH=/usr/sbin:/usr/bin:/sbin:/bin])
-[DEBUG] ['podman', '--version', '']
-using podman version: 3.4.4
-[DEBUG] running in "/tmp/pgo-pgo" as "miek" [podman-compose up -d] (env: [HOME=/home/miek PATH=/usr/sbin:/usr/bin:/sbin:/bin])
-~~~
+Start `pgod`: `sudo ./cmd/pgod/pgod -c pgo.toml -d /tmp/pgo --debug`. That will output some debug
+data.
 
 In other words: it clones the repo, builds, pulls, and starts the containers. It then *tracks*
 upstream and whenever `compose.yaml` changes it will do a `down` and `up`. To force changes

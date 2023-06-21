@@ -64,7 +64,7 @@ func (c *Compose) run(args ...string) ([]byte, error) {
 
 	metric.CmdCount.WithLabelValues(c.name, "compose", args[0]).Inc()
 
-	log.Debugf("running in %q as %q %v (env: %v)", cmd.Dir, c.user, cmd.Args, envnames)
+	log.Debugf("[%s]: running in %q as %q %v (env: %v)", c.name, cmd.Dir, c.user, cmd.Args, envnames)
 
 	out, err := cmd.CombinedOutput()
 	if len(out) > 0 {
