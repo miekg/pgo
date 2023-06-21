@@ -27,6 +27,7 @@ type Git struct {
 // New returns a pointer to an intialized Git.
 func New(name, upstream, user, branch, directory string) *Git {
 	g := &Git{
+		name:     name,
 		upstream: upstream,
 		user:     user,
 		branch:   branch,
@@ -53,7 +54,7 @@ func (g *Git) run(args ...string) ([]byte, error) {
 
 	out, err := cmd.CombinedOutput()
 	if len(out) > 0 {
-		log.Debug(string(out))
+		log.Debugf("[%s]: %s", g.name, string(out))
 	}
 	if err != nil {
 		metric.CmdErrorCount.WithLabelValues(g.name, "git", args[0]).Inc()

@@ -68,7 +68,7 @@ func (c *Compose) run(args ...string) ([]byte, error) {
 
 	out, err := cmd.CombinedOutput()
 	if len(out) > 0 {
-		log.Debug(string(out))
+		log.Debugf("[%s]: %s", c.name, string(out))
 	}
 	if err != nil {
 		metric.CmdErrorCount.WithLabelValues(c.name, "compose", args[0]).Inc()
