@@ -53,10 +53,10 @@ to have this go through an on boarding workflow.
 To go over this file:
 
 - `name`: this is the name of the service, used to uniquely identify the service across machines.
-- `user`: which user to use to run the podman-compose under.
+- `user`: which user to use to run the docker compose under.
 - `repository` and `branch`: where to find the git repo belonging to this service.
 - `compose`: alternate compose file to use.
-- `ignore`: don't restart podman when a compose file changes.
+- `ignore`: don't restart the containers when a compose file changes.
 - `urls`: what DNS names need to be assigned to this server and to what port should they forward.
 - `networks`: which external network can this service use. Empty means all.
 - `env`: specify extra environment variables in "VAR=VALUE" notation.
@@ -75,7 +75,7 @@ To use "pgo" your project MUST have:
 
 Assuming a working Go compiler you can issue a `make` to compile the binaries. Then:
 
-Start `pgod`: `sudo ./cmd/pgod/pgod -c pgo.toml -d /tmp/pgo --debug`. That will output some debug
+Start `pgod`: `sudo /cmd/pgod/pgod -c pgo.toml -d /tmp/pgo --debug`. That will output some debug
 data.
 
 In other words: it clones the repo, builds, pulls, and starts the containers. It then *tracks*
@@ -85,7 +85,7 @@ in that file you can use a `x-gpo-version` in the yaml and change that whenever 
 
 Now with `pgoctl` you can access and control this environment (well not you, because you don't have
 the private key belonging to the public key that sits in the `ssh/` directory). `pgoctl` want to
-see `<machine>:<name>//<operation>` string, i.e. `localhost:pgo//ps` which does a `podman-compose
+see `<machine>:<name>//<operation>` string, i.e. `localhost:pgo//ps` which does a `docker compose
 ps` for our stuff:
 
 ~~~
@@ -98,12 +98,8 @@ Unauthorized: Key for user "miek" does not match any for name pgo
 Once our committed keys get pulled:
 ~~~
 % ./cmd/pgoctl/pgoctl -i ~/id_pgo2 localhost:pgo//ps
-CONTAINER ID  IMAGE                             COMMAND               CREATED        STATUS            PORTS                    NAMES
-4fe30f61c4db  docker.io/library/busybox:latest  /bin/busybox http...  3 seconds ago  Up 3 seconds ago  0.0.0.0:40475->8080/tcp  pgo-pgo_frontend_1
-['podman', '--version', '']
-using podman version: 3.4.4
-podman ps -a --filter label=io.podman.compose.project=pgo-pgo
-exit code: 0%
+NAME                IMAGE               COMMAND                  SERVICE             CREATED             STATUS              PORTS
+pgo-frontend-1      docker.io/busybox   "/bin/busybox httpd …"   frontend            9 minutes ago       Up 9 minutes        0.0.0.0:32771->8080/tcp
 ~~~
 
 Currently implemented are: `up`, `down`, `pull`, `ps`, `logs` and `ping` to see if the
