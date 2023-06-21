@@ -2,11 +2,13 @@
 
 Podman Gitops. This is a subsequent development (or successor?) of
 <https://github.com/miekg/gitopper>. Where "gitopper" integrates with your OS, i.e. use Debian
-packages, "pgo" uses a `compose.yaml` as it's basis. It runs the compose via `podman-compose`
-(Debian package exists). It allows for remote interaction via an SSH interface, which `pgoctl` makes
-easy to use. For this SSH interface no local users need to exist on the target system.
+packages, "pgo" uses a `compose.yaml` as it's basis. It runs the compose via `docker compose`
+(podman was dropped, see below, see https://docs.docker.com/engine/install/debian/ for docker's
+installation). It allows for remote interaction via an SSH interface, which `pgoctl` makes easy to
+use. For this SSH interface no local users need to exist on the target system.
 
-You can restrict which external networks can be used.
+You can restrict which ports are used by a service so multiple services on the same host don't stomp
+on each other. And optionally you can also restrict which external networks can be used.
 
 Current the following compose file variants are supported: "compose.yaml", "compose.yml",
 "docker-compose.yml" and "docker-compose.yaml". If you need more flexibility you can point to a
@@ -16,8 +18,8 @@ Each compose file runs under it's own user-account. That account can then access
 databases it has access to - provisioning that stuff is out-of-scope - assuming your infra can deal
 with all that stuff. And make that available on each server.
 
-Servers running "pgo" as still special in some regard, a developers needs to know which server runs
-their compose file *and* you need to administrate who own which port numbers. Moving services to a
+Servers running "pgod" as still special in some regard, a developers needs to know which server runs
+their compose file *and* you need to administrate who owns what port numbers. Moving services to a
 different machine is as easy as starting the compose there, but you need to make sure your infra
 also updates externals records (DNS for example).
 
@@ -197,9 +199,11 @@ services:
     volumes:
       - ./caddy/:/etc/caddy/
     networks:
-      - default
+      - caddynet
+
 networks:
-  default:
+    caddynet:
+      name: caddy
 ~~~
 
 Where the network created is called `default` and the `Caddyfile-import` is written into the
@@ -216,3 +220,20 @@ See the [manual page](./cmd/pgod/pgod.8.md) in [cmd/pgod](./cmd/pgod/).
 ## pgoctl
 
 See the [manual page](./cmd/pgoctl/pgoctl.1.md) in [cmd/pgoctl](./cmd/pgoctl).
+
+# Podman and Podman-Compose
+
+Initialy PGO was using podman(-compose) to run the images, but this proved to be a challenge.
+podman-compose is a seperate project and has it's own ideas on how to parse a compose.yml file (not
+only his fault, the format is terrible), this meant using external network just didn't work,
+regardless what syntax was used. Also podman kept complaining about CNI version clashes which were
+undebuggable, so as much as I want to like podman, this is now using docker compose.
+
+Also in podman 4 the networking moved away from CNI to a new thing written in Rust - which is
+completely fine, but does raise the possibility that I can revist networking relatively soon again
+to fix it for podman4.
+
+Also podman-compose has not seen much releases, so the apt-get install story becomes weaker there as
+well.
+
+Initial experiments with docker made stuff work out of the box.
