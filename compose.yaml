@@ -8,13 +8,7 @@ services:
         SECRET_KEY2: aabbcc
         ENV_IS_SET2:
       ports:
-        - "5010"
+        - "8080"
       labels:
         my.label: my_value
     networks:
-      - proxy
-
-networks:
-  proxy:
-    external: true
-    name: proxy

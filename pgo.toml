@@ -10,4 +10,4 @@ branch = "miek/touching-javelin"
 user = "miek"
 repository = "https://github.com/miekg/pgo"
 env = [ "SECRET=mysecret" ]
-urls = { "slashdot.org" = "pgo:5010" }
+urls = { "slashdot.org" = "pgo:8080" }
