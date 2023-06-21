@@ -1,5 +1,5 @@
 [[services]]
-name = "default"
+name = "caddy"
 user = "root"
 repository = "https://github.com/miekg/pgo-caddy"
 import = "caddy/Caddyfile-import"
