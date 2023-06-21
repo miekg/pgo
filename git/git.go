@@ -27,6 +27,7 @@ type Git struct {
 // New returns a pointer to an intialized Git.
 func New(name, upstream, user, branch, directory string) *Git {
 	g := &Git{
+		name:     name,
 		upstream: upstream,
 		user:     user,
 		branch:   branch,
@@ -43,17 +44,20 @@ func (g *Git) run(args ...string) ([]byte, error) {
 
 	if os.Geteuid() == 0 {
 		uid, gid := osutil.User(g.user)
+		if uid == 0 && gid == 0 && g.user != "root" {
+			return nil, fmt.Errorf("failed to resolve user %q to uid/gid", g.user)
+		}
 		cmd.SysProcAttr = &syscall.SysProcAttr{}
-		cmd.SysProcAttr.Credential = &syscall.Credential{Uid: uint32(uid), Gid: uint32(gid)}
+		cmd.SysProcAttr.Credential = &syscall.Credential{Uid: uid, Gid: gid}
 	}
 
 	metric.CmdCount.WithLabelValues(g.name, "git", args[0]).Inc()
 
-	log.Debugf("running in %q as %q %v", cmd.Dir, g.user, cmd.Args)
+	log.Debugf("[%s]: running in %q as %q %v", g.name, cmd.Dir, g.user, cmd.Args)
 
 	out, err := cmd.CombinedOutput()
 	if len(out) > 0 {
-		log.Debug(string(out))
+		log.Debugf("[%s]: %s", g.name, string(out))
 	}
 	if err != nil {
 		metric.CmdErrorCount.WithLabelValues(g.name, "git", args[0]).Inc()

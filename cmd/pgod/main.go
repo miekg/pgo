@@ -25,7 +25,6 @@ type ExecContext struct {
 	MAddr        string
 	Debug        bool
 	Restart      bool
-	Root         bool
 	Dir          string
 	Duration     time.Duration
 	Version      bool
@@ -42,7 +41,6 @@ func (exec *ExecContext) RegisterFlags(fs *flag.FlagSet) {
 	fs.StringVarP(&exec.Dir, "dir", "d", "/var/lib/pgo", "directory to check out the git repositories")
 	fs.BoolVarP(&exec.Debug, "debug", "", false, "enable debug logging")
 	fs.BoolVarP(&exec.Restart, "restart", "", true, "send SIGHUP when config changes")
-	fs.BoolVarP(&exec.Root, "root", "", true, "require root permission, setting to false can aid in debugging")
 	fs.BoolVarP(&exec.Version, "version", "v", false, "show version and exit")
 	fs.DurationVarP(&exec.Duration, "duration", "t", 5*time.Minute, "default duration between pulls")
 }
@@ -83,7 +81,7 @@ func serveSSH(exec *ExecContext, controllerWG, workerWG *sync.WaitGroup, sshHand
 }
 
 func run(exec *ExecContext) error {
-	if os.Geteuid() != 0 && exec.Root {
+	if os.Geteuid() != 0 {
 		return ErrNotRoot
 	}
 

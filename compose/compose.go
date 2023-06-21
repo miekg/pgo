@@ -3,6 +3,7 @@ package compose
 import (
 	"bytes"
 	"context"
+	"fmt"
 	"os"
 	"os/exec"
 	"strings"
@@ -14,23 +15,25 @@ import (
 )
 
 type Compose struct {
-	name string
-	user string   // what user to use
-	dir  string   // where to put it
-	nets []string // allowed networks from config
-	env  []string // extra environment variables
-	file string   // alternate compose file name
+	name  string
+	user  string      // what user to use
+	dir   string      // where to put it
+	ports []PortRange // ports from config
+	nets  []string    // allowed networks from config
+	env   []string    // extra environment variables
+	file  string      // alternate compose file name
 }
 
 // New returns a pointer to an intialized Compose.
-func New(name, user, directory, file string, nets, env []string) *Compose {
+func New(name, user, directory, file string, nets, env []string, ports []PortRange) *Compose {
 	g := &Compose{
-		name: name,
-		user: user,
-		dir:  directory,
-		nets: nets,
-		file: file,
-		env:  env,
+		name:  name,
+		user:  user,
+		dir:   directory,
+		nets:  nets,
+		ports: ports,
+		file:  file,
+		env:   env,
 	}
 	return g
 }
@@ -42,14 +45,24 @@ func (c *Compose) run(args ...string) ([]byte, error) {
 	}
 	path := "/usr/sbin:/usr/bin:/sbin:/bin"
 	home := osutil.Home(c.user)
-	cmd := exec.CommandContext(ctx, "podman-compose", args...)
+	args = append([]string{"compose"}, args...)
+	cmd := exec.CommandContext(ctx, "docker", args...)
 	cmd.Dir = c.dir
 	cmd.Env = []string{env("HOME", home), env("PATH", path)}
 
 	if os.Geteuid() == 0 {
 		uid, gid := osutil.User(c.user)
+		if uid == 0 && gid == 0 && c.user != "root" {
+			return nil, fmt.Errorf("failed to resolve user %q to uid/gid", c.user)
+		}
+		dgid := osutil.DockerGroup()
+		if dgid == 0 {
+			return nil, fmt.Errorf("failed to resolve docker to gid")
+		}
+		groups := osutil.Groups(c.user)
+		groups = append(groups, dgid)
 		cmd.SysProcAttr = &syscall.SysProcAttr{}
-		cmd.SysProcAttr.Credential = &syscall.Credential{Uid: uint32(uid), Gid: uint32(gid)}
+		cmd.SysProcAttr.Credential = &syscall.Credential{Uid: uid, Gid: gid, Groups: groups}
 	}
 
 	envnames := make([]string, len(c.env))
@@ -59,16 +72,16 @@ func (c *Compose) run(args ...string) ([]byte, error) {
 		envnames[i] = fs[0]
 	}
 
-	metric.CmdCount.WithLabelValues(c.name, "podman-compose", args[0]).Inc()
+	metric.CmdCount.WithLabelValues(c.name, "compose", args[0]).Inc()
 
-	log.Debugf("running in %q as %q %v (env: %v)", cmd.Dir, c.user, cmd.Args, envnames)
+	log.Debugf("[%s]: running in %q as %q %v (env: %v)", c.name, cmd.Dir, c.user, cmd.Args, envnames)
 
 	out, err := cmd.CombinedOutput()
 	if len(out) > 0 {
-		log.Debug(string(out))
+		log.Debugf("[%s]: %s", c.name, string(out))
 	}
 	if err != nil {
-		metric.CmdErrorCount.WithLabelValues(c.name, "podman-compose", args[0]).Inc()
+		metric.CmdErrorCount.WithLabelValues(c.name, "compose", args[0]).Inc()
 	}
 
 	return bytes.TrimSpace(out), err

@@ -1,7 +1,7 @@
 %%%
 title = "pgod 8"
 area = "System Administration"
-workgroup = "Podman Compose"
+workgroup = "Docker Compose"
 %%%
 
 pgod
@@ -9,7 +9,7 @@ pgod
 
 ## Name
 
-pgod - watch a git repository, pull changes and restart the podman compose service
+pgod - watch a git repository, pull changes and restart the docker compose service
 
 ## Synopsis
 
@@ -31,7 +31,7 @@ there, but you need to make sure your infra also updates externals records (DNS 
 The interface into `pgod` is via SSH, but not the normal SSH running on the server, this is a
 completely seperate SSH interface implemented by both `pgod` and `pgoctl`.
 
-For each repository it directs podman-compose to pull, build and start the containers defined in the
+For each repository it directs docker compose to pull, build and start the containers defined in the
 `compose.yaml` file. Whenever this compose file changes this is redone. Current the following
 compose file variants are supported: "compose.yaml", "compose.yml", "docker-compose.yml" and
 "docker-compose.yaml".
@@ -61,9 +61,6 @@ The options are:
 **--restart**
 :   send SIGHUP to ourselves when config changes (default true)
 
-**--root**
-:  require root permission, setting to false can aid in debugging (default true)
-
 **-v**, **--version**
 :  show version and exit
 
@@ -92,7 +89,7 @@ name
 : `pgo`, how to address this service on this machine.
 
 user
-: `miek`, run podman under this user. This username only need to exist on the target machine and has
+: `miek`, run docker under this user. This username only need to exist on the target machine and has
 no relation to the SSH user connecting to `pgod`. I.e. it could be `nobody`.
 
 repository *and* branch
@@ -143,4 +140,4 @@ Pgod has following exit codes:
 ## See Also
 
 See [this design doc](https://miek.nl/2022/november/15/provisioning-services/), and
-[gitopper](https://github.com/miekg/gitopper). And see pgoctl(1) podman-compose(1).
+[gitopper](https://github.com/miekg/gitopper). And see pgoctl(1) docker(1).

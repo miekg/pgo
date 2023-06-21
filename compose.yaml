@@ -11,6 +11,10 @@ services:
         - "8080"
       labels:
         my.label: my_value
-    frontend2:
-      image: busybox
-      command: ["echo", "BLA", "$SECRET"]
+      networks:
+        - caddynet
+
+networks:
+  caddynet:
+    external: true
+    name: caddy

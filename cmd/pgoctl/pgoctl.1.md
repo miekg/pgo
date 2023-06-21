@@ -1,7 +1,7 @@
 %%%
 title = "pgoctl 1"
 area = "System Administration"
-workgroup = "Podman Compose"
+workgroup = "Docker Compose"
 %%%
 
 pgoctl
@@ -18,7 +18,7 @@ pgoctl - interact remotely with pgod(8)
 ## Description
 
 pgoctl is an utility to inspect and control pgod(8) remotely. The exit status from the
-podman-compose is reflected in the exist status of pgoctl. Almost all commands from podman-compose
+docker compose is reflected in the exist status of pgoctl. Almost all commands from docker compose
 are implemented.
 
 There are only a few options:
@@ -40,58 +40,52 @@ such variable exist `-i` _is_ mandatory.
 Start pgod(8) and look at some services:
 
 ~~~
-% sudo ./cmd/pgod/pgod -d /tmp -c pgo.toml
-[INFO ] Service "pgo" with upstream "https://github.com/miekg/pgo"
-[INFO ] Launched tracking routine for "pgo"
-[INFO ] Launched servers on port :2222 (ssh) with 1 services tracked
-[INFO ] Reading public key "/tmp/pgo-pgo/ssh/id_pgo.pub"
-[INFO ] Reading public key "/tmp/pgo-pgo/ssh/id_pgo3.pub"
-[INFO ] Reading public key "/tmp/pgo-pgo/ssh/id_pgo4.pub"
-[INFO ] [pgo]: Checked out git repo in /tmp/pgo-pgo for "pgo" (branch main) with 3 configured public keys
-[INFO ] Service "pgo" with upstream "https://github.com/miekg/pgo"
-[INFO ] Launched tracking routine for "pgo"
-[INFO ] Launched servers on port :2222 (ssh)
+% sudo cmd/pgod/pgod -c pgo.toml -d /tmp/pgo
+[INFO ] [caddy]: Service "caddy" with upstream "https://github.com/miekg/pgo-caddy"
+[INFO ] [pgo]: Service "pgo" with upstream "https://github.com/miekg/pgo"
+[INFO ] [caddy]: Launched tracking routine for "caddy"
+[INFO ] [pgo]: Launched tracking routine for "pgo"
+[INFO ] Launched server on port :9112 (prometheus)
+[INFO ] Launched server on port :2222 (ssh) with 2 services tracked
+[WARN ] [caddy]: Failed to get public keys: open /tmp/pgo/caddy/ssh: no such file or directory
+[INFO ] [caddy]: Checked out git repo in /tmp/pgo/caddy for "caddy" (branch main) with 0 configured public keys
+[INFO ] [caddy]: Writing Caddy import file "caddy/Caddyfile-import"
+[INFO ] [pgo]: Checked out git repo in /tmp/pgo/pgo for "pgo" (branch main) with 3 configured public keys
+[INFO ] [caddy]: Pulling containers
+[INFO ] [pgo]: Pulling containers
+[INFO ] [caddy]: Building images
+[INFO ] [pgo]: Building images
+[INFO ] [caddy]: Upping services
+[INFO ] [pgo]: Upping services
+[INFO ] [caddy]: Tracking upstream
+[INFO ] [pgo]: Tracking upstream
 ~~~
 
 Then up the services, if not done already:
 
 ~~~
 % cmd/pgoctl/pgoctl -i ssh/id_pgo localhost:pgo//up
-61380c3c0cbe9827f335b5d6e7690d3a366317f755d87f969fcd9b1cb4b2254c
-['podman', '--version', '']
-using podman version: 3.4.4
-** excluding:  set()
-['podman', 'network', 'exists', 'pgo-3493677287_default']
-podman run --name=pgo-3493677287_frontend_1 ..... -p 8080 -w / busybox /bin/busybox httpd -f -p 8080
-exit code: 0%
+Container pgo-frontend-1  Running
 ~~~
 
 Looking at the `ps`:
 
 ~~~
 % cmd/pgoctl/pgoctl -i ssh/id_pgo localhost:pgo//ps
-CONTAINER ID  IMAGE                             COMMAND               CREATED             STATUS                 PORTS                    NAMES
-61380c3c0cbe  docker.io/library/busybox:latest  /bin/busybox http...  About a minute ago  Up About a minute ago  0.0.0.0:36391->8080/tcp  pgo-3493677287_frontend_1
-['podman', '--version', '']
-using podman version: 3.4.4
-podman ps -a --filter label=io.podman.compose.project=pgo-3493677287
-exit code: 0%
+NAME                IMAGE               COMMAND                  SERVICE             CREATED             STATUS              PORTS
+pgo-frontend-1      docker.io/busybox   "/bin/busybox httpd …"   frontend            14 minutes ago      Up 14 minutes       0.0.0.0:32771->8080/tcp
 ~~~
 
-Or `exec` inside a container/service. Podman-compose expect the service to be used here, this is the
+Or `exec` inside a container/service. Docker compose expects the service to be used here, this is the
 service *as specfied in the compose.yaml*.
 
 ~~~
 % cmd/pgoctl/pgoctl -i id_pgo -- localhost:pgo//exec frontend /bin/ls
 bin    etc    lib    proc   run    tmp    var
 dev    home   lib64  root   sys    usr
-['podman', '--version', '']
-using podman version: 3.4.4
-podman exec --interactive --tty --env SECRET_KEY2=aabbcc --env ENV_IS_SET2=None pgo_frontend_1 /bin/ls
-exit code: 0
 ~~~
 
 ## Also See
 
 See [this design doc](https://miek.nl/2022/november/15/provisioning-services/), and
-[gitopper](https://github.com/miekg/gitopper). And see pgod(8) podman-compose(1).
+[gitopper](https://github.com/miekg/gitopper). And see pgod(8) docker(1).
