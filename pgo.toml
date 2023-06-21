@@ -7,7 +7,7 @@ ports = [ "443/0", "80/0" ]
 
 [[services]]
 name = "pgo"
-branch = "miek/touching-javelin"
+branch = "main"
 user = "miek"
 repository = "https://github.com/miekg/pgo"
 env = [ "SECRET=mysecret" ]
