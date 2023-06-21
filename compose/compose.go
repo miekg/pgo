@@ -42,7 +42,8 @@ func (c *Compose) run(args ...string) ([]byte, error) {
 	}
 	path := "/usr/sbin:/usr/bin:/sbin:/bin"
 	home := osutil.Home(c.user)
-	cmd := exec.CommandContext(ctx, "podman-compose", args...)
+	args = append([]string{"compose"}, args...)
+	cmd := exec.CommandContext(ctx, "docker", args...)
 	cmd.Dir = c.dir
 	cmd.Env = []string{env("HOME", home), env("PATH", path)}
 
@@ -59,7 +60,7 @@ func (c *Compose) run(args ...string) ([]byte, error) {
 		envnames[i] = fs[0]
 	}
 
-	metric.CmdCount.WithLabelValues(c.name, "podman-compose", args[0]).Inc()
+	metric.CmdCount.WithLabelValues(c.name, "compose", args[0]).Inc()
 
 	log.Debugf("running in %q as %q %v (env: %v)", cmd.Dir, c.user, cmd.Args, envnames)
 
@@ -68,7 +69,7 @@ func (c *Compose) run(args ...string) ([]byte, error) {
 		log.Debug(string(out))
 	}
 	if err != nil {
-		metric.CmdErrorCount.WithLabelValues(c.name, "podman-compose", args[0]).Inc()
+		metric.CmdErrorCount.WithLabelValues(c.name, "compose", args[0]).Inc()
 	}
 
 	return bytes.TrimSpace(out), err
