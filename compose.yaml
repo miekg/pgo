@@ -16,5 +16,5 @@ services:
 
 networks:
   podmannet:
-    external: true
-    name: podman
+    external:
+      name: podman
