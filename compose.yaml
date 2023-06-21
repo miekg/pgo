@@ -12,9 +12,9 @@ services:
       labels:
         my.label: my_value
       networks:
-        - podmannet
+        - caddynet
 
 networks:
-  podmannet:
-    external:
-      name: podman
+  caddynet:
+    external: true
+    name: caddy
