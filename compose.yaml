@@ -12,7 +12,7 @@ services:
       labels:
         my.label: my_value
       networks:
-        podmannet: {}
+        - podmannet
 
 networks:
   podmannet:
