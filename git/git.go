@@ -44,8 +44,11 @@ func (g *Git) run(args ...string) ([]byte, error) {
 
 	if os.Geteuid() == 0 {
 		uid, gid := osutil.User(g.user)
+		if uid == 0 && gid == 0 && g.user != "root" {
+			return nil, fmt.Errorf("failed to resolve user %q to uid/gid", g.user)
+		}
 		cmd.SysProcAttr = &syscall.SysProcAttr{}
-		cmd.SysProcAttr.Credential = &syscall.Credential{Uid: uint32(uid), Gid: uint32(gid)}
+		cmd.SysProcAttr.Credential = &syscall.Credential{Uid: uid, Gid: gid}
 	}
 
 	metric.CmdCount.WithLabelValues(g.name, "git", args[0]).Inc()

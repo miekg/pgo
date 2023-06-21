@@ -63,6 +63,9 @@ To go over this file:
 - `import`: create a Caddyfile snippet with reverse proxy statements for all URLs in all services,
    and writes this in the directory where the repository is checked out.
 
+For non-root accounts, docker compose will be run with the normal supplementary groups to which the
+local docker group has been added. This allows those user to transparently access the docker socket.
+
 ## Requisites
 
 To use "pgo" your project MUST have:

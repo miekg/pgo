@@ -3,6 +3,7 @@ package compose
 import (
 	"bytes"
 	"context"
+	"fmt"
 	"os"
 	"os/exec"
 	"strings"
@@ -51,8 +52,17 @@ func (c *Compose) run(args ...string) ([]byte, error) {
 
 	if os.Geteuid() == 0 {
 		uid, gid := osutil.User(c.user)
+		if uid == 0 && gid == 0 && c.user != "root" {
+			return nil, fmt.Errorf("failed to resolve user %q to uid/gid", c.user)
+		}
+		dgid := osutil.DockerGroup()
+		if dgid == 0 {
+			return nil, fmt.Errorf("failed to resolve docker to gid")
+		}
+		groups := osutil.Groups(c.user)
+		groups = append(groups, dgid)
 		cmd.SysProcAttr = &syscall.SysProcAttr{}
-		cmd.SysProcAttr.Credential = &syscall.Credential{Uid: uint32(uid), Gid: uint32(gid)}
+		cmd.SysProcAttr.Credential = &syscall.Credential{Uid: uid, Gid: gid, Groups: groups}
 	}
 
 	envnames := make([]string, len(c.env))
