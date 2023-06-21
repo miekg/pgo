@@ -61,9 +61,6 @@ The options are:
 **--restart**
 :   send SIGHUP to ourselves when config changes (default true)
 
-**--root**
-:  require root permission, setting to false can aid in debugging (default true)
-
 **-v**, **--version**
 :  show version and exit
 
