@@ -58,7 +58,8 @@ To go over this file:
 - `urls`: what DNS names need to be assigned to this server and to what port should they forward.
 - `networks`: which external network can this service use. Empty means all.
 - `env`: specify extra environment variables in "VAR=VALUE" notation.
-- `import`: create a Caddyfile snippet with reverse proxy statements for all URLs in all services.
+- `import`: create a Caddyfile snippet with reverse proxy statements for all URLs in all services,
+   and writes this in the directory where the repository is checked out.
 
 ## Requisites
 
@@ -167,7 +168,46 @@ repository = "https://oauth2:<token>@gitlab.science.ru.nl/..."
 
 ## Networking and Reverse Proxy
 
-Default how to do a caddy setup.
+If composers need a network, you'll need to set this up by yourself with Caddy, pgod has support to
+write a Caddyfile snippet that routes all URLs to the composer's backends. This does mean the
+caddy's docker-compose must be setup in such a way that it will read that file *and* configures a
+"well-known" network, where other composers can hook into. The setup we use `default` as the name
+for the service *and* the network. This is defined in the <https://github.com/miekg/pgo-caddy> project.
+
+The pgod config would look like this:
+~~~ toml
+[[services]]
+name = "default"
+user = "root"
+repository = "https://github.com/miekg/pgo-caddy"
+import = "caddy/Caddyfile-import"
+~~~
+
+And the compose.yaml:
+
+~~~ yaml
+version: '3.6'
+services:
+  caddy:
+    image: docker.io/caddy:2.6-alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./caddy/:/etc/caddy/
+    networks:
+      - default
+networks:
+  default:
+~~~
+
+Where the network created is called `default` and the `Caddyfile-import` is written into the
+directory that gets mounted as a volume inside the caddy container. The pgo-caddy git repository has
+an .gitignore for `caddy/Caddyfile-import`.
+
+Other users of this PGO instance only need to know the network is called `default` and commit their
+pgo.toml config to make things work.
 
 ## pgod
 

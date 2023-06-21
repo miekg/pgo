@@ -8,9 +8,13 @@ services:
         SECRET_KEY2: aabbcc
         ENV_IS_SET2:
       ports:
-        - "8080"
+        - "5010"
       labels:
         my.label: my_value
-    frontend2:
-      image: busybox
-      command: ["echo", "BLA", "$SECRET"]
+    networks:
+      - proxy
+
+networks:
+  proxy:
+    external: true
+    name: proxy

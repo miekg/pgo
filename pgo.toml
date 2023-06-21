@@ -6,6 +6,7 @@ import = "caddy/Caddyfile-import"
 
 [[services]]
 name = "pgo"
+branch = "miek/touching-javelin"
 user = "miek"
 repository = "https://github.com/miekg/pgo"
 branch = "main"
