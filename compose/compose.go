@@ -114,7 +114,13 @@ func (c *Compose) ReStart(args []string) ([]byte, error) {
 	return c.run(append([]string{"start"}, args...)...)
 }
 func (c *Compose) Pull(args []string) ([]byte, error) {
-	return c.run(append([]string{"pull"}, args...)...)
+	err := c.Login("login")
+	if err != nil {
+		return nil, err
+	}
+	out, err := c.run(append([]string{"pull"}, args...)...)
+	c.Login("logout")
+	return out, err
 }
 func (c *Compose) Logs(args []string) ([]byte, error) {
 	return c.run(append([]string{"logs"}, args...)...)
