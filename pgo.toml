@@ -3,7 +3,6 @@ name = "caddy"
 user = "root"
 repository = "https://github.com/miekg/pgo-caddy"
 import = "caddy/Caddyfile-import"
-ports = [ "443/0", "80/0" ]
 
 [[services]]
 name = "pgo"
@@ -13,4 +12,3 @@ repository = "https://github.com/miekg/pgo"
 #registry = "user:pass"
 env = [ "SECRET=mysecret" ]
 urls = { "slashdot.org" = "pgo:8080" }
-ports = [ "8080/5" ]

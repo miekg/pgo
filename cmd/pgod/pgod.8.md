@@ -75,6 +75,7 @@ name = "pgo"
 user = "miek"
 repository = "https://github.com/miekg/pgo"
 branch = "main"
+registry = "user:token"
 ignore = false
 compose = "my-compose.yaml"
 env = [ "MYVAR=VALUE" ]

@@ -35,7 +35,6 @@ type Service struct {
 	Import      string            // filename of caddy file to generate
 	URLs        map[string]string // url -> host:port
 	Env         []string
-	Ports       []string
 	Networks    []string
 	Git         *git.Git         `toml:"-"`
 	Compose     *compose.Compose `toml:"-"`
