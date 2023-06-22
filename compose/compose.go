@@ -53,7 +53,7 @@ func (c *Compose) run(args ...string) ([]byte, error) {
 
 	args = append([]string{"compose"}, args...)
 	cmd := exec.CommandContext(ctx, "docker", args...)
-	if _, err := exec.LookPath("docker-compose"); err != nil {
+	if _, err := exec.LookPath("docker-compose"); err == nil {
 		// docker-compose is the installed command, use that
 		// strip compose out of args
 		args = args[1:]
