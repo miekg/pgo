@@ -215,6 +215,7 @@ func (s *Service) Track(ctx context.Context, duration time.Duration) {
 			changed = true // force action
 		}
 		if !changed {
+			s.Compose.Up(nil) // should be a noop is already running, if not, this hopefully bring the service up
 			continue
 		}
 
