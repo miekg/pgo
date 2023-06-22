@@ -1,6 +1,6 @@
 all:
-	( cd cmd/pgod; go build -ldflags "-X main.version=`git tag --sort=-version:refname | head -n 1`" )
-	( cd cmd/pgoctl; go build -ldflags "-X main.version=`git tag --sort=-version:refname | head -n 1`" )
+	( cd cmd/pgod; CGO_ENABLED=0 go build -ldflags "-X main.version=`git tag --sort=-version:refname | head -n 1`" )
+	( cd cmd/pgoctl; CGO_ENABLED=0 go build -ldflags "-X main.version=`git tag --sort=-version:refname | head -n 1`" )
 
 .PHONY: man
 man:

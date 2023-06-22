@@ -11,7 +11,6 @@ import (
 	"net/url"
 	"os"
 	"path"
-	"strconv"
 	"strings"
 	"syscall"
 	"time"
@@ -29,6 +28,7 @@ type Service struct {
 	Name        string
 	User        string
 	Repository  string
+	Registry    string // user:token auth for registry
 	Ignore      bool   // don't restart compose after it got updated if true
 	ComposeFile string `toml:"compose,omitempty"` // alternative compose file
 	Branch      string
@@ -101,37 +101,10 @@ func (s *Service) InitGitAndCompose(dir string) error {
 		}
 	}
 
-	pr := make([]compose.PortRange, len(s.Ports))
-	for i := range s.Ports {
-		lo, hi, err := parsePorts(s.Ports[i])
-		if err != nil {
-			return err
-		}
-		pr[i] = compose.PortRange{Lo: lo, Hi: hi}
-	}
-
 	s.Git = git.New(s.Name, s.Repository, s.User, s.Branch, dir)
-	s.Compose = compose.New(s.Name, s.User, dir, s.ComposeFile, s.Networks, s.Env, pr)
+	s.Compose = compose.New(s.Name, s.User, dir, s.ComposeFile, s.Registry, s.Networks, s.Env)
 	s.dir = dir
 	return nil
-}
-
-// parsePorts pasrses a n/x string and returns n and n+x, or an error is the string isn't correctly formatted.
-func parsePorts(s string) (int, int, error) {
-	items := strings.Split(s, "/")
-	if len(items) != 2 {
-		return 0, 0, fmt.Errorf("format error, no slash found: %q", s)
-	}
-
-	lower, err := strconv.ParseUint(items[0], 10, 32)
-	if err != nil {
-		return 0, 0, fmt.Errorf("lower ports is not a number: %q", items[0])
-	}
-	upper, err := strconv.ParseUint(items[1], 10, 32)
-	if err != nil {
-		return 0, 0, fmt.Errorf("lower ports is not a number: %q", items[0])
-	}
-	return int(lower), int(lower) + int(upper), nil
 }
 
 // PublicKeys parses the public keys in the ssh/ directory of the repository.
@@ -197,9 +170,7 @@ func (s *Service) Track(ctx context.Context, duration time.Duration) {
 		os.WriteFile(name, s.importdata, 0644) // with 644 we shouldn't care about ownership
 	}
 
-	if _, err := s.Compose.AllowedPorts(); err != nil {
-		log.Warningf("[%s]: Port usage outside of allowed ranges: %v", s.Name, err)
-	} else if err := s.Compose.AllowedExternalNetworks(); err != nil {
+	if err := s.Compose.AllowedExternalNetworks(); err != nil {
 		log.Warningf("[%s]: External network usage outside of allowed networks: %v", s.Name, err)
 	} else {
 		log.Infof("[%s]: Pulling containers", s.Name)
@@ -244,11 +215,6 @@ func (s *Service) Track(ctx context.Context, duration time.Duration) {
 			changed = true // force action
 		}
 		if !changed {
-			continue
-		}
-
-		if _, err := s.Compose.AllowedPorts(); err != nil {
-			log.Warningf("[%s]: Port usage outside of allowed ranges: %v", s.Name, err)
 			continue
 		}
 

@@ -15,32 +15,27 @@ import (
 )
 
 type Compose struct {
-	name  string
-	user  string      // what user to use
-	dir   string      // where to put it
-	ports []PortRange // ports from config
-	nets  []string    // allowed networks from config
-	env   []string    // extra environment variables
-	file  string      // alternate compose file name
+	name     string
+	user     string   // what user to use
+	dir      string   // where to put it
+	nets     []string // allowed networks from config
+	env      []string // extra environment variables
+	file     string   // alternate compose file name
+	registry string
 }
 
 // New returns a pointer to an intialized Compose.
-func New(name, user, directory, file string, nets, env []string, ports []PortRange) *Compose {
+func New(name, user, directory, file, registry string, nets, env []string) *Compose {
 	g := &Compose{
-		name:  name,
-		user:  user,
-		dir:   directory,
-		nets:  nets,
-		ports: ports,
-		file:  file,
-		env:   env,
+		name:     name,
+		user:     user,
+		dir:      directory,
+		registry: registry,
+		nets:     nets,
+		file:     file,
+		env:      env,
 	}
 	return g
-}
-
-func commandExists(cmd string) bool {
-	_, err := exec.LookPath(cmd)
-	return err == nil
 }
 
 func (c *Compose) run(args ...string) ([]byte, error) {
@@ -48,9 +43,6 @@ func (c *Compose) run(args ...string) ([]byte, error) {
 	if c.file != "" {
 		args = append([]string{"-f", c.file}, args...)
 	}
-	path := "/usr/sbin:/usr/bin:/sbin:/bin"
-	home := osutil.Home(c.user)
-
 	args = append([]string{"compose"}, args...)
 	cmd := exec.CommandContext(ctx, "docker", args...)
 	if _, err := exec.LookPath("docker-compose"); err == nil {
@@ -61,7 +53,8 @@ func (c *Compose) run(args ...string) ([]byte, error) {
 	}
 
 	cmd.Dir = c.dir
-	cmd.Env = []string{env("HOME", home), env("PATH", path)}
+	path := "/usr/sbin:/usr/bin:/sbin:/bin"
+	cmd.Env = []string{env("HOME", osutil.Home(c.user)), env("PATH", path)}
 
 	if os.Geteuid() == 0 {
 		uid, gid := osutil.User(c.user)
@@ -121,7 +114,13 @@ func (c *Compose) ReStart(args []string) ([]byte, error) {
 	return c.run(append([]string{"start"}, args...)...)
 }
 func (c *Compose) Pull(args []string) ([]byte, error) {
-	return c.run(append([]string{"pull"}, args...)...)
+	err := c.Login("login")
+	if err != nil {
+		return nil, err
+	}
+	out, err := c.run(append([]string{"pull"}, args...)...)
+	c.Login("logout")
+	return out, err
 }
 func (c *Compose) Logs(args []string) ([]byte, error) {
 	return c.run(append([]string{"logs"}, args...)...)
@@ -130,5 +129,5 @@ func (c *Compose) Ps(args []string) ([]byte, error) {
 	return c.run(append([]string{"ps"}, args...)...)
 }
 func (c *Compose) Exec(args []string) ([]byte, error) {
-	return c.run(append([]string{"exec"}, args...)...)
+	return c.run(append([]string{"exec", "-T"}, args...)...)
 }
