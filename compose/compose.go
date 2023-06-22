@@ -15,25 +15,23 @@ import (
 )
 
 type Compose struct {
-	name  string
-	user  string      // what user to use
-	dir   string      // where to put it
-	ports []PortRange // ports from config
-	nets  []string    // allowed networks from config
-	env   []string    // extra environment variables
-	file  string      // alternate compose file name
+	name string
+	user string   // what user to use
+	dir  string   // where to put it
+	nets []string // allowed networks from config
+	env  []string // extra environment variables
+	file string   // alternate compose file name
 }
 
 // New returns a pointer to an intialized Compose.
-func New(name, user, directory, file string, nets, env []string, ports []PortRange) *Compose {
+func New(name, user, directory, file string, nets, env []string) *Compose {
 	g := &Compose{
-		name:  name,
-		user:  user,
-		dir:   directory,
-		nets:  nets,
-		ports: ports,
-		file:  file,
-		env:   env,
+		name: name,
+		user: user,
+		dir:  directory,
+		nets: nets,
+		file: file,
+		env:  env,
 	}
 	return g
 }

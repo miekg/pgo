@@ -10,6 +10,8 @@ name = "pgo"
 branch = "main"
 user = "miek"
 repository = "https://github.com/miekg/pgo"
+registry = "user:pass"
+registry = "pass" # use <user>
 env = [ "SECRET=mysecret" ]
 urls = { "slashdot.org" = "pgo:8080" }
 ports = [ "8080/5" ]
