@@ -43,9 +43,6 @@ func (c *Compose) run(args ...string) ([]byte, error) {
 	if c.file != "" {
 		args = append([]string{"-f", c.file}, args...)
 	}
-	path := "/usr/sbin:/usr/bin:/sbin:/bin"
-	home := osutil.Home(c.user)
-
 	args = append([]string{"compose"}, args...)
 	cmd := exec.CommandContext(ctx, "docker", args...)
 	if _, err := exec.LookPath("docker-compose"); err == nil {
@@ -56,7 +53,8 @@ func (c *Compose) run(args ...string) ([]byte, error) {
 	}
 
 	cmd.Dir = c.dir
-	cmd.Env = []string{env("HOME", home), env("PATH", path)}
+	path := "/usr/sbin:/usr/bin:/sbin:/bin"
+	cmd.Env = []string{env("HOME", osutil.Home(c.user)), env("PATH", path)}
 
 	if os.Geteuid() == 0 {
 		uid, gid := osutil.User(c.user)
