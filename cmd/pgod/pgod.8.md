@@ -97,6 +97,12 @@ repository *and* branch
 : `https://github.com/miekg/pgo` and `main`, where to clone and pull from. If branch is not
 specified `main` is assumed.
 
+registry:
+: `user:token`, docker login credentials, this is used to login the registry and pull the
+containers. Note that different credentials for the same user in different services might lead to
+race conditions (and failed pulls). If the user part is not specifiied, the user from the `user`
+keyword is used.
+
 ignore
 : `false`, ignore changes to the compose yaml files and *do not* restart containers.
 
