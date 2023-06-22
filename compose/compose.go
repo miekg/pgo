@@ -36,11 +36,6 @@ func New(name, user, directory, file string, nets, env []string) *Compose {
 	return g
 }
 
-func commandExists(cmd string) bool {
-	_, err := exec.LookPath(cmd)
-	return err == nil
-}
-
 func (c *Compose) run(args ...string) ([]byte, error) {
 	ctx := context.TODO()
 	if c.file != "" {
@@ -128,5 +123,5 @@ func (c *Compose) Ps(args []string) ([]byte, error) {
 	return c.run(append([]string{"ps"}, args...)...)
 }
 func (c *Compose) Exec(args []string) ([]byte, error) {
-	return c.run(append([]string{"exec"}, args...)...)
+	return c.run(append([]string{"exec", "-T"}, args...)...)
 }
