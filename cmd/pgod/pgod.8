@@ -81,6 +81,7 @@ name = "pgo"
 user = "miek"
 repository = "https://github.com/miekg/pgo"
 branch = "main"
+registry = "user:token"
 ignore = false
 compose = "my\-compose.yaml"
 env = [ "MYVAR=VALUE" ]
@@ -105,6 +106,12 @@ no relation to the SSH user connecting to \fB\fCpgod\fR. I.e. it could be \fB\fC
 repository \fIand\fP branch
 \fB\fChttps://github.com/miekg/pgo\fR and \fB\fCmain\fR, where to clone and pull from. If branch is not
 specified \fB\fCmain\fR is assumed.
+.TP
+registry:
+\fB\fCuser:token\fR, docker login credentials, this is used to login the registry and pull the
+containers. Note that different credentials for the same user in different services might lead to
+race conditions (and failed pulls). If the user part is not specifiied, the user from the \fB\fCuser\fR
+keyword is used.
 .TP
 ignore
 \fB\fCfalse\fR, ignore changes to the compose yaml files and \fIdo not\fP restart containers.
