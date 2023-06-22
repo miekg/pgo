@@ -37,6 +37,7 @@ A typical config file looks like this:
 name = "pgo"
 user = "miek"
 repository = "https://github.com/miekg/pgo"
+registry = "user:authtoken" # or authtoken
 compose = "compose.yaml"
 branch = "main"
 ignore = false
@@ -54,13 +55,15 @@ To go over this file:
 - `name`: this is the name of the service, used to uniquely identify the service across machines.
 - `user`: which user to use to run the docker compose under.
 - `repository` and `branch`: where to find the git repo belonging to this service.
+- `registry`: optional authentication for pulling the docker images from the registry. In
+  "user:token" format, is user is omitted, `user` is used.
 - `compose`: alternate compose file to use.
 - `ignore`: don't restart the containers when a compose file changes.
 - `urls`: what DNS names need to be assigned to this server and to what port should they forward.
 - `networks`: which external network can this service use. Empty means all.
 - `env`: specify extra environment variables in "VAR=VALUE" notation.
-- `import`: create a Caddyfile snippet with reverse proxy statements for all URLs in all services,
-   and writes this in the directory where the repository is checked out.
+- `import`: create a Caddyfile snippet with reverse proxy statements for all URLs in all services
+  *with a specific* prefix and writes this in the directory where the repository is checked out.
 
 For non-root accounts, docker compose will be run with the normal supplementary groups to which the
 local docker group has been added. This allows those user to transparently access the docker socket.
@@ -158,13 +161,17 @@ repository = "https://oauth2:<token>@gitlab.science.ru.nl/..."
 If composers need a network, you'll need to set this up by yourself with Caddy, pgod has support to
 write a Caddyfile snippet that routes all URLs to the composer's backends. This does mean the
 caddy's docker-compose must be setup in such a way that it will read that file *and* configures a
-"well-known" network, where other composers can hook into. The setup we use `default` as the name
+"well-known" network, where other composers can hook into. The setup we use `caddy` as the name
 for the service *and* the network. This is defined in the <https://github.com/miekg/pgo-caddy> project.
+
+The services that are exporting into the caddy snippet must begin with the service name, so if you
+would like `frontend` (in the pgo service) to receive traffic from caddy, you must name the service
+'pgo-frontend', and in urls you must have: "domain" = "pgo-frontend:port" for it to work.
 
 The pgod config would look like this:
 ~~~ toml
 [[services]]
-name = "default"
+name = "caddy"
 user = "root"
 repository = "https://github.com/miekg/pgo-caddy"
 import = "caddy/Caddyfile-import"
@@ -191,11 +198,11 @@ networks:
       name: caddy
 ~~~
 
-Where the network created is called `default` and the `Caddyfile-import` is written into the
+Where the network created is called `caddy` and the `Caddyfile-import` is written into the
 directory that gets mounted as a volume inside the caddy container. The pgo-caddy git repository has
 an .gitignore for `caddy/Caddyfile-import`.
 
-Other users of this PGO instance only need to know the network is called `default` and commit their
+Other users of this PGO instance only need to know the network is called `caddy` and commit their
 pgo.toml config to make things work.
 
 ## pgod
