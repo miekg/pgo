@@ -38,6 +38,11 @@ func New(name, user, directory, file string, nets, env []string, ports []PortRan
 	return g
 }
 
+func commandExists(cmd string) bool {
+	_, err := exec.LookPath(cmd)
+	return err == nil
+}
+
 func (c *Compose) run(args ...string) ([]byte, error) {
 	ctx := context.TODO()
 	if c.file != "" {
@@ -45,8 +50,16 @@ func (c *Compose) run(args ...string) ([]byte, error) {
 	}
 	path := "/usr/sbin:/usr/bin:/sbin:/bin"
 	home := osutil.Home(c.user)
+
 	args = append([]string{"compose"}, args...)
 	cmd := exec.CommandContext(ctx, "docker", args...)
+	if _, err := exec.LookPath("docker-compose"); err != nil {
+		// docker-compose is the installed command, use that
+		// strip compose out of args
+		args = args[1:]
+		cmd = exec.CommandContext(ctx, "docker-compose", args...)
+	}
+
 	cmd.Dir = c.dir
 	cmd.Env = []string{env("HOME", home), env("PATH", path)}
 
