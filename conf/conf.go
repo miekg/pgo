@@ -185,7 +185,7 @@ func (s *Service) Track(ctx context.Context, duration time.Duration) {
 		if _, err := s.Compose.Up(nil); err != nil {
 			log.Warningf("[%s]: Failed upping services: %v", s.Name, err)
 		}
-		log.Infof("[%s]: Tracking upstream", s.Name)
+		log.Infof("[%s]: Tracking upstream from %q", s.Name, s.Git.Hash())
 	}
 
 	namesOfInterest := cli.DefaultFileNames
