@@ -2,10 +2,10 @@
 
 Podman Gitops. This is a subsequent development (or successor?) of
 <https://github.com/miekg/gitopper>. Where "gitopper" integrates with your OS, i.e. use Debian
-packages, "pgo" uses a `compose.yaml` as it's basis. It runs the compose via `docker compose`
-(podman was dropped, see below, see https://docs.docker.com/engine/install/debian/ for docker's
-installation). It allows for remote interaction via an SSH interface, which `pgoctl` makes easy to
-use. For this SSH interface no local users need to exist on the target system.
+packages, "pgo" uses a `compose.yaml` as it's basis. It runs the compose via `docker compose` (or
+docker-compose) (podman was dropped, see below, see https://docs.docker.com/engine/install/debian/
+for docker's installation). It allows for remote interaction via an SSH interface, which `pgoctl`
+makes easy to use. For this SSH interface no local users need to exist on the target system.
 
 You can restrict which external networks can be used.
 
@@ -37,7 +37,7 @@ A typical config file looks like this:
 name = "pgo"
 user = "miek"
 repository = "https://github.com/miekg/pgo"
-registry = "user:authtoken" # or authtoken
+registry = "user:authtoken" # or just authtoken
 compose = "compose.yaml"
 branch = "main"
 ignore = false
