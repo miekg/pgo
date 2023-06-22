@@ -13,7 +13,7 @@ import (
 	"go.science.ru.nl/log"
 )
 
-func (c *Compose) Login() error {
+func (c *Compose) Login(login string) error {
 	if c.registry == "" {
 		return nil
 	}
@@ -22,8 +22,6 @@ func (c *Compose) Login() error {
 	token := ""
 	fields := strings.SplitN(c.registry, ":", 2)
 	switch len(fields) {
-	case 0:
-		println("huh")
 	case 1:
 		user = c.user
 		token = fields[0]
@@ -36,7 +34,10 @@ func (c *Compose) Login() error {
 	// TODO: duplicates compose.go stuff
 	ctx := context.TODO()
 	log.Infof("[%s]: Performing docker login with %q", c.name, user)
-	cmd := exec.CommandContext(ctx, "docker", "login", "-u", user, "-p", token)
+	cmd := exec.CommandContext(ctx, "docker", login, "-u", user, "-p", token)
+	if login == "logout" {
+		cmd = exec.CommandContext(ctx, "docker", "logout")
+	}
 	cmd.Dir = c.dir
 	path := "/usr/sbin:/usr/bin:/sbin:/bin"
 	cmd.Env = []string{env("HOME", osutil.Home(c.user)), env("PATH", path)}
@@ -63,16 +64,20 @@ func (c *Compose) Login() error {
 		envnames[i] = fs[0]
 	}
 
-	metric.CmdCount.WithLabelValues(c.name, "docker", "login").Inc()
+	metric.CmdCount.WithLabelValues(c.name, "docker", login).Inc()
 
-	log.Debugf("[%s]: running in %q as %q %v (env: %v)", c.name, cmd.Dir, c.user, cmd.Args[:len(cmd.Args)-1], envnames) // -1 to not leak pw
+	if login == "login" {
+		log.Debugf("[%s]: running in %q as %q %v (env: %v)", c.name, cmd.Dir, c.user, cmd.Args[:len(cmd.Args)-1], envnames) // -1 to not leak pw
+	} else {
+		log.Debugf("[%s]: running in %q as %q %v (env: %v)", c.name, cmd.Dir, c.user, cmd.Args, envnames) // -1 to not leak pw
+	}
 
 	out, err := cmd.CombinedOutput()
 	if len(out) > 0 {
 		log.Debugf("[%s]: %s", c.name, string(out))
 	}
 	if err != nil {
-		metric.CmdErrorCount.WithLabelValues(c.name, "docker", "login").Inc()
+		metric.CmdErrorCount.WithLabelValues(c.name, "docker", login).Inc()
 	}
 	return err
 }
