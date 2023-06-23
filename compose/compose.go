@@ -48,7 +48,7 @@ func (c *Compose) run(args ...string) ([]byte, error) {
 		cmd = exec.CommandContext(ctx, "docker-compose", args...)
 	}
 
-	if err := osutil.Cmd(cmd, c.user); err != nil {
+	if err := osutil.RunAs(cmd, c.user); err != nil {
 		return nil, err
 	}
 	cmd.Dir = c.dir
@@ -56,7 +56,7 @@ func (c *Compose) run(args ...string) ([]byte, error) {
 
 	metric.CmdCount.WithLabelValues(c.name, "compose", args[0]).Inc()
 
-	log.Debugf("[%s]: running in %q as %q %v (env: %v)", c.name, cmd.Dir, c.user, cmd.Args, osutil.EnvVariables(c.env))
+	log.Debugf("[%s]: running in %q as %q %v (env: %v)", c.name, cmd.Dir, c.user, cmd.Args, osutil.EnvVars(c.env))
 
 	out, err := cmd.CombinedOutput()
 	if len(out) > 0 {

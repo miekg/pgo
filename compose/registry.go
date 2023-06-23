@@ -35,8 +35,7 @@ func (c *Compose) Login(login string) error {
 	if login == "logout" {
 		cmd = exec.CommandContext(ctx, "docker", "logout")
 	}
-
-	if err := osutil.Cmd(cmd, c.user); err != nil {
+	if err := osutil.RunAs(cmd, c.user); err != nil {
 		return err
 	}
 	cmd.Dir = c.dir
@@ -45,9 +44,9 @@ func (c *Compose) Login(login string) error {
 	metric.CmdCount.WithLabelValues(c.name, "docker", login).Inc()
 
 	if login == "login" {
-		log.Debugf("[%s]: running in %q as %q %v (env: %v)", c.name, cmd.Dir, c.user, cmd.Args[:len(cmd.Args)-1], osutil.EnvVariables(c.env)) // -1 to not leak pw
+		log.Debugf("[%s]: running in %q as %q %v (env: %v)", c.name, cmd.Dir, c.user, cmd.Args[:len(cmd.Args)-1], osutil.EnvVars(c.env)) // -1 to not leak pw
 	} else {
-		log.Debugf("[%s]: running in %q as %q %v (env: %v)", c.name, cmd.Dir, c.user, cmd.Args, osutil.EnvVariables(c.env)) // -1 to not leak pw
+		log.Debugf("[%s]: running in %q as %q %v (env: %v)", c.name, cmd.Dir, c.user, cmd.Args, osutil.EnvVars(c.env))
 	}
 
 	out, err := cmd.CombinedOutput()
