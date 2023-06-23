@@ -2,11 +2,8 @@ package compose
 
 import (
 	"context"
-	"fmt"
-	"os"
 	"os/exec"
 	"strings"
-	"syscall"
 
 	"github.com/miekg/pgo/metric"
 	"github.com/miekg/pgo/osutil"
@@ -38,38 +35,19 @@ func (c *Compose) Login(login string) error {
 	if login == "logout" {
 		cmd = exec.CommandContext(ctx, "docker", "logout")
 	}
+
+	if err := osutil.Cmd(cmd, c.user); err != nil {
+		return err
+	}
 	cmd.Dir = c.dir
-	path := "/usr/sbin:/usr/bin:/sbin:/bin"
-	cmd.Env = []string{env("HOME", osutil.Home(c.user)), env("PATH", path)}
-
-	if os.Geteuid() == 0 {
-		uid, gid := osutil.User(c.user)
-		if uid == 0 && gid == 0 && c.user != "root" {
-			return fmt.Errorf("failed to resolve user %q to uid/gid", c.user)
-		}
-		dgid := osutil.DockerGroup()
-		if dgid == 0 {
-			return fmt.Errorf("failed to resolve docker to gid")
-		}
-		groups := osutil.Groups(c.user)
-		groups = append(groups, dgid)
-		cmd.SysProcAttr = &syscall.SysProcAttr{}
-		cmd.SysProcAttr.Credential = &syscall.Credential{Uid: uid, Gid: gid, Groups: groups}
-	}
-
-	envnames := make([]string, len(c.env))
-	for i := range c.env {
-		cmd.Env = append(cmd.Env, c.env[i])
-		fs := strings.Split(c.env[i], "=")
-		envnames[i] = fs[0]
-	}
+	cmd.Env = append(cmd.Env, c.env...)
 
 	metric.CmdCount.WithLabelValues(c.name, "docker", login).Inc()
 
 	if login == "login" {
-		log.Debugf("[%s]: running in %q as %q %v (env: %v)", c.name, cmd.Dir, c.user, cmd.Args[:len(cmd.Args)-1], envnames) // -1 to not leak pw
+		log.Debugf("[%s]: running in %q as %q %v (env: %v)", c.name, cmd.Dir, c.user, cmd.Args[:len(cmd.Args)-1], osutil.EnvVariables(c.env)) // -1 to not leak pw
 	} else {
-		log.Debugf("[%s]: running in %q as %q %v (env: %v)", c.name, cmd.Dir, c.user, cmd.Args, envnames) // -1 to not leak pw
+		log.Debugf("[%s]: running in %q as %q %v (env: %v)", c.name, cmd.Dir, c.user, cmd.Args, osutil.EnvVariables(c.env)) // -1 to not leak pw
 	}
 
 	out, err := cmd.CombinedOutput()
