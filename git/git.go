@@ -9,7 +9,6 @@ import (
 	"os"
 	"os/exec"
 	"path"
-	"syscall"
 
 	"github.com/miekg/pgo/metric"
 	"github.com/miekg/pgo/osutil"
@@ -39,17 +38,11 @@ func New(name, upstream, user, branch, directory string) *Git {
 func (g *Git) run(args ...string) ([]byte, error) {
 	ctx := context.TODO()
 	cmd := exec.CommandContext(ctx, "git", args...)
+	if err := osutil.RunAs(cmd, g.user); err != nil {
+		return nil, err
+	}
 	cmd.Dir = g.dir
 	cmd.Env = []string{"GIT_CONFIG_GLOBAL=/dev/null", "GIT_CONFIG_SYSTEM=/dev/null"}
-
-	if os.Geteuid() == 0 {
-		uid, gid := osutil.User(g.user)
-		if uid == 0 && gid == 0 && g.user != "root" {
-			return nil, fmt.Errorf("failed to resolve user %q to uid/gid", g.user)
-		}
-		cmd.SysProcAttr = &syscall.SysProcAttr{}
-		cmd.SysProcAttr.Credential = &syscall.Credential{Uid: uid, Gid: gid}
-	}
 
 	metric.CmdCount.WithLabelValues(g.name, "git", args[0]).Inc()
 
