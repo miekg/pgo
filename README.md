@@ -2,33 +2,36 @@
 
 Podman Gitops. This is a subsequent development (or successor?) of
 <https://github.com/miekg/gitopper>. Where "gitopper" integrates with your OS, i.e. use Debian
-packages, "pgo" uses a `compose.yaml` as it's basis. It runs the compose via `docker compose` (or
+packages, "pgo" uses a `compose.yaml` as its basis. It runs the compose via `docker compose` (or
 docker-compose) (podman was dropped, see below, see https://docs.docker.com/engine/install/debian/
 for docker's installation). It allows for remote interaction via an SSH interface, which `pgoctl`
-makes easy to use. For this SSH interface no local users need to exist on the target system.
-
-You can restrict which external networks can be used.
+makes easy to use. For this SSH interface no local users need to exist on the target system. The
+compose is (usually) executed under a particular user name, those users do need an account on the
+target system, they do not need shell access.
 
 Current the following compose file variants are supported: "compose.yaml", "compose.yml",
 "docker-compose.yml" and "docker-compose.yaml". If you need more flexibility you can point to a
-specific compose file.
+specific compose file, with the `compose` key in the config.
 
 Each compose file runs under it's own user-account. That account can then access storage, or
 databases it has access to - provisioning that stuff is out-of-scope - assuming your infra can deal
 with all that stuff. And make that available on each server.
 
 Servers running "pgod" as still special in some regard, a developers needs to know which server runs
-their compose file *and* you need to administrate who owns what port numbers. Moving services to a
-different machine is as easy as starting the compose there, but you need to make sure your infra
-also updates externals records (DNS for example).
+their compose file. Moving services to a different machine is as easy as starting the compose there,
+but you need to make sure your infra also updates external records (DNS for example), but maybe also
+ACL on the databases and other resources.
 
 The interface into `pgod` is via SSH, but not the normal SSH running on the server, this is a
-completely seperate SSH interface implemented by both `pgod` and `pgoctl`.
+completely seperate SSH interface implemented by both `pgod` and `pgoctl`. The owner of the Git repo
+can publish new (public) keys and make `pgoctl` access available for anyone with access the private
+key.
 
 The main idea here is that developers can push stuff easier to production and that you can have some
-of the goodies from Kubernetes, but not that bad stuff like the networking - the big trade-off being
-you need to administrate port numbers *and* still run some proxy to forward URLs to the correct
-backend.
+of the goodies from Kubernetes, but not the bad stuff like the networking - the big trade-off being
+that machines are still somewhat special.
+
+Note that pgod runs (as root) under systemd.
 
 A typical config file looks like this:
 
@@ -48,7 +51,7 @@ networks = [ "reverse_proxy" ]
 ```
 
 This file is used by `pgod` and should be updated for each project you want to onboard. Our plan is
-to have this go through an on boarding workflow.
+to have this go through an on boarding workflow and automate it.
 
 To go over this file:
 
@@ -59,9 +62,9 @@ To go over this file:
   "user:token" format, is user is omitted, `user` is used.
 - `compose`: alternate compose file to use.
 - `ignore`: don't restart the containers when a compose file changes.
-- `urls`: what DNS names need to be assigned to this server and to what port should they forward.
+- `urls`: what DNS names need to be assigned to this server and to what network and port should they forward.
 - `networks`: which external network can this service use. Empty means all.
-- `env`: specify extra environment variables in "VAR=VALUE" notation.
+- `env`: specify extra environment variables in "VAR=VALUE" notation (i.e. secrets).
 - `import`: create a Caddyfile snippet with reverse proxy statements for all URLs in all services
   *with a specific* prefix and writes this in the directory where the repository is checked out.
 
@@ -108,10 +111,9 @@ pgo-frontend-1      docker.io/busybox   "/bin/busybox httpd …"   frontend     
 ~~~
 
 Currently implemented are: `up`, `down`, `pull`, `ps`, `logs` and `ping` to see if the
-authentication works. With `ping` you can check if the authentication is setup correctly, you should
-see a "pong!" reply if everything works.
+authentication works (replies with a "pong!" if everything works).
 
-## Integrating with GitLab
+## Integrating with GitLab Environments
 
 If you want to use PGO with GitLab you needs to setup
 [environments](https://docs.gitlab.com/ee/ci/environments/) that allow you to deploy to
@@ -211,14 +213,15 @@ See the [manual page](./cmd/pgod/pgod.8.md) in [cmd/pgod](./cmd/pgod/).
 
 ## pgoctl
 
-See the [manual page](./cmd/pgoctl/pgoctl.1.md) in [cmd/pgoctl](./cmd/pgoctl).
+See the [manual page](./cmd/pgoctl/pgoctl.1.md) in [cmd/pgoctl](./cmd/pgoctl). Also details the
+`PGOCTL_ID` mentioned above.
 
 # Podman and Podman-Compose
 
 Initialy PGO was using podman(-compose) to run the images, but this proved to be a challenge.
 podman-compose is a seperate project and has it's own ideas on how to parse a compose.yml file (not
-only his fault, the format is terrible), this meant using external network just didn't work,
-regardless what syntax was used. Also podman kept complaining about CNI version clashes which were
+only his fault, the format is terrible). But using external network just didn't work, regardless
+what syntax was used. Also podman kept complaining about CNI version clashes which were
 undebuggable, so as much as I want to like podman, this is now using docker compose.
 
 Also in podman 4 the networking moved away from CNI to a new thing written in Rust - which is
@@ -226,6 +229,4 @@ completely fine, but does raise the possibility that I can revist networking rel
 to fix it for podman4.
 
 Also podman-compose has not seen much releases, so the apt-get install story becomes weaker there as
-well.
-
-Initial experiments with docker made stuff work out of the box.
+well. Initial experiments with docker made stuff work out of the box.
