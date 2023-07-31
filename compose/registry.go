@@ -12,11 +12,11 @@ import (
 )
 
 func (c *Compose) Login(login string) error {
-	if c.registry == nil {
+	if len(c.registries) == 0 {
 		return nil
 	}
 
-	for _, r := range c.registry {
+	for _, r := range c.registries {
 		regi := strings.Index(r, "@")
 		if regi < 0 {
 			return fmt.Errorf("no @-sign in registry %q", r)
