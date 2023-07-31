@@ -104,6 +104,7 @@ func exitSession(ses ssh.Session, data []byte, err error) {
 	if err != nil {
 		log.Warning(err)
 		io.WriteString(ses, http.StatusText(http.StatusInternalServerError))
+		ses.Write(data)
 		ses.Exit(http.StatusInternalServerError)
 		return
 	}
