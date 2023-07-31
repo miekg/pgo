@@ -55,7 +55,7 @@ func (c *Compose) Login(login string) error {
 		metric.CmdCount.WithLabelValues(c.name, "docker", login).Inc()
 
 		if login == "login" {
-			log.Debugf("[%s]: running in %q as %q %v (env: %v)", c.name, cmd.Dir, c.user, cmd.Args[:len(cmd.Args)-1], osutil.EnvVars(c.env)) // -1 to not leak pw
+			log.Debugf("[%s]: running in %q as %q %v (env: %v)", c.name, cmd.Dir, c.user, cmd.Args[:len(cmd.Args)-2], osutil.EnvVars(c.env)) // -2 to not leak pw
 		} else {
 			log.Debugf("[%s]: running in %q as %q %v (env: %v)", c.name, cmd.Dir, c.user, cmd.Args, osutil.EnvVars(c.env))
 		}
