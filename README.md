@@ -40,7 +40,7 @@ A typical config file looks like this:
 name = "pgo"
 user = "miek"
 repository = "https://github.com/miekg/pgo"
-registry = "user:authtoken" # or just authtoken
+registry = [ "user:authtoken@registry" ] # or just authtoken@registry
 compose = "compose.yaml"
 branch = "main"
 ignore = false
@@ -59,7 +59,8 @@ To go over this file:
 - `user`: which user to use to run the docker compose under.
 - `repository` and `branch`: where to find the git repo belonging to this service.
 - `registry`: optional authentication for pulling the docker images from the registry. In
-  "user:token" format, is user is omitted, `user` is used.
+  "user:token" format, is user is omitted, `user` is used. This is a list because there can be more
+  than one private registry.
 - `compose`: alternate compose file to use.
 - `ignore`: don't restart the containers when a compose file changes.
 - `urls`: what DNS names need to be assigned to this server and to what network and port should they forward.
