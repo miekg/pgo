@@ -16,9 +16,6 @@ func (c *Compose) Login(login string) error {
 		return nil
 	}
 
-	// TODO: locking for this Compose, so other logins don't stump, needs to work in conjunction with docker
-	// pull.
-
 	for _, r := range c.registry {
 		regi := strings.Index(r, "@")
 		if regi < 0 {

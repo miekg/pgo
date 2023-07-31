@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"os/exec"
+	"sync"
 
 	"github.com/miekg/pgo/metric"
 	"github.com/miekg/pgo/osutil"
@@ -18,6 +19,8 @@ type Compose struct {
 	env      []string // extra environment variables
 	file     string   // alternate compose file name
 	registry []string // private docker registries
+
+	pullLock sync.RWMutex // protects docker pull and hence docker login
 }
 
 // New returns a pointer to an intialized Compose.
@@ -88,6 +91,8 @@ func (c *Compose) ReStart(args []string) ([]byte, error) {
 	return c.run(append([]string{"start"}, args...)...)
 }
 func (c *Compose) Pull(args []string) ([]byte, error) {
+	c.pullLock.Lock()
+	defer c.pullLock.Unlock()
 	err := c.Login("login")
 	if err != nil {
 		return nil, err
