@@ -75,7 +75,7 @@ name = "pgo"
 user = "miek"
 repository = "https://github.com/miekg/pgo"
 branch = "main"
-registry = [ "user:token@registry" ]
+registries = [ "user:token@registry" ]
 ignore = false
 compose = "my-compose.yaml"
 env = [ "MYVAR=VALUE" ]
@@ -97,7 +97,7 @@ repository *and* branch
 : `https://github.com/miekg/pgo` and `main`, where to clone and pull from. If branch is not
 specified `main` is assumed.
 
-registry:
+registries:
 : `user:token@registry`, docker login credentials, this is used to login the registry and pull the
 containers. Note that different credentials for the same user in different services might lead to
 race conditions (and failed pulls). If the user part is not specifiied, the user from the `user`

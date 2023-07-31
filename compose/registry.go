@@ -36,9 +36,8 @@ func (c *Compose) Login(login string) error {
 		}
 
 		// do docker login
-		// TODO: duplicates compose.go stuff
 		ctx := context.TODO()
-		log.Infof("[%s]: Performing docker login with %q at %q", c.name, user, registry)
+		log.Infof("[%s]: Performing docker %s with %q at %q", c.name, login, user, registry)
 		cmd := exec.CommandContext(ctx, "docker", login, "-u", user, "-p", token, registry)
 		if login == "logout" {
 			cmd = exec.CommandContext(ctx, "docker", "logout")
