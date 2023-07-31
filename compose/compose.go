@@ -17,11 +17,11 @@ type Compose struct {
 	nets     []string // allowed networks from config
 	env      []string // extra environment variables
 	file     string   // alternate compose file name
-	registry string
+	registry []string // private docker registries
 }
 
 // New returns a pointer to an intialized Compose.
-func New(name, user, directory, file, registry string, nets, env []string) *Compose {
+func New(name, user, directory, file string, registry []string, nets, env []string) *Compose {
 	g := &Compose{
 		name:     name,
 		user:     user,

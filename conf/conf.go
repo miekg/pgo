@@ -28,9 +28,9 @@ type Service struct {
 	Name        string
 	User        string
 	Repository  string
-	Registry    string // user:token auth for registry
-	Ignore      bool   // don't restart compose after it got updated if true
-	ComposeFile string `toml:"compose,omitempty"` // alternative compose file
+	Registry    []string // user:token@registry auth
+	Ignore      bool     // don't restart compose after it got updated if true
+	ComposeFile string   `toml:"compose,omitempty"` // alternative compose file
 	Branch      string
 	Import      string            // filename of caddy file to generate
 	URLs        map[string]string // url -> host:port
