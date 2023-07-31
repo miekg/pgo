@@ -1,7 +1,6 @@
 package compose
 
 import (
-	"bytes"
 	"context"
 	"os/exec"
 	"sync"
@@ -68,7 +67,7 @@ func (c *Compose) run(args ...string) ([]byte, error) {
 		metric.CmdErrorCount.WithLabelValues(c.name, "compose", args[0]).Inc()
 	}
 
-	return bytes.TrimSpace(out), err
+	return out, err
 }
 
 func (c *Compose) Build(args []string) ([]byte, error) {

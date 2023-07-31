@@ -3,7 +3,6 @@
 package git
 
 import (
-	"bytes"
 	"context"
 	"fmt"
 	"os"
@@ -56,7 +55,7 @@ func (g *Git) run(args ...string) ([]byte, error) {
 		metric.CmdErrorCount.WithLabelValues(g.name, "git", args[0]).Inc()
 	}
 
-	return bytes.TrimSpace(out), err
+	return out, err
 }
 
 func (g *Git) IsCheckedOut() bool {
