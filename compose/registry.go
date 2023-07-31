@@ -12,14 +12,11 @@ import (
 )
 
 func (c *Compose) Login(login string) error {
-	if c.registry == nil {
+	if len(c.registries) == 0 {
 		return nil
 	}
 
-	// TODO: locking for this Compose, so other logins don't stump, needs to work in conjunction with docker
-	// pull.
-
-	for _, r := range c.registry {
+	for _, r := range c.registries {
 		regi := strings.Index(r, "@")
 		if regi < 0 {
 			return fmt.Errorf("no @-sign in registry %q", r)

@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"os/exec"
+	"sync"
 
 	"github.com/miekg/pgo/metric"
 	"github.com/miekg/pgo/osutil"
@@ -11,25 +12,27 @@ import (
 )
 
 type Compose struct {
-	name     string
-	user     string   // what user to use
-	dir      string   // where to put it
-	nets     []string // allowed networks from config
-	env      []string // extra environment variables
-	file     string   // alternate compose file name
-	registry []string // private docker registries
+	name       string
+	user       string   // what user to use
+	dir        string   // where to put it
+	nets       []string // allowed networks from config
+	env        []string // extra environment variables
+	file       string   // alternate compose file name
+	registries []string // private docker registries
+
+	pullLock sync.RWMutex // protects docker pull and hence docker login
 }
 
 // New returns a pointer to an intialized Compose.
-func New(name, user, directory, file string, registry []string, nets, env []string) *Compose {
+func New(name, user, directory, file string, registries []string, nets, env []string) *Compose {
 	g := &Compose{
-		name:     name,
-		user:     user,
-		dir:      directory,
-		registry: registry,
-		nets:     nets,
-		file:     file,
-		env:      env,
+		name:       name,
+		user:       user,
+		dir:        directory,
+		registries: registries,
+		nets:       nets,
+		file:       file,
+		env:        env,
 	}
 	return g
 }
@@ -42,8 +45,7 @@ func (c *Compose) run(args ...string) ([]byte, error) {
 	args = append([]string{"compose"}, args...)
 	cmd := exec.CommandContext(ctx, "docker", args...)
 	if _, err := exec.LookPath("docker-compose"); err == nil {
-		// docker-compose is the installed command, use that
-		// strip compose out of args
+		// docker-compose is the installed command, use that and strip compose out of args
 		args = args[1:]
 		cmd = exec.CommandContext(ctx, "docker-compose", args...)
 	}
@@ -88,6 +90,11 @@ func (c *Compose) ReStart(args []string) ([]byte, error) {
 	return c.run(append([]string{"start"}, args...)...)
 }
 func (c *Compose) Pull(args []string) ([]byte, error) {
+	// Locking is only needed for private registries.
+	if len(c.registries) > 0 {
+		c.pullLock.Lock()
+		defer c.pullLock.Unlock()
+	}
 	err := c.Login("login")
 	if err != nil {
 		return nil, err

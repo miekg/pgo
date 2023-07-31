@@ -28,7 +28,7 @@ type Service struct {
 	Name        string
 	User        string
 	Repository  string
-	Registry    []string // user:token@registry auth
+	Registries  []string // user:token@registry auth
 	Ignore      bool     // don't restart compose after it got updated if true
 	ComposeFile string   `toml:"compose,omitempty"` // alternative compose file
 	Branch      string
@@ -101,7 +101,7 @@ func (s *Service) InitGitAndCompose(dir string) error {
 	}
 
 	s.Git = git.New(s.Name, s.Repository, s.User, s.Branch, dir)
-	s.Compose = compose.New(s.Name, s.User, dir, s.ComposeFile, s.Registry, s.Networks, s.Env)
+	s.Compose = compose.New(s.Name, s.User, dir, s.ComposeFile, s.Registries, s.Networks, s.Env)
 	s.dir = dir
 	return nil
 }
