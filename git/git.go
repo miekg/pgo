@@ -86,7 +86,7 @@ func (g *Git) Checkout() error {
 		}
 	}
 
-	_, err := g.run("clone", "-b", g.branch, g.upstream, g.dir)
+	_, err := g.run("clone", "--depth", "1", "-b", g.branch, g.upstream, g.dir)
 	return err
 }
 
@@ -96,7 +96,7 @@ func (g *Git) Pull(names []string) (bool, error) {
 		return false, err
 	}
 
-	out, err := g.run("pull", "--stat", "--ff-only", "origin", g.branch)
+	out, err := g.run("pull", "--stat", "--rebase", "origin", g.branch)
 	if err != nil {
 		return false, err
 	}
