@@ -202,7 +202,7 @@ func (s *Service) Track(ctx context.Context, duration time.Duration) {
 
 		changed, err := s.Git.Pull(namesOfInterest)
 		if err != nil {
-			log.Warningf("[%s]: Failed to pull: %v, deleting repository in %d, and cloning again", s.Name, s.Repository, err)
+			log.Warningf("[%s]: Failed to pull: %v, deleting repository in %s, and cloning again", s.Name, err, s.Repository)
 			if err := s.Git.RemoveAll(); err != nil {
 				log.Errorf("[%s]: Failed to remove repository: %v", s.Name, err)
 				continue
