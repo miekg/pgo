@@ -95,12 +95,6 @@ var routes = map[string]func(s *conf.Service, args []string) ([]byte, error){
 		case "hash":
 			hash := c.Git.Hash()
 			return []byte(hash), nil
-		case "rollback":
-			if len(args) < 2 {
-				return nil, fmt.Errorf("expected git hash, got nothing")
-			}
-			err := c.Git.Rollback(args[1])
-			return nil, err
 		default:
 			return nil, fmt.Errorf("unrecognized command: %s", args[0])
 		}

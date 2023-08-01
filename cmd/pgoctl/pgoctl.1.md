@@ -36,7 +36,6 @@ The supported commands are
     where **COMMAND** can be:
     * `pull`, perform git pull
     * `hash`, show current hash of repo
-    * `rollback` **HASH**, check out **HASH**
 
 There are only a few options:
 
