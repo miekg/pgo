@@ -21,6 +21,23 @@ pgoctl is an utility to inspect and control pgod(8) remotely. The exit status fr
 docker compose is reflected in the exist status of pgoctl. Almost all commands from docker compose
 are implemented. Interactive command, like starting a shell, are not implemented.
 
+The supported commands are
+
+* `up` run `docker-compose up -d`
+* `down` run `docker-compose down`
+* `stop` run `docker-compose stop`
+* `start` run `docker-compose start`
+* `restart` run `docker-compose restart`
+* `ps` run `docker-compose ps`
+* `pull` run `docker-compose pull`
+* `logs` run `docker-compose logs`
+* `exec` run `docker-compose -T exec`
+* `git` **COMMAND**
+    where **COMMAND** can be:
+    * `pull`, perform git pull
+    * `hash`, show current hash of repo
+    * `rollback` **HASH**, check out **HASH**
+
 There are only a few options:
 
 **-i value**

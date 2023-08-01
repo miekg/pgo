@@ -26,8 +26,8 @@ var routes = map[string]struct{}{
 	"pull":    {},
 	"logs":    {},
 	"exec":    {},
-
-	"ping": {},
+	"git":     {},
+	"ping":    {},
 }
 
 var version = "n/a"
@@ -67,7 +67,6 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-
 }
 
 // parseCommand parses: machine:dhz//ps in name (dhz) and command (status)

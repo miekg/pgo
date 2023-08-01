@@ -14,6 +14,9 @@ import (
 // we need to track that we saw a change. Parsing the diff stat seems simpler and more atomic in that
 // regard.
 func (g *Git) OfInterest(data []byte, names []string) bool {
+	if len(names) == 0 {
+		return false
+	}
 	scanner := bufio.NewScanner(bytes.NewReader(data))
 	// Diff stat snippet:
 	//

@@ -84,6 +84,28 @@ var routes = map[string]func(s *conf.Service, args []string) ([]byte, error){
 	"logs":    func(c *conf.Service, args []string) ([]byte, error) { return c.Compose.Logs(args) },
 	"exec":    func(c *conf.Service, args []string) ([]byte, error) { return c.Compose.Exec(args) },
 
+	"git": func(c *conf.Service, args []string) ([]byte, error) {
+		if len(args) == 0 {
+			return nil, fmt.Errorf("expected git command, got nothing")
+		}
+		switch args[0] {
+		case "pull":
+			_, err := c.Git.Pull(nil)
+			return nil, err
+		case "hash":
+			hash := c.Git.Hash()
+			return []byte(hash), nil
+		case "rollback":
+			if len(args) < 2 {
+				return nil, fmt.Errorf("expected git hash, got nothing")
+			}
+			err := c.Git.Rollback(args[1])
+			return nil, err
+		default:
+			return nil, fmt.Errorf("unrecognized command: %s", args[0])
+		}
+	},
+
 	"ping": func(c *conf.Service, _ []string) ([]byte, error) {
 		return []byte("pong! - " + osutil.Hostname() + "\n"), nil
 	},
