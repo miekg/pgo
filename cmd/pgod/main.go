@@ -37,7 +37,7 @@ func (exec *ExecContext) RegisterFlags(fs *flag.FlagSet) {
 	fs.SortFlags = false
 	fs.StringVarP(&exec.ConfigSource, "config", "c", "/etc/pgo.toml", "config file to read")
 	fs.StringVarP(&exec.SAddr, "ssh", "s", ":2222", "address for SSH to listen on")
-	fs.StringVarP(&exec.MAddr, "metric", "m", ":9112", "address for Promethues metrics to listen on")
+	fs.StringVarP(&exec.MAddr, "metric", "m", ":9112", "address for Prometheus metrics to listen on")
 	fs.StringVarP(&exec.Dir, "dir", "d", "/var/lib/pgo", "directory to check out the git repositories")
 	fs.BoolVarP(&exec.Debug, "debug", "", false, "enable debug logging")
 	fs.BoolVarP(&exec.Restart, "restart", "", true, "send SIGHUP when config changes")

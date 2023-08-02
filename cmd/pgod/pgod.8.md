@@ -126,11 +126,11 @@ services that are defined.
 ## Authentication
 
 All remote access is authenticated and encrypted using SSH. The **public** keys you use *MUST* be
-put in `ssh` subdirectory in the top level of your repository. The **private** is used in
+put in `ssh` subdirectory in the top level of your repository. The **private** key is used in
 combination with pgoctl(1).
 
 The generated key can't have a passphrase, to generate use: `ssh-keygen -t ed25519 -f ssh/id_pgo`.
-And add and commit `id_pgo.pub`.
+And add and commit `ssh/id_pgo.pub`, and use `ssh/id_pgo` for authentication.
 
 ## Metrics
 
