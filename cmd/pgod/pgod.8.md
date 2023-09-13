@@ -134,7 +134,10 @@ And add and commit `ssh/id_pgo.pub`, and use `ssh/id_pgo` for authentication.
 
 ## Metrics
 
-There are no metrics yet.
+Two metrics are exported:
+
+* `pgo_command_count`: total of commands executed
+* `pgo_command_error_count`: count of errors resulting from command execution
 
 ## Exit Code
 
