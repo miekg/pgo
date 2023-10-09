@@ -1,1 +1,2 @@
 - tailing logs with -f
+- check dirs on startup and match to services, delete and stop services that don't exist in the config file
