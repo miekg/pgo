@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"path"
 	"sync"
 	"syscall"
 	"time"
@@ -96,6 +97,17 @@ func run(exec *ExecContext) error {
 	if exec.Dir == "" {
 		return ErrNoDir
 	}
+	if path.Clean(exec.Dir) == "/" {
+		return fmt.Errorf("--dir can not be /")
+	}
+
+	fi, err := os.Stat(exec.Dir)
+	if err != nil {
+		return fmt.Errorf("%s does not exist: %s", exec.Dir, err)
+	}
+	if !fi.IsDir() {
+		return fmt.Errorf("%s is not a directory: %s", exec.Dir, err)
+	}
 
 	doc, err := os.ReadFile(exec.ConfigSource)
 	if err != nil {
@@ -109,6 +121,10 @@ func run(exec *ExecContext) error {
 		if err := s.InitGitAndCompose(exec.Dir); err != nil {
 			return err
 		}
+	}
+
+	if err := conf.Stale(c.Services, exec.Dir); err != nil {
+		return fmt.Errorf("error while tyring to clean up stale services: %s", err)
 	}
 
 	ctx, cancel := context.WithCancel(context.TODO())
