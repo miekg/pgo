@@ -18,7 +18,7 @@ pgod - watch a git repository, pull changes and restart the docker compose servi
 ## Description
 
 `pgod` clones and pulls all repositories that are defined in the config file. It then exposes a SSH
-interface (on port 2222) which you can interact with using pgoctl(1) or plain ssh(1) (not tested).
+interface (on port 2222) which you can interact with using pgoctl(1).
 
 Each compose file runs under it's own user-account. That account can then access storage, or
 databases it has access too - provisioning that stuff is out-of-scope - assuming your infra can deal
@@ -38,6 +38,9 @@ compose file variants are supported: "compose.yaml", "compose.yml", "docker-comp
 
 With pgoctl(1) you can then interact with these services. You can "up", "down", "ps", "pull",
 "logs", and "ping" currently. The syntax exposed is `<servicename>//<command>`, i.e. `pgo//ps`.
+
+On startup pgod(8) will down and remove any services that exist, but are not defined in the
+confguration file.
 
 The options are:
 
