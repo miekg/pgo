@@ -87,6 +87,44 @@ func Parse(doc []byte) (*Config, error) {
 	return c, nil
 }
 
+// Stale checks the directory for service subdirs and substracts the current service from it, and then
+// downs the compose service and then removes the directory (recursively).
+// a slice of stale services that can be downed and removed.
+func Stale(sx []*Service, dir string) error {
+	ex, err := os.ReadDir(dir)
+	if err != nil {
+		return err
+	}
+
+Stale:
+	for _, e := range ex {
+		if !e.IsDir() {
+			continue
+		}
+		for i := range sx {
+			if sx[i].Name == e.Name() {
+				continue Stale
+			}
+		}
+
+		// If the (now deleted) compose config references a non-standard compose, this dance will fail.
+		// We _could_ scan for compose variants and pick one... even that would fail, because there can because
+		// multiple...
+		fulldir := path.Join(dir, e.Name())
+		comp := compose.New(e.Name(), "root", fulldir, "", nil, nil, nil)
+		if _, err := comp.Stop(nil); err != nil {
+			log.Infof("[%s]: Trying to stop (stale) service %q: %s", e.Name(), e.Name(), err)
+		}
+		if _, err := comp.Down(nil); err != nil {
+			log.Infof("[%s]: Trying to down (stale) service %q: %s", e.Name(), e.Name(), err)
+		}
+		log.Infof("[%s]: Removing directory: %s", e.Name(), fulldir)
+		os.RemoveAll(fulldir)
+	}
+
+	return nil
+}
+
 func (s *Service) InitGitAndCompose(dir string) error {
 	dir = path.Join(dir, s.Name)
 	if err := os.MkdirAll(dir, 0777); err != nil { // all users (possible) in the config, need to access this dir
