@@ -33,6 +33,7 @@ type Service struct {
 	ComposeFile string   `toml:"compose,omitempty"` // alternative compose file
 	Branch      string
 	Import      string            // filename of caddy file to generate
+	Reload      string            // reload command to use for caddy.
 	URLs        map[string]string // url -> host:port
 	Env         []string
 	Networks    []string
@@ -205,6 +206,9 @@ func (s *Service) Track(ctx context.Context, duration time.Duration) {
 		name := path.Join(s.dir, s.Import)
 		log.Infof("[%s]: Writing Caddy import file %q", s.Name, s.Import)
 		os.WriteFile(name, s.importdata, 0644) // with 644 we shouldn't care about ownership
+	}
+	if s.Import != "" && s.Reload == "" {
+		log.Errorf("[%s]: Import is set, but there is no reload command", s.Name)
 	}
 
 	if err := s.Compose.AllowedExternalNetworks(); err != nil {
