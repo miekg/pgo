@@ -5,8 +5,8 @@ repository = "https://github.com/miekg/pgo-caddy"
 # create caddy/Caddyfile-import that the main caddy file includes. This is done in pgo-caddy.
 import = "caddy/Caddyfile-import"
 # when our import changes we want to gracefully reload caddy
-# this has the same order as pgctl exec, <service> <command>
-reload = "caddy caddy reload --config /etc/caddy/Caddyfile --adapter caddyfile"
+# this has the same syntax as a pgoctl command doing the same.
+reload = "localhost:caddy//exec caddy reload --config /etc/caddy/Caddyfile --adapter caddyfile"
 
 [[services]]
 name = "pgo"

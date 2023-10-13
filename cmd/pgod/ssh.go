@@ -107,6 +107,7 @@ var routes = map[string]func(s *conf.Service, args []string) ([]byte, error){
 
 // parseCommand parses: dhz//ps in name (dhz) and command (status) and optional args after it, split on space.
 func parseCommand(s []string) (name, command string, args []string, error error) {
+	// see conf.go ParseCommand which does more, but also has this code.
 	items := strings.Split(s[0], "//")
 	if len(items) != 2 {
 		return "", "", nil, fmt.Errorf("expected name//command, got %s", s[0])

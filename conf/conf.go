@@ -40,8 +40,9 @@ type Service struct {
 	Git         *git.Git         `toml:"-"`
 	Compose     *compose.Compose `toml:"-"`
 
-	dir        string // where is repo checked out
-	importdata []byte // caddy's import file data
+	dir        string   // where is repo checked out
+	importdata []byte   // caddy's import file data
+	reloadcmd  []string // parsed Reload command, should exec service ...
 }
 
 type Config struct {
@@ -82,6 +83,26 @@ func Parse(doc []byte) (*Config, error) {
 		}
 		if s.Import != "" {
 			s.importdata = MakeCaddyImport(c)
+		}
+		if s.Import != "" && s.Reload == "" {
+			// ret error?
+			log.Errorf("[%s]: Import is set, but there is no reload command", s.Name)
+		}
+		if s.Reload != "" {
+			reloadcmd, reloadname := "", ""
+			_, reloadname, reloadcmd, err = ParseCommand(s.Reload)
+			if err != nil {
+				return nil, err
+			}
+			if !strings.HasPrefix(reloadcmd, "exec") {
+				return nil, fmt.Errorf("Reload command must start with %q, got %q", "exec", s.reloadcmd)
+			}
+			// setup reloadcmd to the string after exec, and trim space
+			reloadcmd = reloadcmd[len("exec"):]
+			reloadcmd = strings.TrimSpace(reloadcmd)
+
+			s.reloadcmd = []string{reloadname}
+			s.reloadcmd = append(s.reloadcmd, strings.Fields(reloadcmd)...)
 		}
 	}
 
@@ -202,15 +223,6 @@ func (s *Service) Track(ctx context.Context, duration time.Duration) {
 		log.Infof("[%s]: Git repo exist, will fix state in next iteration, last error: %v", s.Name, errok)
 	}
 
-	if s.Import != "" && len(s.importdata) > 0 {
-		name := path.Join(s.dir, s.Import)
-		log.Infof("[%s]: Writing Caddy import file %q", s.Name, s.Import)
-		os.WriteFile(name, s.importdata, 0644) // with 644 we shouldn't care about ownership
-	}
-	if s.Import != "" && s.Reload == "" {
-		log.Errorf("[%s]: Import is set, but there is no reload command", s.Name)
-	}
-
 	if err := s.Compose.AllowedExternalNetworks(); err != nil {
 		log.Warningf("[%s]: External network usage outside of allowed networks: %v", s.Name, err)
 	} else {
@@ -227,6 +239,17 @@ func (s *Service) Track(ctx context.Context, duration time.Duration) {
 			log.Warningf("[%s]: Failed upping services: %v", s.Name, err)
 		}
 		log.Infof("[%s]: Tracking upstream from %q", s.Name, s.Git.Hash())
+	}
+
+	if s.Import != "" && len(s.importdata) > 0 {
+		name := path.Join(s.dir, s.Import)
+		log.Infof("[%s]: Writing Caddy import file %q", s.Name, s.Import)
+		os.WriteFile(name, s.importdata, 0644) // with 644 we shouldn't care about ownership
+
+		log.Infof("[%s]: Reloading Caddy", s.Name)
+		if _, err := s.Compose.Exec(s.reloadcmd); err != nil {
+			log.Warningf("[%s]: Failed exec reload command: %v", s.Name, err)
+		}
 	}
 
 	namesOfInterest := cli.DefaultFileNames
@@ -320,4 +343,27 @@ func jitter(d time.Duration) time.Duration {
 	rand.Seed(time.Now().UnixNano())
 	max := d / 2
 	return d + time.Duration(rand.Int63n(int64(max)))
+}
+
+// ParseCommand parses a pgoctl command line: pgoctl localhost:caddy//exec /bin/ls -l /
+// machine: localhost
+// name: caddy
+// command: exec
+// args: rest
+func ParseCommand(s string) (machine, name, command string, err error) {
+	items := strings.SplitN(s, ":", 2)
+	if len(items) != 2 {
+		return "", "", "", fmt.Errorf("expected machine:name//command, got %s", s)
+	}
+	machine = items[0]
+
+	rest := items[1]
+	items = strings.Split(rest, "//")
+	if len(items) != 2 {
+		return "", "", "", fmt.Errorf("expected name//command, got %s", rest)
+	}
+	name = items[0]
+	command = items[1]
+	return machine, name, command, nil
+
 }
