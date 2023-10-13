@@ -92,6 +92,7 @@ env = [ "MYVAR=VALUE" ]
 urls = { "example.org" = "pgo:5006" }
 networks = [ "reverse\_proxy" ]
 import = "Caddyfile\-import"
+reload = "localhost:caddy//exec caddy reload \-\-config /etc/caddy/Caddyfile \-\-adapter caddyfile"
 
 .fi
 .RE
@@ -135,14 +136,19 @@ networks:
 .TP
 import:
 \fB\fC"Caddyfile-import"\fR, generate a Caddy (import) file that sets up the reverse proxies for \fIall\fP
-services that are defined.
+services that are defined. If you have an \fB\fCimport\fR you also want to have a \fB\fCreload\fR.
+.TP
+reload:
+\fB\fClocalhost:caddy//exec caddy --config Caddyfile --adapter caddyfile\fR, this is a pgoctl(1) exec
+command line that runs \fB\fCdocker compose exec caddy caddy --config...\fR, to reload caddy in its
+container. Note that the machine (here \fB\fClocalhost\fR) is not used.
 
 
 .SH "AUTHENTICATION"
 .PP
 All remote access is authenticated and encrypted using SSH. The \fBpublic\fP keys you use \fIMUST\fP be
 put in \fB\fCssh\fR subdirectory in the top level of your repository. The \fBprivate\fP key is used in
-combination with pgoctl(1).
+combination with pgoctl(1) and should \fInever be checked in\fP.
 
 .PP
 The generated key can't have a passphrase, to generate use: \fB\fCssh-keygen -t ed25519 -f ssh/id_pgo\fR.
@@ -160,7 +166,7 @@ Two metrics are exported:
 
 .SH "EXIT CODE"
 .PP
-Pgod has following exit codes:
+pgod(8) has following exit codes:
 
 .PP
 0 - normal exit
