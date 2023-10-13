@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 	"os"
-	"strings"
 
+	"github.com/miekg/pgo/conf"
 	flag "github.com/spf13/pflag"
 	"go.science.ru.nl/log"
 )
@@ -44,7 +44,7 @@ func main() {
 		os.Exit(0)
 	}
 
-	machine, name, command, err := parseCommand(flag.Arg(0))
+	machine, name, command, err := conf.ParseCommand(flag.Arg(0))
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -67,21 +67,4 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-}
-
-// parseCommand parses: machine:dhz//ps in name (dhz) and command (status)
-func parseCommand(s string) (machine, name, command string, error error) {
-	items := strings.SplitN(s, ":", 2)
-	if len(items) != 2 {
-		return "", "", "", fmt.Errorf("expected machine:name//command, got %s", s)
-	}
-	machine = items[0]
-	rest := items[1]
-	items = strings.Split(rest, "//")
-	if len(items) != 2 {
-		return "", "", "", fmt.Errorf("expected name//command, got %s", rest)
-	}
-	name = items[0]
-	command = items[1]
-	return machine, name, command, nil
 }

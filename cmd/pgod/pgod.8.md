@@ -85,6 +85,7 @@ env = [ "MYVAR=VALUE" ]
 urls = { "example.org" = "pgo:5006" }
 networks = [ "reverse_proxy" ]
 import = "Caddyfile-import"
+reload = "localhost:caddy//exec caddy reload --config /etc/caddy/Caddyfile --adapter caddyfile"
 ~~~
 
 Here we define:
@@ -124,13 +125,18 @@ networks:
 
 import:
 : `"Caddyfile-import"`, generate a Caddy (import) file that sets up the reverse proxies for *all*
-services that are defined.
+services that are defined. If you have an `import` you also want to have a `reload`.
+
+reload:
+: `localhost:caddy//exec caddy --config Caddyfile --adapter caddyfile`, this is a pgoctl(1) exec
+command line that runs `docker compose exec caddy caddy --config...`, to reload caddy in its
+container. Note that the machine (here `localhost`) is not used.
 
 ## Authentication
 
 All remote access is authenticated and encrypted using SSH. The **public** keys you use *MUST* be
 put in `ssh` subdirectory in the top level of your repository. The **private** key is used in
-combination with pgoctl(1).
+combination with pgoctl(1) and should *never be checked in*.
 
 The generated key can't have a passphrase, to generate use: `ssh-keygen -t ed25519 -f ssh/id_pgo`.
 And add and commit `ssh/id_pgo.pub`, and use `ssh/id_pgo` for authentication.
@@ -144,7 +150,7 @@ Two metrics are exported:
 
 ## Exit Code
 
-Pgod has following exit codes:
+pgod(8) has following exit codes:
 
 0 - normal exit
 1 - error seen (log.Fatal())
