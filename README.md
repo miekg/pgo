@@ -7,7 +7,11 @@ docker-compose) (podman was dropped, see below, see https://docs.docker.com/engi
 for docker's installation). It allows for remote interaction via an SSH interface, which `pgoctl`
 makes easy to use. For this SSH interface no local users need to exist on the target system. The
 compose is (usually) executed under a particular user name, those users do need an account on the
-target system, they do not need shell access.
+target system, they do not need shell access, because everything runs through SSH of pgod(8).
+
+The main idea here is that developers can push stuff easier to production and that you can have some
+of the goodies from Kubernetes, but not the bad stuff like the networking - the big trade-off being
+that machines are still somewhat special.
 
 Current the following compose file variants are supported: "compose.yaml", "compose.yml",
 "docker-compose.yml" and "docker-compose.yaml". If you need more flexibility you can point to a
@@ -15,21 +19,15 @@ specific compose file, with the `compose` key in the config.
 
 Each compose file runs under it's own user-account. That account can then access storage, or
 databases it has access to - provisioning that stuff is out-of-scope - assuming your infra can deal
-with all that stuff. And make that available on each server.
+with all that.
 
-Servers running "pgod" as still special in some regard, a developers needs to know which server runs
+Servers running pgod(8) as still special in some regard, as a developers needs to know which server runs
 their compose file. Moving services to a different machine is as easy as starting the compose there,
-but you need to make sure your infra also updates external records (DNS for example), but maybe also
-ACL on the databases and other resources.
+but you need to make sure your infra also updates external records (DNS for example).
 
-The interface into `pgod` is via SSH, but not the normal SSH running on the server, this is a
-completely seperate SSH interface implemented by both `pgod` and `pgoctl`. The owner of the Git repo
-can publish new (public) keys and make `pgoctl` access available for anyone with access the private
-key.
-
-The main idea here is that developers can push stuff easier to production and that you can have some
-of the goodies from Kubernetes, but not the bad stuff like the networking - the big trade-off being
-that machines are still somewhat special.
+The interface into pgod(8) is via custom SSH implementation that is separate from the machine's SSH.
+The owner of the Git repo can publish public keys in a `ssh` direcotry and their repo and give
+pgoctl(1)-access tp anyone with access the correspondong private key.
 
 Note that pgod runs (as root) under systemd.
 
@@ -48,12 +46,12 @@ env = [ "MYENV=bla", "OTHERENV=bliep"]
 urls = { "pgo.science.ru.nl" = "pgo:5007" }
 networks = [ "reverse_proxy" ]
 # import = "Caddyfile-import"
+# reload = "localhost:caddy//exec caddy reload --config /etc/caddy/Caddyfile --adapter caddyfile"
+
 ```
 
-This file is used by `pgod` and should be updated for each project you want to onboard. Our plan is
-to have this go through an on boarding workflow and automate it.
-
-To go over this file:
+This file is used by `pgod` and should be updated for each project you want to onboard. To go over
+this file:
 
 - `name`: this is the name of the service, used to uniquely identify the service across machines.
 - `user`: which user to use to run the docker compose under.
@@ -67,17 +65,19 @@ To go over this file:
 - `networks`: which external network can this service use. Empty means all.
 - `env`: specify extra environment variables in "VAR=VALUE" notation (i.e. secrets).
 - `import`: create a Caddyfile snippet with reverse proxy statements for all URLs in all services
-  *with a specific* prefix and writes this in the directory where the repository is checked out.
+  and write this in the directory where the repository is checked out.
+- `load`: a exec command in pgoctl(1) syntax to reload caddy when a new import file is written.
 
 For non-root accounts, docker compose will be run with the normal supplementary groups to which the
-local docker group has been added. This allows those user to transparently access the docker socket.
+*local* docker group has been added. This allows those user to transparently access the docker
+socket, without going through some addgroup(8) hassle.
 
 ## Requisites
 
-To use "pgo" your project MUST have:
+To use "pgo" your project should have:
 
 - A public SSH key (or keys) stored in a `ssh/` directory in your git repo. This keys can **not** have a
-  passphrase protecting them
+  passphrase protecting them. If there are no keys, or no ssh directory pgoctl(1) will not work.
 - A `compose.yaml` (or any of the variants) in the top-level of your git repo.
 
 ## Quick Start
@@ -116,7 +116,7 @@ authentication works (replies with a "pong!" if everything works).
 
 ## Integrating with GitLab Environments
 
-If you want to use PGO with GitLab you needs to setup
+If you want to use pgo with GitLab you needs to setup
 [environments](https://docs.gitlab.com/ee/ci/environments/) that allow you to deploy to
 "production", here is an example `.gitlab-ci.yml` that does this:
 
@@ -134,7 +134,7 @@ deploy_production:
     url: https://example.com
     on_stop: stop_production
   script:
-    - pgoctl mymachine:project//pull  # looks for PGOCTL_ID env var
+    - pgoctl mymachine:project//pull  # looks for PGOCTL_ID env var, with privkey contents
     - pgoctl mymachine:project//build
     - pgoctl mymachine:project//up
   when: manual
@@ -161,26 +161,16 @@ repository = "https://oauth2:<token>@gitlab.science.ru.nl/..."
 
 ## Networking and Reverse Proxy
 
-If composers need a network, you'll need to set this up by yourself with Caddy, pgod has support to
+If services need a network, you'll need to set this up by yourself with Caddy, pgod(8) has support to
 write a Caddyfile snippet that routes all URLs to the composer's backends. This does mean the
 caddy's docker-compose must be setup in such a way that it will read that file *and* configures a
 "well-known" network, where other composers can hook into. The setup we use `caddy` as the name
 for the service *and* the network. This is defined in the <https://github.com/miekg/pgo-caddy> project.
+This project also defines the name of the network where Caddy lives and which other service need to
+reference as an external netwerk.
 
-The services that are exporting into the caddy snippet must begin with the service name, so if you
-would like `frontend` (in the pgo service) to receive traffic from caddy, you must name the service
-'pgo-frontend', and in urls you must have: "domain" = "pgo-frontend:port" for it to work.
-
-The pgod config would look like this:
-~~~ toml
-[[services]]
-name = "caddy"
-user = "root"
-repository = "https://github.com/miekg/pgo-caddy"
-import = "caddy/Caddyfile-import"
-~~~
-
-And the compose.yaml:
+The services that are exporting into the caddy snippet only need an "url" in their config. So the
+`pgo-caddy` config is a normal pgo service and has this compose config:
 
 ~~~ yaml
 version: '3.6'
@@ -201,12 +191,27 @@ networks:
       name: caddy
 ~~~
 
-Where the network created is called `caddy` and the `Caddyfile-import` is written into the
-directory that gets mounted as a volume inside the caddy container. The pgo-caddy git repository has
-an .gitignore for `caddy/Caddyfile-import`.
+Where the network created is called `caddy` and the `Caddyfile-import` is written, by pgod(8), into
+the directory that gets mounted as a volume inside the caddy container. The `pgo-caddy` git
+repository has an .gitignore for `caddy/Caddyfile-import`.
 
-Other users of this PGO instance only need to know the network is called `caddy` and commit their
-pgo.toml config to make things work.
+Other users of this pgo instance only need to know the network is called `caddy` and commit their
+pgo.toml config to make things work, i.e. in those `compose.yaml` they need:
+
+~~~ yaml
+networks:
+  caddynet:
+    external: true
+    name: caddy
+~~~
+
+and a
+~~~ yaml
+networks:
+  - caddynet
+~~~
+in each service that need a reverse proxy, and then _also_ a `urls` section in `pgo.toml` that ties
+everything together: `urls = { "example.org": frontend:8080" }`.
 
 ## pgod
 
@@ -219,7 +224,7 @@ See the [manual page](./cmd/pgoctl/pgoctl.1.md) in [cmd/pgoctl](./cmd/pgoctl). A
 
 # Podman and Podman-Compose
 
-Initialy PGO was using podman(-compose) to run the images, but this proved to be a challenge.
+Initialy pgo was using podman(-compose) to run the images, but this proved to be a challenge.
 podman-compose is a seperate project and has it's own ideas on how to parse a compose.yml file (not
 only his fault, the format is terrible). But using external network just didn't work, regardless
 what syntax was used. Also podman kept complaining about CNI version clashes which were
