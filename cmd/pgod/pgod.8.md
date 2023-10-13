@@ -85,7 +85,7 @@ env = [ "MYVAR=VALUE" ]
 urls = { "example.org" = "pgo:5006" }
 networks = [ "reverse_proxy" ]
 import = "Caddyfile-import"
-reload = "caddy caddy reload --config Caddyfile --adapter caddyfile"
+reload = "localhost:caddy//exec caddy reload --config /etc/caddy/Caddyfile --adapter caddyfile"
 ~~~
 
 Here we define:
