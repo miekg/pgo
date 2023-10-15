@@ -58,7 +58,7 @@ this file:
 - `repository` and `branch`: where to find the git repo belonging to this service.
 - `registries`: optional authentication for pulling the docker images from the registry. In
   "user:token" format, is user is omitted, `user` is used. This is a list because there can be more
-  than one private registry.
+  than one private registry. This should match any registries used in the compose file.
 - `compose`: alternate compose file to use.
 - `ignore`: don't restart the containers when a compose file changes.
 - `urls`: what DNS names need to be assigned to this server and to what network and port should they forward.
