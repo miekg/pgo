@@ -164,10 +164,9 @@ repository = "https://oauth2:<token>@gitlab.science.ru.nl/..."
 If services need a network, you'll need to set this up by yourself with Caddy, pgod(8) has support to
 write a Caddyfile snippet that routes all URLs to the composer's backends. This does mean the
 caddy's docker-compose must be setup in such a way that it will read that file *and* configures a
-"well-known" network, where other composers can hook into. The setup we use `caddy` as the name
-for the service *and* the network. This is defined in the <https://github.com/miekg/pgo-caddy> project.
-This project also defines the name of the network where Caddy lives and which other service need to
-reference as an external netwerk.
+"well-known" network, where other composers can hook into. A setup you can use is having `caddy` as
+the name for the service *and* the network. This is defined in the
+<https://github.com/miekg/pgo-caddy> project. Other service need to reference this as an external netwerk.
 
 The services that are exporting into the caddy snippet only need an "url" in their config. So the
 `pgo-caddy` config is a normal pgo service and has this compose config:
