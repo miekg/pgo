@@ -9,7 +9,7 @@ import (
 	"github.com/compose-spec/compose-go/types"
 )
 
-// Disallow parse the compose yaml, and disallow privileged=true, networkmode="host" and ipc="host"
+// Disallow parses the compose yaml, and disallows privileged=true, networkmode="host" and ipc="host"
 func (c *Compose) Disallow() error {
 	comp := Find(c.dir)
 	if c.file != "" {
@@ -36,13 +36,13 @@ func (c *Compose) Disallow() error {
 	}
 	for _, s := range tp.Services {
 		if s.Privileged {
-			return fmt.Errorf("Service %q set privileged = true", s.Name)
+			return fmt.Errorf("Service %q sets privileged = true", s.Name)
 		}
 		if strings.ToLower(s.NetworkMode) == "host" {
-			return fmt.Errorf("Service %q set network_mode = 'host'", s.Name)
+			return fmt.Errorf("Service %q sets network_mode = 'host'", s.Name)
 		}
 		if strings.ToLower(s.Ipc) == "host" {
-			return fmt.Errorf("Service %q set ipc = 'host'", s.Name)
+			return fmt.Errorf("Service %q sets ipc = 'host'", s.Name)
 		}
 	}
 	return nil
