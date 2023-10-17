@@ -225,6 +225,8 @@ func (s *Service) Track(ctx context.Context, duration time.Duration) {
 
 	if err := s.Compose.AllowedExternalNetworks(); err != nil {
 		log.Warningf("[%s]: External network usage outside of allowed networks: %v", s.Name, err)
+	} else if err := s.Compose.Disallow(); err != nil {
+		log.Errorf("[%s]: Disallowed options used: %v", s.Name, err)
 	} else {
 		log.Infof("[%s]: Pulling containers", s.Name)
 		if _, err := s.Compose.Pull(nil); err != nil {

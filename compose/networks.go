@@ -18,16 +18,8 @@ func LoadExternalNetworks(file string) ([]string, error) {
 	if err != nil {
 		return nil, err
 	}
-	workingDir, err := os.Getwd()
-	if err != nil {
-		panic(err)
-	}
-	configs := []types.ConfigFile{
-		{
-			Filename: file,
-			Config:   dict,
-		},
-	}
+	workingDir, _ := os.Getwd()
+	configs := []types.ConfigFile{{Filename: file, Config: dict}}
 	config := types.ConfigDetails{
 		WorkingDir:  workingDir,
 		ConfigFiles: configs,

@@ -10,8 +10,12 @@ import (
 )
 
 // Disallow parse the compose yaml, and disallow privileged=true, networkmode="host" and ipc="host"
-func Disallow(file string) error {
-	yaml, err := os.ReadFile(file)
+func (c *Compose) Disallow() error {
+	comp := Find(c.dir)
+	if c.file != "" {
+		comp = c.file
+	}
+	yaml, err := os.ReadFile(comp)
 	if err != nil {
 		return err
 	}
@@ -19,16 +23,8 @@ func Disallow(file string) error {
 	if err != nil {
 		return err
 	}
-	workingDir, err := os.Getwd()
-	if err != nil {
-		panic(err)
-	}
-	configs := []types.ConfigFile{
-		{
-			Filename: file,
-			Config:   dict,
-		},
-	}
+	workingDir, _ := os.Getwd()
+	configs := []types.ConfigFile{{Filename: comp, Config: dict}}
 	config := types.ConfigDetails{
 		WorkingDir:  workingDir,
 		ConfigFiles: configs,
