@@ -130,7 +130,7 @@ services that are defined. If you have an `import` you also want to have a `relo
 reload:
 : `localhost:caddy//exec caddy --config Caddyfile --adapter caddyfile`, this is a pgoctl(1) exec
 command line that runs `docker compose exec caddy caddy --config...`, to reload caddy in its
-container. Note that the machine (here `localhost`) is not used.
+container. Note that the machine (here `localhost`) is not used, and could be anything.
 
 ## Authentication
 

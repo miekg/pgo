@@ -19,7 +19,11 @@ specific compose file, with the `compose` key in the config.
 
 Each compose file runs under it's own user-account. That account can then access storage, or
 databases it has access to - provisioning that stuff is out-of-scope - assuming your infra can deal
-with all that.
+with all that. The compose file is parsed and the following settings are *disallowed*:
+
+- privileged=true
+- network_mode=host
+- ipc=host
 
 Servers running pgod(8) as still special in some regard, as a developers needs to know which server runs
 their compose file. Moving services to a different machine is as easy as starting the compose there,

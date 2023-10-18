@@ -15,7 +15,12 @@ func (c *Compose) Disallow() error {
 	if c.file != "" {
 		comp = c.file
 	}
-	yaml, err := os.ReadFile(comp)
+	return disallow(comp)
+}
+
+// Disallow load the compose file and checks if any disallowed settings are set.
+func disallow(file string) error {
+	yaml, err := os.ReadFile(file)
 	if err != nil {
 		return err
 	}
@@ -24,7 +29,7 @@ func (c *Compose) Disallow() error {
 		return err
 	}
 	workingDir, _ := os.Getwd()
-	configs := []types.ConfigFile{{Filename: comp, Config: dict}}
+	configs := []types.ConfigFile{{Filename: file, Config: dict}}
 	config := types.ConfigDetails{
 		WorkingDir:  workingDir,
 		ConfigFiles: configs,
