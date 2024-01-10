@@ -25,7 +25,7 @@ The exit status from the docker compose is reflected in the exist status of pgoc
 commands from docker compose are implemented. Interactive command, like starting a shell, are not
 implemented.
 
-The supported commands are
+The supported commands are:
 
 * `up` run `docker-compose up -d`
 * `down` run `docker-compose down`
@@ -35,11 +35,15 @@ The supported commands are
 * `ps` run `docker-compose ps`
 * `pull` run `docker-compose pull`
 * `logs` run `docker-compose logs`
+* `journal `run `journalctl _UID=<uid>`
 * `exec` run `docker-compose -T exec`
 * `git` **COMMAND**
     where **COMMAND** can be:
     * `pull`, perform git pull
     * `hash`, show current hash of repo
+
+All command also support arguments `pgoctl -i id_pgo -- localhost:pgo//journal --since yesterday`
+for example.
 
 There are only a few options:
 
@@ -104,6 +108,10 @@ service *as specfied in the compose.yaml*.
 bin    etc    lib    proc   run    tmp    var
 dev    home   lib64  root   sys    usr
 ~~~
+
+## Bugs
+
+Streaming responses are not implemented, i.e tailing a service log is currently not possible.
 
 ## Also See
 

@@ -4,10 +4,12 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"os/exec"
 	"strings"
 
 	"github.com/gliderlabs/ssh"
 	"github.com/miekg/pgo/conf"
+	"github.com/miekg/pgo/metric"
 	"github.com/miekg/pgo/osutil"
 	"go.science.ru.nl/log"
 )
@@ -81,8 +83,16 @@ var routes = map[string]func(s *conf.Service, args []string) ([]byte, error){
 	"restart": func(c *conf.Service, args []string) ([]byte, error) { return c.Compose.ReStart(args) },
 	"ps":      func(c *conf.Service, args []string) ([]byte, error) { return c.Compose.Ps(args) },
 	"pull":    func(c *conf.Service, args []string) ([]byte, error) { return c.Compose.Pull(args) },
-	"logs":    func(c *conf.Service, args []string) ([]byte, error) { return c.Compose.Logs(args) },
 	"exec":    func(c *conf.Service, args []string) ([]byte, error) { return c.Compose.Exec(args) },
+
+	"logs": func(c *conf.Service, args []string) ([]byte, error) {
+		for i := range args {
+			if args[i] == "-f" || args[i] == "--follow" {
+				return nil, fmt.Errorf("logs: following logs is not possible")
+			}
+		}
+		return c.Compose.Logs(args)
+	},
 
 	"git": func(c *conf.Service, args []string) ([]byte, error) {
 		if len(args) == 0 {
@@ -98,6 +108,25 @@ var routes = map[string]func(s *conf.Service, args []string) ([]byte, error){
 		default:
 			return nil, fmt.Errorf("unrecognized command: %s", args[0])
 		}
+	},
+
+	"journal": func(c *conf.Service, args []string) ([]byte, error) {
+		for i := range args {
+			if args[i] == "-f" || args[i] == "--follow" {
+				return nil, fmt.Errorf("journal: following logs is not possible")
+			}
+		}
+
+		uid, _ := osutil.User(c.User)
+		args = append([]string{fmt.Sprintf("_UID=%d", uid)}, args...)
+		cmd := exec.Command("journalctl", args...)
+		log.Debugf("[%s]: running in %q as %q %v", c.Name, cmd.Dir, c.User, cmd.Args)
+
+		out, err := cmd.CombinedOutput()
+		if err != nil {
+			metric.CmdErrorCount.WithLabelValues(c.Name, "journal", args[0]).Inc()
+		}
+		return out, err
 	},
 
 	"ping": func(c *conf.Service, _ []string) ([]byte, error) {
@@ -119,9 +148,7 @@ func parseCommand(s []string) (name, command string, args []string, error error)
 
 func exitSession(ses ssh.Session, data []byte, err error) {
 	if err != nil {
-		log.Warning(err)
-		ses.Write(data)
-		ses.Exit(http.StatusInternalServerError)
+		warnSession(ses, fmt.Sprintf("An error occurred in command in connection for user %q: %s", ses.User(), err), http.StatusInternalServerError)
 		return
 	}
 	ses.Write(data)
