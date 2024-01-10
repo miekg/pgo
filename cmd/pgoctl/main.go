@@ -16,20 +16,6 @@ type ExecContext struct {
 	Version  bool
 }
 
-var routes = map[string]struct{}{
-	"up":      {},
-	"down":    {},
-	"stop":    {},
-	"start":   {},
-	"restart": {},
-	"ps":      {},
-	"pull":    {},
-	"logs":    {},
-	"exec":    {},
-	"git":     {},
-	"ping":    {},
-}
-
 var version = "n/a"
 
 func main() {
