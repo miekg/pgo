@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"os/user"
 	"strings"
@@ -20,7 +19,7 @@ func querySSH(ctx context.Context, machine, command string, args []string) ([]by
 	ident := ctx.Value("i").(string)
 	switch ident {
 	default:
-		key, err = ioutil.ReadFile(ident)
+		key, err = os.ReadFile(ident)
 		if err != nil {
 			return nil, err
 		}

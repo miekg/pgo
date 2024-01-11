@@ -79,7 +79,6 @@ user = "miek"
 repository = "https://github.com/miekg/pgo"
 branch = "main"
 registries = [ "user:token@registry" ]
-ignore = false
 compose = "my-compose.yaml"
 env = [ "MYVAR=VALUE" ]
 urls = { "example.org" = "pgo:5006" }
@@ -106,9 +105,6 @@ registries:
 containers. Note that different credentials for the same user in different services might lead to
 race conditions (and failed pulls). If the user part is not specifiied, the user from the `user`
 keyword is used. This is a list because multiple private repositories are allowed.
-
-ignore
-: `false`, ignore changes to the compose yaml files and *do not* restart containers.
 
 compose
 : `my-compose.yaml`, specify an alternate compose file to use, outside of the supported variants.

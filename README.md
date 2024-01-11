@@ -64,7 +64,6 @@ this file:
   "user:token" format, is user is omitted, `user` is used. This is a list because there can be more
   than one private registry. This should match any registries used in the compose file.
 - `compose`: alternate compose file to use.
-- `ignore`: don't restart the containers when a compose file changes.
 - `urls`: what DNS names need to be assigned to this server and to what network and port should they forward.
 - `networks`: which external network can this service use. Empty means all.
 - `env`: specify extra environment variables in "VAR=VALUE" notation (i.e. secrets).
@@ -75,6 +74,17 @@ this file:
 For non-root accounts, docker compose will be run with the normal supplementary groups to which the
 *local* docker group has been added. This allows those user to transparently access the docker
 socket, without going through some addgroup(8) hassle.
+
+### Compose File Extensions
+
+On every change to the compose file, pgod(8) will down and up your services. If you do not want this
+added the following your compose file (as a top-level declaration). The default for reload is
+`true`.
+
+~~~ yaml
+x-pgo:
+  reload: false
+~~~
 
 ## Requisites
 
