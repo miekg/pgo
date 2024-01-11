@@ -12,14 +12,14 @@ pgoctl - interact remotely with pgod(8)
 
 .SH "DESCRIPTION"
 .PP
-pgoctl is an utility to inspect and control pgod(8) remotely. The \fIhost\fP is the machine running PGO,
-the \fIname\fP used must be the service name as configured in the configuration for pgod(8). And the
-possible \fIcommands\fP are listed below.
+pgoctl is an utility to inspect and control pgod(8) managed containers remotely. The \fIhost\fP is the
+machine running pgod(8), the \fIname\fP used must be the service name as configured in the configuration
+for pgod(8). And the possible \fIcommands\fP are listed below.
 
 .PP
 The exit status from the docker compose is reflected in the exist status of pgoctl. Almost all
-commands from docker compose are implemented. Interactive command, like starting a shell, are not
-implemented.
+commands from docker compose are implemented. Interactive commands, like starting a shell, are not
+implemented. Tailing logs is also not implemented.
 
 .PP
 The supported commands are:
@@ -41,9 +41,9 @@ The supported commands are:
 .IP \(bu 4
 \fB\fClogs\fR run \fB\fCdocker-compose logs\fR
 .IP \(bu 4
-\fB\fCjournal\fRrun \fB\fCjournalctl _UID=<uid>\fR
+\fB\fCjournal\fRrun \fB\fCjournalctl _UID=<uid>\fR - show the system logs (if any)
 .IP \(bu 4
-\fB\fCexec\fR run \fB\fCdocker-compose -T exec\fR
+\fB\fCexec\fR run \fB\fCdocker-compose -T exec\fR - run any command in a container
 .IP \(bu 4
 \fB\fCgit\fR \fBCOMMAND\fP
 where \fBCOMMAND\fP can be:

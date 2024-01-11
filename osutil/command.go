@@ -27,7 +27,7 @@ func RunAs(cmd *exec.Cmd, user string) error {
 	}
 	groups := Groups(user)
 	groups = append(groups, dgid)
-	cmd.SysProcAttr = &syscall.SysProcAttr{}
+	cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
 	cmd.SysProcAttr.Credential = &syscall.Credential{Uid: uid, Gid: gid, Groups: groups}
 
 	path := "/usr/sbin:/usr/bin:/sbin:/bin"

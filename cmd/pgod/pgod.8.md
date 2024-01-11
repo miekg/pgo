@@ -17,19 +17,17 @@ pgod - watch a git repository, pull changes and restart the docker compose servi
 
 ## Description
 
-`pgod` clones and pulls all repositories that are defined in the config file. It then exposes a SSH
-interface (on port 2222) which you can interact with using pgoctl(1).
-
-Each compose file runs under it's own user-account. That account can then access storage, or
-databases it has access too - provisioning that stuff is out-of-scope - assuming your infra can deal
-with all that stuff. And make that available on each server.
+`pgod` clones and pulls all repositories that are defined in the config file. It then starts all
+containers using the compose file in each repository. Further more it exposes an SSH interface (on
+port 2222) which you can interact with using pgoctl(1). Authentication is done via ssh public keys
+that are available in each repository. Each *compose* runs under it's own user-account
 
 Servers running pgod(8) as still special in some regard, a developers needs to know which server
 runs their compose file. Moving services to a different machine is as easy as starting the compose
 there, but you need to make sure your infra also updates externals records (DNS for example).
 
-The interface into `pgod` is via SSH, but not the normal SSH running on the server, this is a
-completely seperate SSH interface implemented by both `pgod` and `pgoctl`.
+The interface into `pgod` is via SSH, but not OpenSSH, this is a completely seperate SSH interface
+implemented by both `pgod` and `pgoctl`.
 
 For each repository it directs docker compose to pull, build and start the containers defined in the
 `compose.yaml` file. Whenever this compose file changes this is redone. Current the following

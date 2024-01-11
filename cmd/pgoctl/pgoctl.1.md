@@ -17,13 +17,13 @@ pgoctl - interact remotely with pgod(8)
 
 ## Description
 
-pgoctl is an utility to inspect and control pgod(8) remotely. The *host* is the machine running PGO,
-the *name* used must be the service name as configured in the configuration for pgod(8). And the
-possible *commands* are listed below.
+pgoctl is an utility to inspect and control pgod(8) managed containers remotely. The *host* is the
+machine running pgod(8), the *name* used must be the service name as configured in the configuration
+for pgod(8). And the possible *commands* are listed below.
 
 The exit status from the docker compose is reflected in the exist status of pgoctl. Almost all
-commands from docker compose are implemented. Interactive command, like starting a shell, are not
-implemented.
+commands from docker compose are implemented. Interactive commands, like starting a shell, are not
+implemented. Tailing logs is also not implemented.
 
 The supported commands are:
 
@@ -35,8 +35,8 @@ The supported commands are:
 * `ps` run `docker-compose ps`
 * `pull` run `docker-compose pull`
 * `logs` run `docker-compose logs`
-* `journal `run `journalctl _UID=<uid>`
-* `exec` run `docker-compose -T exec`
+* `journal `run `journalctl _UID=<uid>` - show the system logs (if any)
+* `exec` run `docker-compose -T exec` - run any command in a container
 * `git` **COMMAND**
     where **COMMAND** can be:
     * `pull`, perform git pull
