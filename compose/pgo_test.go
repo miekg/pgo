@@ -9,7 +9,7 @@ func TestPgo(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if ex.reload {
+	if ex.Reload {
 		t.Errorf("expected reload to be false, got true")
 	}
 }
