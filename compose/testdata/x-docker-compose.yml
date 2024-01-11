@@ -1,0 +1,22 @@
+version: "2"
+x-pgo:
+  reload: false
+services:
+    frontend:
+      image: docker.io/busybox
+      command: ["/bin/busybox", "httpd", "-f", "-p", "8080"]
+      working_dir: /
+      environment:
+        SECRET_KEY2: aabbcc
+        ENV_IS_SET2:
+      ports:
+        - "8080"
+      labels:
+        my.label: my_value
+      networks:
+        - caddynet
+
+networks:
+  caddynet:
+    external: true
+    name: caddy

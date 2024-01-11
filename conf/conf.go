@@ -5,7 +5,6 @@ import (
 	"context"
 	"crypto/sha1"
 	"fmt"
-	"io/ioutil"
 	"math/rand"
 	"net"
 	"net/url"
@@ -29,7 +28,6 @@ type Service struct {
 	User        string
 	Repository  string
 	Registries  []string // user:token@registry auth
-	Ignore      bool     // don't restart compose after it got updated if true
 	ComposeFile string   `toml:"compose,omitempty"` // alternative compose file
 	Branch      string
 	Import      string            // filename of caddy file to generate
@@ -182,7 +180,7 @@ func (s *Service) PublicKeys() ([]ssh.PublicKey, error) {
 		}
 		pubfile := path.Join(s.dir, "ssh")
 		pubfile = path.Join(pubfile, entry.Name())
-		data, err := ioutil.ReadFile(pubfile)
+		data, err := os.ReadFile(pubfile)
 		if err != nil {
 			continue
 		}
@@ -290,8 +288,9 @@ func (s *Service) Track(ctx context.Context, duration time.Duration) {
 			continue
 		}
 
-		if s.Ignore {
-			log.Infof("[%s]: Ignore is set, not restarting any containers", s.Name)
+		ex := s.Compose.Extension()
+		if !ex.Reload {
+			log.Infof("[%s]: reload is set to false, not restarting any containers", s.Name)
 		}
 
 		log.Infof("[%s]: Downing services", s.Name)
@@ -319,7 +318,7 @@ func Track(ctx context.Context, file string, done chan<- os.Signal) {
 		case <-ctx.Done():
 			return
 		}
-		doc, err := ioutil.ReadFile(file)
+		doc, err := os.ReadFile(file)
 		if err != nil {
 			log.Warningf("Failed to read config %q: %s", file, err)
 			continue

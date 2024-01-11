@@ -2,10 +2,6 @@ package compose
 
 import (
 	"fmt"
-	"os"
-
-	"github.com/compose-spec/compose-go/loader"
-	"github.com/compose-spec/compose-go/types"
 )
 
 // AllowedExternalNetworks returns an error if any of the external networks are not allowed.
@@ -38,22 +34,7 @@ func (c *Compose) AllowedExternalNetworks() error {
 
 // mayby make it have an io.reader instead, of just the yaml?
 func loadExternalNetworks(file string) ([]string, error) {
-	yaml, err := os.ReadFile(file)
-	if err != nil {
-		return nil, err
-	}
-	dict, err := loader.ParseYAML([]byte(yaml))
-	if err != nil {
-		return nil, err
-	}
-	workingDir, _ := os.Getwd()
-	configs := []types.ConfigFile{{Filename: file, Config: dict}}
-	config := types.ConfigDetails{
-		WorkingDir:  workingDir,
-		ConfigFiles: configs,
-		Environment: nil,
-	}
-	tp, err := loader.Load(config)
+	tp, err := load(file)
 	if err != nil {
 		return nil, err
 	}

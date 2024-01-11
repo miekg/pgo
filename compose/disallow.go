@@ -2,11 +2,7 @@ package compose
 
 import (
 	"fmt"
-	"os"
 	"strings"
-
-	"github.com/compose-spec/compose-go/loader"
-	"github.com/compose-spec/compose-go/types"
 )
 
 // Disallow parses the compose yaml, and disallows privileged=true, networkmode="host" and ipc="host"
@@ -18,24 +14,9 @@ func (c *Compose) Disallow() error {
 	return disallow(comp)
 }
 
-// Disallow load the compose file and checks if any disallowed settings are set.
+// Disallow loads the compose file and checks if any disallowed settings are set.
 func disallow(file string) error {
-	yaml, err := os.ReadFile(file)
-	if err != nil {
-		return err
-	}
-	dict, err := loader.ParseYAML([]byte(yaml))
-	if err != nil {
-		return err
-	}
-	workingDir, _ := os.Getwd()
-	configs := []types.ConfigFile{{Filename: file, Config: dict}}
-	config := types.ConfigDetails{
-		WorkingDir:  workingDir,
-		ConfigFiles: configs,
-		Environment: nil,
-	}
-	tp, err := loader.Load(config)
+	tp, err := load(file)
 	if err != nil {
 		return err
 	}
