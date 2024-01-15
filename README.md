@@ -45,13 +45,11 @@ repository = "https://github.com/miekg/pgo"
 registries = [ "user:authtoken@registry" ] # or just authtoken@registry
 compose = "compose.yaml"
 branch = "main"
-ignore = false
 env = [ "MYENV=bla", "OTHERENV=bliep"]
 urls = { "pgo.science.ru.nl" = "pgo:5007" }
 networks = [ "reverse_proxy" ]
 # import = "Caddyfile-import"
 # reload = "localhost:caddy//exec caddy reload --config /etc/caddy/Caddyfile --adapter caddyfile"
-
 ```
 
 This file is used by `pgod` and should be updated for each project you want to onboard. To go over
