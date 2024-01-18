@@ -230,10 +230,6 @@ func (s *Service) Track(ctx context.Context, duration time.Duration) {
 		if _, err := s.Compose.Pull(nil); err != nil {
 			log.Warningf("[%s]: Failed pulling containers: %v", s.Name, err)
 		}
-		log.Infof("[%s]: Building images", s.Name)
-		if _, err := s.Compose.Build(nil); err != nil {
-			log.Warningf("[%s]: Failed building containers: %v", s.Name, err)
-		}
 		log.Infof("[%s]: Upping services", s.Name)
 		if _, err := s.Compose.Up(nil); err != nil {
 			log.Warningf("[%s]: Failed upping services: %v", s.Name, err)
@@ -296,10 +292,6 @@ func (s *Service) Track(ctx context.Context, duration time.Duration) {
 		log.Infof("[%s]: Downing services", s.Name)
 		if _, err := s.Compose.Down(nil); err != nil {
 			log.Warningf("[%s]: Failed downing services: %v", s.Name, err)
-		}
-		log.Infof("[%s]: Building images", s.Name)
-		if _, err := s.Compose.Build(nil); err != nil {
-			log.Warningf("[%s]: Failed building containers: %v", s.Name, err)
 		}
 		log.Infof("[%s]: Upping services", s.Name)
 		if _, err := s.Compose.Up(nil); err != nil {
