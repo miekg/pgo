@@ -29,7 +29,7 @@ there, but you need to make sure your infra also updates externals records (DNS 
 The interface into `pgod` is via SSH, but not OpenSSH, this is a completely seperate SSH interface
 implemented by both `pgod` and `pgoctl`.
 
-For each repository it directs docker compose to pull, build and start the containers defined in the
+For each repository it directs docker compose to pull and start the containers defined in the
 `compose.yaml` file. Whenever this compose file changes this is redone. Current the following
 compose file variants are supported: "compose.yaml", "compose.yml", "docker-compose.yml" and
 "docker-compose.yaml".

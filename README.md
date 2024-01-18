@@ -99,7 +99,7 @@ Assuming a working Go compiler you can issue a `make` to compile the binaries. T
 Start `pgod`: `sudo /cmd/pgod/pgod -c pgo.toml -d /tmp/pgo --debug`. That will output some debug
 data.
 
-In other words: it clones the repo, builds, pulls, and starts the containers. It then *tracks*
+In other words: it clones the repo, pulls, and starts the containers. It then *tracks*
 upstream and whenever `compose.yaml` changes it will do a `down` and `up`. To force changes
 in that file you can use a `x-gpo-version` in the yaml and change that whenever you want to update
 "pgo"
@@ -147,7 +147,6 @@ deploy_production:
     on_stop: stop_production
   script:
     - pgoctl mymachine:project//pull  # looks for PGOCTL_ID env var, with privkey contents
-    - pgoctl mymachine:project//build
     - pgoctl mymachine:project//up
   when: manual
 

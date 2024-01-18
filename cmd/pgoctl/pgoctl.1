@@ -4,7 +4,7 @@
 .SH "PGOCTL"
 .SH "NAME"
 .PP
-pgoctl - interact remotely with pgod(8)
+pgoctl \- interact remotely with pgod(8)
 
 .SH "SYNOPSIS"
 .PP
@@ -41,9 +41,9 @@ The supported commands are:
 .IP \(bu 4
 \fB\fClogs\fR run \fB\fCdocker-compose logs\fR
 .IP \(bu 4
-\fB\fCjournal\fRrun \fB\fCjournalctl _UID=<uid>\fR - show the system logs (if any)
+\fB\fCjournal\fRrun \fB\fCjournalctl _UID=<uid>\fR \- show the system logs (if any)
 .IP \(bu 4
-\fB\fCexec\fR run \fB\fCdocker-compose -T exec\fR - run any command in a container
+\fB\fCexec\fR run \fB\fCdocker-compose -T exec\fR \- run any command in a container
 .IP \(bu 4
 \fB\fCgit\fR \fBCOMMAND\fP
 where \fBCOMMAND\fP can be:
@@ -65,18 +65,18 @@ for example.
 There are only a few options:
 
 .TP
-\fB-i value\fP
+\fB\-i value\fP
 identity file to use for SSH, this flag is mandatory, but if an environment variable named
 "PGOCTL_ID" exists and has a value, that value will be used as the private key identity. If no
 such variable exist \fB\fC-i\fR \fIis\fP mandatory.
 .TP
-\fB--help, -h\fP
+\fB\-\-help, \-h\fP
 show help
 .TP
-\fB--port, -p port\fP
+\fB\-\-port, \-p port\fP
 remote port number to use (defaults to 2222)
 .TP
-\fB-v\fP
+\fB\-v\fP
 show version and exit
 
 
@@ -100,8 +100,6 @@ Start pgod(8) and look at some services:
 [INFO ] [pgo]: Checked out git repo in /tmp/pgo/pgo for "pgo" (branch main) with 3 configured public keys
 [INFO ] [caddy]: Pulling containers
 [INFO ] [pgo]: Pulling containers
-[INFO ] [caddy]: Building images
-[INFO ] [pgo]: Building images
 [INFO ] [caddy]: Upping services
 [INFO ] [pgo]: Upping services
 [INFO ] [caddy]: Tracking upstream

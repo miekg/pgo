@@ -77,8 +77,6 @@ Start pgod(8) and look at some services:
 [INFO ] [pgo]: Checked out git repo in /tmp/pgo/pgo for "pgo" (branch main) with 3 configured public keys
 [INFO ] [caddy]: Pulling containers
 [INFO ] [pgo]: Pulling containers
-[INFO ] [caddy]: Building images
-[INFO ] [pgo]: Building images
 [INFO ] [caddy]: Upping services
 [INFO ] [pgo]: Upping services
 [INFO ] [caddy]: Tracking upstream

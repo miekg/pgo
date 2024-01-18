@@ -71,9 +71,6 @@ func (c *Compose) run(args ...string) ([]byte, error) {
 	return out, err
 }
 
-func (c *Compose) Build(args []string) ([]byte, error) {
-	return c.run(append([]string{"build"}, args...)...)
-}
 func (c *Compose) Down(args []string) ([]byte, error) {
 	return c.run(append([]string{"down"}, args...)...)
 }

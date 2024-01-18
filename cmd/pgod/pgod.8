@@ -4,7 +4,7 @@
 .SH "PGOD"
 .SH "NAME"
 .PP
-pgod - watch a git repository, pull changes and restart the docker compose service
+pgod \- watch a git repository, pull changes and restart the docker compose service
 
 .SH "SYNOPSIS"
 .PP
@@ -15,7 +15,7 @@ pgod - watch a git repository, pull changes and restart the docker compose servi
 \fB\fCpgod\fR clones and pulls all repositories that are defined in the config file. It then starts all
 containers using the compose file in each repository. Further more it exposes an SSH interface (on
 port 2222) which you can interact with using pgoctl(1). Authentication is done via ssh public keys
-that are available in each repository. Each \fIcompose\fP runs under it's own user-account
+that are available in each repository. Each \fIcompose\fP runs under it's own user\-account
 
 .PP
 Servers running pgod(8) as still special in some regard, a developers needs to know which server
@@ -27,10 +27,10 @@ The interface into \fB\fCpgod\fR is via SSH, but not OpenSSH, this is a complete
 implemented by both \fB\fCpgod\fR and \fB\fCpgoctl\fR.
 
 .PP
-For each repository it directs docker compose to pull, build and start the containers defined in the
+For each repository it directs docker compose to pull and start the containers defined in the
 \fB\fCcompose.yaml\fR file. Whenever this compose file changes this is redone. Current the following
-compose file variants are supported: "compose.yaml", "compose.yml", "docker-compose.yml" and
-"docker-compose.yaml".
+compose file variants are supported: "compose.yaml", "compose.yml", "docker\-compose.yml" and
+"docker\-compose.yaml".
 
 .PP
 With pgoctl(1) you can then interact with these services. You can "up", "down", "ps", "pull",
@@ -44,27 +44,27 @@ confguration file.
 The options are:
 
 .TP
-\fB-c, --config string\fP
+\fB\-c, \-\-config string\fP
 config file to read, when not given this default to \fB\fC/etc/pgo.toml\fR
 .TP
-\fB-d, --dir string\fP
+\fB\-d, \-\-dir string\fP
 directory where to check out the git repositories, this must be a directory that is not wiped
 when the system reboots; the directory must also be accessible for all user accounts defined
 in the configuration file; this default to \fB\fC/var/lib/pgo\fR.
 .TP
-\fB-s, --ssh string\fP
+\fB\-s, \-\-ssh string\fP
 ssh address to listen on (default ":2222")
 .TP
-\fB-t, --duration duration\fP
+\fB\-t, \-\-duration duration\fP
 default duration between pulls (default 5m0s)
 .TP
-\fB--debug\fP
+\fB\-\-debug\fP
 enable debug logging
 .TP
-\fB--restart\fP
+\fB\-\-restart\fP
 send SIGHUP to ourselves when config changes (default true)
 .TP
-\fB-v\fP, \fB--version\fP
+\fB\-v\fP, \fB\-\-version\fP
 show version and exit
 
 
@@ -83,7 +83,6 @@ user = "miek"
 repository = "https://github.com/miekg/pgo"
 branch = "main"
 registries = [ "user:token@registry" ]
-ignore = false
 compose = "my\-compose.yaml"
 env = [ "MYVAR=VALUE" ]
 urls = { "example.org" = "pgo:5006" }
@@ -114,9 +113,6 @@ registries:
 containers. Note that different credentials for the same user in different services might lead to
 race conditions (and failed pulls). If the user part is not specifiied, the user from the \fB\fCuser\fR
 keyword is used. This is a list because multiple private repositories are allowed.
-.TP
-ignore
-\fB\fCfalse\fR, ignore changes to the compose yaml files and \fIdo not\fP restart containers.
 .TP
 compose
 \fB\fCmy-compose.yaml\fR, specify an alternate compose file to use, outside of the supported variants.
@@ -166,9 +162,9 @@ Two metrics are exported:
 pgod(8) has following exit codes:
 
 .PP
-0 - normal exit
-1 - error seen (log.Fatal())
-2 - SIGHUP seen (signal to systemd to restart us)
+0 \- normal exit
+1 \- error seen (log.Fatal())
+2 \- SIGHUP seen (signal to systemd to restart us)
 
 .SH "SEE ALSO"
 .PP
