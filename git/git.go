@@ -8,6 +8,7 @@ import (
 	"os"
 	"os/exec"
 	"path"
+	"strings"
 
 	"github.com/miekg/pgo/metric"
 	"github.com/miekg/pgo/osutil"
@@ -98,6 +99,12 @@ func (g *Git) Pull(names []string) (bool, error) {
 
 	out, err := g.run("pull", "--stat", "--rebase", "origin", g.branch)
 	if err != nil {
+		// if err starts with: 'fatal: unable to access ' and ends with 'Connection refused' we assume a soft
+		// error and return false, nil
+		errmsg := strings.ToLower(err.Error())
+		if strings.HasPrefix(errmsg, "fatal: unable to access") && strings.HasSuffix(errmsg, "connection refused") {
+			return false, nil
+		}
 		return false, err
 	}
 	return g.OfInterest(out, names), nil

@@ -199,6 +199,7 @@ func (s *Service) Track(ctx context.Context, duration time.Duration) {
 
 	if err := s.Git.Checkout(); err != nil {
 		log.Warningf("[%s]: Failed to do (initial) checkout: %v", s.Name, err)
+		// TODO(miek): should prolly _not_ return here, but wait until we succeed
 		return
 	}
 	var errok error
