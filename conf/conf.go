@@ -197,17 +197,33 @@ func (s *Service) PublicKeys() ([]ssh.PublicKey, error) {
 func (s *Service) Track(ctx context.Context, duration time.Duration) {
 	log.Infof("[%s]: Launched tracking routine for %q", s.Name, s.Name)
 
-	if err := s.Git.Checkout(); err != nil {
-		log.Warningf("[%s]: Failed to do (initial) checkout: %v", s.Name, err)
-		return
+	err := s.Git.Checkout()
+	if err != nil {
+		log.Warningf("[%s]: Failed to do check out, will retry: %v", s.Name, err)
+		for {
+			select {
+			case <-time.After(jitter(duration)):
+				if err := s.Git.Checkout(); err != nil {
+					log.Warningf("[%s]: Failed to do check out, will retry: %v", s.Name, err)
+					continue
+				}
+
+				break
+
+			case <-ctx.Done():
+				return
+			}
+		}
 	}
+	log.Infof("[%s]: Succeeded with check out", s.Name)
+
 	var errok error
 	if _, err := s.Git.Pull(nil); err != nil {
 		log.Warningf("[%s]: Failed to pull: %v", s.Name, err)
 		errok = err
 	}
 	if err := s.Git.Branch(s.Branch); err != nil {
-		log.Warningf("[%s]: Failed to checkout branch %s: %v", s.Name, s.Branch, err)
+		log.Warningf("[%s]: Failed to check out branch %s: %v", s.Name, s.Branch, err)
 		errok = err
 	}
 	pubkeys, err := s.PublicKeys()
@@ -269,7 +285,7 @@ func (s *Service) Track(ctx context.Context, duration time.Duration) {
 				continue
 			}
 			if err := s.Git.Checkout(); err != nil {
-				log.Warningf("[%s]: Failed to do checkout: %v", s.Name, err)
+				log.Warningf("[%s]: Failed to do check out: %v", s.Name, err)
 				continue
 			}
 			changed = true // force action
@@ -333,7 +349,6 @@ func Track(ctx context.Context, file string, done chan<- os.Signal) {
 
 // jitter will add a random amount of jitter [0, d/2] to d.
 func jitter(d time.Duration) time.Duration {
-	rand.Seed(time.Now().UnixNano())
 	max := d / 2
 	return d + time.Duration(rand.Int63n(int64(max)))
 }
