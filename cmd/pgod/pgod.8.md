@@ -126,6 +126,13 @@ reload:
 command line that runs `docker compose exec caddy caddy --config...`, to reload caddy in its
 container. Note that the machine (here `localhost`) is not used, and could be anything.
 
+## Reverse Proxy
+
+Usually a Caddy server is run on the host port 443 (and 80 for Let's Encrypt TLS certificates
+validation). This Caddy need to be able to reads the "import" file to be able to function. Only one
+service needs to specify this file, and usually this is the caddy service (that can also be managed
+by pgod).
+
 ## Authentication
 
 All remote access is authenticated and encrypted using SSH. The **public** keys you use *MUST* be
