@@ -202,6 +202,8 @@ func (s *Service) IsForcedDown() bool {
 	stop := path.Join(s.dir, _STOPFILE)
 	_, err := os.Stat(stop)
 
+	log.Infof("[%s]: Checking stop file: %v", s.Name, err)
+
 	return !errors.Is(err, os.ErrNotExist)
 }
 
