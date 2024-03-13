@@ -1,0 +1,10 @@
+version: "2"
+services:
+
+    redis:
+      image: redis:alpine
+      ports:
+        - ${APP_PORT}
+      environment:
+        - SECRET_KEY=aabbcc
+        - ENV_IS_SET
