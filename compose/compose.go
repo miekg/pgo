@@ -109,3 +109,14 @@ func (c *Compose) Ps(args []string) ([]byte, error) {
 func (c *Compose) Exec(args []string) ([]byte, error) {
 	return c.run(append([]string{"exec", "-T"}, args...)...)
 }
+
+// Load loads the compose files and returns any errors.
+func (c *Compose) Load(args []string) ([]byte, error) {
+	if err := c.AllowedExternalNetworks(); err != nil {
+		return nil, err
+	}
+	if err := c.Disallow(); err != nil {
+		return nil, err
+	}
+	return nil, nil
+}

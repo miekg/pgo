@@ -84,6 +84,7 @@ var routes = map[string]func(s *conf.Service, args []string) ([]byte, error){
 	"ps":      func(c *conf.Service, args []string) ([]byte, error) { return c.Compose.Ps(args) },
 	"pull":    func(c *conf.Service, args []string) ([]byte, error) { return c.Compose.Pull(args) },
 	"exec":    func(c *conf.Service, args []string) ([]byte, error) { return c.Compose.Exec(args) },
+	"load":    func(c *conf.Service, args []string) ([]byte, error) { return c.Compose.Load(args) },
 
 	"logs": func(c *conf.Service, args []string) ([]byte, error) {
 		for i := range args {

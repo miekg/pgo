@@ -373,5 +373,4 @@ func ParseCommand(s string) (machine, name, command string, err error) {
 	name = items[0]
 	command = items[1]
 	return machine, name, command, nil
-
 }

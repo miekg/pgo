@@ -2,6 +2,7 @@ package compose
 
 import (
 	"context"
+	"os"
 
 	"github.com/compose-spec/compose-go/v2/cli"
 	"github.com/compose-spec/compose-go/v2/types"
@@ -9,12 +10,11 @@ import (
 
 // TODO(miek): more env stuff, env files??
 func load(file string, env []string) (*types.Project, error) {
-	o, err := cli.NewProjectOptions([]string{file}, cli.WithEnv(env))
+	wd, _ := os.Getwd()
+	o, err := cli.NewProjectOptions([]string{file}, cli.WithEnv(env), cli.WithWorkingDirectory(wd))
 	if err != nil {
 		return nil, err
 	}
 	//	o.WorkingDir, _ = os.Getwd()
-	//	o.ConfigPaths = []string{file}
-	// po.Enviroments = mapping
 	return cli.ProjectFromOptions(context.TODO(), o)
 }

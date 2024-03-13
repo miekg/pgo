@@ -37,6 +37,7 @@ The supported commands are:
 * `logs` run `docker-compose logs`
 * `journal `run `journalctl _UID=<uid>` - show the system logs (if any)
 * `exec` run `docker-compose -T exec` - run any command in a container
+* `load` load the compose file and returns errors or disallowed options
 * `git` **COMMAND**
     where **COMMAND** can be:
     * `pull`, perform git pull
