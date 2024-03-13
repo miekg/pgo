@@ -5,8 +5,6 @@ services:
       image: redis:alpine
       #priviliged: true - denied by default?
       network_mode: host
-      ports:
-        - "6379"
       environment:
         - SECRET_KEY=aabbcc
         - ENV_IS_SET

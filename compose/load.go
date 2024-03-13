@@ -7,8 +7,9 @@ import (
 	"github.com/compose-spec/compose-go/v2/types"
 )
 
-func load(file string) (*types.Project, error) {
-	o, err := cli.NewProjectOptions([]string{file}) // , opts ...ProjectOptionsFn) (*ProjectOptions, error) {
+// TODO(miek): more env stuff, env files??
+func load(file string, env []string) (*types.Project, error) {
+	o, err := cli.NewProjectOptions([]string{file}, cli.WithEnv(env))
 	if err != nil {
 		return nil, err
 	}
