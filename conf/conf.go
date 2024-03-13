@@ -14,7 +14,7 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/compose-spec/compose-go/cli"
+	"github.com/compose-spec/compose-go/v2/cli"
 	"github.com/gliderlabs/ssh"
 	"github.com/miekg/pgo/compose"
 	"github.com/miekg/pgo/git"

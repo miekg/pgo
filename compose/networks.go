@@ -40,7 +40,7 @@ func loadExternalNetworks(file string) ([]string, error) {
 	}
 	nets := []string{}
 	for _, n := range tp.Networks {
-		if n.External.External {
+		if n.External {
 			nets = append(nets, n.Name) // use n.Name, not n.External.Name
 		}
 	}

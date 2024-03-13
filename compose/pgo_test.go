@@ -13,3 +13,10 @@ func TestPgo(t *testing.T) {
 		t.Errorf("expected reload to be false, got true")
 	}
 }
+
+func TestPgoEnvironment(t *testing.T) {
+	_, err := pgo("testdata/docker-compose-env.yml")
+	if err != nil {
+		t.Fatal(err)
+	}
+}
