@@ -250,14 +250,14 @@ func (s *Service) Track(ctx context.Context, duration time.Duration) {
 
 	if err := s.Compose.AllowedExternalNetworks(); err != nil {
 		log.Warningf("[%s]: External network usage outside of allowed networks: %v", s.Name, err)
-	} else if err := s.Compose.Disallow(); err != nil {
+	} else if err := s.Compose.Disallow(); err != nil && s.User != "root" {
 		log.Errorf("[%s]: Disallowed options used, or generic error: %v", s.Name, err)
 	} else {
 		log.Infof("[%s]: Pulling containers", s.Name)
 		if _, err := s.Compose.Pull(nil); err != nil {
 			log.Warningf("[%s]: Failed pulling containers: %v", s.Name, err)
 		}
-		if s.IsForcedDown() && s.User != "root" {
+		if s.IsForcedDown() {
 			log.Infof("[%s]: Service is forced down, downing to make sure", s.Name)
 			if _, err := s.Compose.Down(nil); err != nil {
 				log.Warningf("[%s]: Failed downing services: %v", s.Name, err)
@@ -293,7 +293,7 @@ func (s *Service) Track(ctx context.Context, duration time.Duration) {
 			return
 		}
 
-		if s.IsForcedDown() && s.User != "root" {
+		if s.IsForcedDown() {
 			log.Infof("[%s]: Service is forced down, downing to make sure", s.Name)
 			if _, err := s.Compose.Down(nil); err != nil {
 				log.Warningf("[%s]: Failed downing services: %v", s.Name, err)
@@ -323,6 +323,11 @@ func (s *Service) Track(ctx context.Context, duration time.Duration) {
 
 		if err := s.Compose.AllowedExternalNetworks(); err != nil {
 			log.Warningf("[%s]: External network usage outside of allowed networks: %v", s.Name, err)
+			continue
+		}
+
+		if err := s.Compose.Disallow(); err != nil && s.User != "root" {
+			log.Errorf("[%s]: Disallowed options used, or generic error: %v", s.Name, err)
 			continue
 		}
 
