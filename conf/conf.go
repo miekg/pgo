@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"crypto/sha1"
+	"errors"
 	"fmt"
 	"math/rand"
 	"net"
@@ -22,6 +23,8 @@ import (
 	toml "github.com/pelletier/go-toml/v2"
 	"go.science.ru.nl/log"
 )
+
+const _STOPFILE = ".stop"
 
 type Service struct {
 	Name        string
@@ -194,6 +197,14 @@ func (s *Service) PublicKeys() ([]ssh.PublicKey, error) {
 	return keys, nil
 }
 
+// Is a <pgodir>/service.stop exists down the service and complain. TODO(miek): read the file's contents for state?
+func (s *Service) IsForcedDown() bool {
+	stop := path.Join(s.dir, _STOPFILE)
+	_, err := os.Stat(stop)
+
+	return !errors.Is(err, os.ErrNotExist)
+}
+
 func (s *Service) Track(ctx context.Context, duration time.Duration) {
 	log.Infof("[%s]: Launched tracking routine for %q", s.Name, s.Name)
 
@@ -246,9 +257,16 @@ func (s *Service) Track(ctx context.Context, duration time.Duration) {
 		if _, err := s.Compose.Pull(nil); err != nil {
 			log.Warningf("[%s]: Failed pulling containers: %v", s.Name, err)
 		}
-		log.Infof("[%s]: Upping services", s.Name)
-		if _, err := s.Compose.Up(nil); err != nil {
-			log.Warningf("[%s]: Failed upping services: %v", s.Name, err)
+		if s.IsForcedDown() {
+			log.Infof("[%s]: Service is forced down, downing to make sure", s.Name)
+			if _, err := s.Compose.Down(nil); err != nil {
+				log.Warningf("[%s]: Failed downing services: %v", s.Name, err)
+			}
+		} else {
+			log.Infof("[%s]: Upping services", s.Name)
+			if _, err := s.Compose.Up(nil); err != nil {
+				log.Warningf("[%s]: Failed upping services: %v", s.Name, err)
+			}
 		}
 		log.Infof("[%s]: Tracking upstream from %q", s.Name, s.Git.Hash())
 	}
@@ -273,6 +291,14 @@ func (s *Service) Track(ctx context.Context, duration time.Duration) {
 		case <-time.After(jitter(duration)):
 		case <-ctx.Done():
 			return
+		}
+
+		if s.IsForcedDown() {
+			log.Infof("[%s]: Service is forced down, downing to make sure", s.Name)
+			if _, err := s.Compose.Down(nil); err != nil {
+				log.Warningf("[%s]: Failed downing services: %v", s.Name, err)
+			}
+			continue
 		}
 
 		log.Infof("[%s]: Current hash is %q", s.Name, s.Git.Hash())
