@@ -204,7 +204,7 @@ func (s *Service) IsForcedDown() bool {
 
 	log.Infof("[%s]: Checking stop file %q: %v", s.Name, stop, err)
 
-	return !errors.Is(err, os.ErrNotExist)
+	return errors.Is(err, os.ErrNotExist)
 }
 
 func (s *Service) Track(ctx context.Context, duration time.Duration) {
