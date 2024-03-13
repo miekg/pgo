@@ -5,7 +5,7 @@ import (
 )
 
 func TestLoadExternalNetworks(t *testing.T) {
-	nets, err := loadExternalNetworks("testdata/docker-compose.yml", nil)
+	nets, err := loadExternalNetworks("testdata/docker-compose.yml", "", nil)
 	if err != nil {
 		t.Fatal(err)
 	}

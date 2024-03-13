@@ -12,12 +12,12 @@ func (c *Compose) Disallow() error {
 	if c.file != "" {
 		comp = c.file
 	}
-	return disallow(comp, c.env)
+	return disallow(comp, c.name, c.env)
 }
 
 // Disallow loads the compose file and checks if any disallowed settings are set.
-func disallow(file string, env []string) error {
-	tp, err := load(file, env)
+func disallow(file, name string, env []string) error {
+	tp, err := load(file, name, env)
 	if err != nil {
 		return err
 	}

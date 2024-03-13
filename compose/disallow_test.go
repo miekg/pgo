@@ -3,7 +3,7 @@ package compose
 import "testing"
 
 func TestDisallow(t *testing.T) {
-	err := disallow("testdata/docker-compose_priv.yml", nil)
+	err := disallow("testdata/docker-compose_priv.yml", "", nil)
 	if err == nil {
 		t.Fatal("expected error, got none")
 	}
@@ -11,7 +11,7 @@ func TestDisallow(t *testing.T) {
 }
 
 func TestDisallowPorts(t *testing.T) {
-	err := disallow("testdata/docker-compose_ports.yml", nil)
+	err := disallow("testdata/docker-compose_ports.yml", "", nil)
 	if err == nil {
 		t.Fatal("expected error, got none")
 	}

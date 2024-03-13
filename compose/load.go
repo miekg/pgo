@@ -9,9 +9,9 @@ import (
 )
 
 // TODO(miek): more env stuff, env files??
-func load(file string, env []string) (*types.Project, error) {
+func load(file, name string, env []string) (*types.Project, error) {
 	wd, _ := os.Getwd()
-	o, err := cli.NewProjectOptions([]string{file}, cli.WithEnv(env), cli.WithWorkingDirectory(wd))
+	o, err := cli.NewProjectOptions([]string{file}, cli.WithEnv(env), cli.WithWorkingDirectory(wd), cli.WithName(name))
 	if err != nil {
 		return nil, err
 	}
