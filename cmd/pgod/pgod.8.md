@@ -144,8 +144,16 @@ And add and commit `ssh/id_pgo.pub`, and use `ssh/id_pgo` for authentication.
 
 ## Restrictions
 
-A compose file may not have certain attributes. We disallow privileged containers, and port
-statements (unless running as root).
+Each compose file (should) runs under it's own user-account. That account can then access storage,
+or databases it has access to - provisioning that stuff is out-of-scope - assuming your infra can
+deal with all that. The compose file is parsed and the following settings are disallowed:
+
+* `privileged=true`
+* `network_mode=host`
+* `ipc=host`
+
+A `ports` section is also blocked, all access should be done via pgoctl(1) or via the (Caddy) proxy.
+These restrictions are bypassed if the container runs as 'root'.
 
 ## Metrics
 
@@ -166,7 +174,7 @@ pgod(8) has following exit codes:
 
 If a `<service>`.stop file exists in the pgo directory (**-d** flag), and that service exists the
 service will not be started or be stopped if it is started. This will be checked in the normal
-cycle (usally every 5 minutes).
+cycle (usually every 5 minutes).
 
 ## See Also
 
