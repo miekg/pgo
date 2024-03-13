@@ -172,9 +172,9 @@ pgod(8) has following exit codes:
 
 ## Files
 
-If a `<service>`.stop file exists in the pgo directory (**-d** flag), and that service exists the
-service will not be started or be stopped if it is started. This will be checked in the normal
-cycle (usually every 5 minutes).
+If a `<service>`.stop file exists in the pgo directory (**-d** flag), and that service exists ,the
+service will not be started or be stopped if it is started. This will be checked in the normal cycle
+(usually every 5 minutes) or at startup.
 
 ## See Also
 
