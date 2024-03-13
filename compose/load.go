@@ -1,27 +1,20 @@
 package compose
 
 import (
+	"context"
 	"os"
 
-	"github.com/compose-spec/compose-go/loader"
-	"github.com/compose-spec/compose-go/types"
+	"github.com/compose-spec/compose-go/v2/cli"
+	"github.com/compose-spec/compose-go/v2/types"
 )
 
-func load(file string) (*types.Project, error) {
-	yaml, err := os.ReadFile(file)
+// TODO(miek): more env stuff, env files??
+func load(file string, env []string) (*types.Project, error) {
+	wd, _ := os.Getwd()
+	o, err := cli.NewProjectOptions([]string{file}, cli.WithEnv(env), cli.WithWorkingDirectory(wd))
 	if err != nil {
 		return nil, err
 	}
-	dict, err := loader.ParseYAML([]byte(yaml))
-	if err != nil {
-		return nil, err
-	}
-	workingDir, _ := os.Getwd()
-	configs := []types.ConfigFile{{Filename: file, Config: dict}}
-	config := types.ConfigDetails{
-		WorkingDir:  workingDir,
-		ConfigFiles: configs,
-		Environment: nil,
-	}
-	return loader.Load(config)
+	//	o.WorkingDir, _ = os.Getwd()
+	return cli.ProjectFromOptions(context.TODO(), o)
 }

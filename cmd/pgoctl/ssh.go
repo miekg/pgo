@@ -21,6 +21,7 @@ var routes = map[string]struct{}{
 	"pull":    {},
 	"logs":    {},
 	"exec":    {},
+	"load":    {},
 	"git":     {},
 	"journal": {},
 	"ping":    {},

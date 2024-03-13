@@ -13,7 +13,7 @@ func (c *Compose) AllowedExternalNetworks() error {
 	if c.file != "" {
 		comp = c.file
 	}
-	nets, err := loadExternalNetworks(comp)
+	nets, err := loadExternalNetworks(comp, c.env)
 	if err != nil {
 		return err
 	}
@@ -33,14 +33,14 @@ func (c *Compose) AllowedExternalNetworks() error {
 }
 
 // mayby make it have an io.reader instead, of just the yaml?
-func loadExternalNetworks(file string) ([]string, error) {
-	tp, err := load(file)
+func loadExternalNetworks(file string, env []string) ([]string, error) {
+	tp, err := load(file, env)
 	if err != nil {
 		return nil, err
 	}
 	nets := []string{}
 	for _, n := range tp.Networks {
-		if n.External.External {
+		if n.External {
 			nets = append(nets, n.Name) // use n.Name, not n.External.Name
 		}
 	}

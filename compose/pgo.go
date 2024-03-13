@@ -14,7 +14,7 @@ func (c *Compose) Extension() *Extension {
 	if c.file != "" {
 		comp = c.file
 	}
-	ex, _ := pgo(comp)
+	ex, _ := pgo(comp, c.env)
 	return ex
 }
 
@@ -24,9 +24,9 @@ func (c *Compose) Extension() *Extension {
 // - reload: false   # reload/restart all containers if the compose file is updated.
 //
 // if not set, this defaults to true
-func pgo(file string) (*Extension, error) {
+func pgo(file string, env []string) (*Extension, error) {
 	ex := &Extension{Reload: true}
-	tp, err := load(file)
+	tp, err := load(file, env)
 	if err != nil {
 		return ex, err
 	}
