@@ -157,6 +157,12 @@ pgod(8) has following exit codes:
 1 - error seen (log.Fatal())
 2 - SIGHUP seen (signal to systemd to restart us)
 
+## Files
+
+If a `<service>`.stop file exists in the pgo directory (**-d** flag), and that service exists the
+service will not be started or be stopped if it is started. This will be checked in the normal
+cycle (usally every 5 minutes).
+
 ## See Also
 
 See [this design doc](https://miek.nl/2022/november/15/provisioning-services/), and

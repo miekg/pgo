@@ -116,7 +116,7 @@ func run(exec *ExecContext) error {
 	}
 
 	if err := conf.Stale(c.Services, exec.Dir); err != nil {
-		return fmt.Errorf("error while tyring to clean up stale services: %s", err)
+		return fmt.Errorf("error while trying to clean up stale services: %s", err)
 	}
 
 	ctx, cancel := context.WithCancel(context.TODO())
