@@ -199,12 +199,10 @@ func (s *Service) PublicKeys() ([]ssh.PublicKey, error) {
 
 // Is a <pgodir>/service.stop exists down the service and complain. TODO(miek): read the file's contents for state?
 func (s *Service) IsForcedDown() bool {
-	stop := path.Join(s.dir, _STOPFILE)
+	stop := s.dir + _STOPFILE
 	_, err := os.Stat(stop)
-
 	log.Infof("[%s]: Checking stop file %q: %v", s.Name, stop, err)
-
-	return errors.Is(err, os.ErrNotExist)
+	return !errors.Is(err, os.ErrNotExist)
 }
 
 func (s *Service) Track(ctx context.Context, duration time.Duration) {
@@ -259,7 +257,7 @@ func (s *Service) Track(ctx context.Context, duration time.Duration) {
 		if _, err := s.Compose.Pull(nil); err != nil {
 			log.Warningf("[%s]: Failed pulling containers: %v", s.Name, err)
 		}
-		if s.IsForcedDown() {
+		if s.IsForcedDown() && s.User != "root" {
 			log.Infof("[%s]: Service is forced down, downing to make sure", s.Name)
 			if _, err := s.Compose.Down(nil); err != nil {
 				log.Warningf("[%s]: Failed downing services: %v", s.Name, err)
@@ -295,7 +293,7 @@ func (s *Service) Track(ctx context.Context, duration time.Duration) {
 			return
 		}
 
-		if s.IsForcedDown() {
+		if s.IsForcedDown() && s.User != "root" {
 			log.Infof("[%s]: Service is forced down, downing to make sure", s.Name)
 			if _, err := s.Compose.Down(nil); err != nil {
 				log.Warningf("[%s]: Failed downing services: %v", s.Name, err)

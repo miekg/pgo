@@ -142,6 +142,11 @@ combination with pgoctl(1) and should *never be checked in*.
 The generated key can't have a passphrase, to generate use: `ssh-keygen -t ed25519 -f ssh/id_pgo`.
 And add and commit `ssh/id_pgo.pub`, and use `ssh/id_pgo` for authentication.
 
+## Restrictions
+
+A compose file may not have certain attributes. We disallow privileged containers, and port
+statements (unless running as root).
+
 ## Metrics
 
 Two metrics are exported:
