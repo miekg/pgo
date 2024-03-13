@@ -201,7 +201,11 @@ func (s *Service) PublicKeys() ([]ssh.PublicKey, error) {
 func (s *Service) IsForcedDown() bool {
 	stop := s.dir + _STOPFILE
 	_, err := os.Stat(stop)
-	log.Infof("[%s]: Checking stop file %q: %v", s.Name, stop, err)
+	if err != nil {
+		log.Infof("[%s]: Checking stop file %q: %v", s.Name, stop, err)
+	} else {
+		log.Infof("[%s]: Stop file %q exists", s.Name, stop)
+	}
 	return !errors.Is(err, os.ErrNotExist)
 }
 
