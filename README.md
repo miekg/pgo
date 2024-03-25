@@ -47,7 +47,7 @@ compose = "compose.yaml"
 branch = "main"
 env = [ "MYENV=bla", "OTHERENV=bliep"]
 urls = { "pgo.science.ru.nl" = "pgo:5007" }
-networks = [ "reverse_proxy" ]
+networks = [ "reverseproxy" ]
 # import = "Caddyfile-import"
 # reload = "localhost:caddy//exec caddy reload --config /etc/caddy/Caddyfile --adapter caddyfile"
 ```
