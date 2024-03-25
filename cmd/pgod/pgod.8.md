@@ -43,7 +43,7 @@ confguration file.
 The options are:
 
 **-c, --config string**
-:  config file to read, when not given this default to `/etc/pgo.toml`
+:  config file to read, when not given this defaults to `/etc/pgo.toml`
 
 **-d, --dir string**
 :  directory where to check out the git repositories, this must be a directory that is not wiped
