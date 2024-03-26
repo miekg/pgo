@@ -24,6 +24,8 @@ with all that. The compose file is parsed and the following settings are *disall
 - privileged=true
 - network_mode=host
 - ipc=host
+- volumes can only reference an absolute path (specified in pgo.toml).
+- volumes can only be of type 'bind'
 
 Servers running pgod(8) as still special in some regard, as a developers needs to know which server runs
 their compose file. Moving services to a different machine is as easy as starting the compose there,
@@ -48,6 +50,7 @@ branch = "main"
 env = [ "MYENV=bla", "OTHERENV=bliep"]
 urls = { "pgo.science.ru.nl" = "pgo:5007" }
 networks = [ "reverseproxy" ]
+datadir = "/data"
 # import = "Caddyfile-import"
 # reload = "localhost:caddy//exec caddy reload --config /etc/caddy/Caddyfile --adapter caddyfile"
 ```
@@ -63,8 +66,10 @@ this file:
   than one private registry. This should match any registries used in the compose file.
 - `compose`: alternate compose file to use.
 - `urls`: what DNS names need to be assigned to this server and to what network and port should they forward.
-- `networks`: which external network can this service use. Empty means all.
 - `env`: specify extra environment variables in "VAR=VALUE" notation (i.e. secrets).
+- `networks`: which external network can this service use. Empty means all.
+- `datadir`: if specified, all referenced volumes, that have an absolute path should be mounted
+   under: `<datadir>/<name>`.
 - `import`: create a Caddyfile snippet with reverse proxy statements for all URLs in all services
   and write this in the directory where the repository is checked out.
 - `load`: a exec command in pgoctl(1) syntax to reload caddy when a new import file is written.

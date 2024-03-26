@@ -1,0 +1,17 @@
+version: '3.6'
+services:
+  caddy:
+    image: docker.io/caddy:2.6-alpine
+    restart: unless-stopped
+    volumes:
+      - /data/compose/index.html:/tmp/index.html
+      - ./Caddyfile:/etc/caddy/Caddyfile
+    networks:
+      - reverseproxy
+      - caddy1
+
+networks:
+    reverseproxy:
+      name: reverseproxy
+      external: true
+    caddy1:

@@ -40,6 +40,7 @@ type Service struct {
 	Networks    []string
 	Git         *git.Git         `toml:"-"`
 	Compose     *compose.Compose `toml:"-"`
+	DataDir     string           // Directory under which all absolute volumes should exist
 
 	dir        string   // where is repo checked out
 	importdata []byte   // caddy's import file data
@@ -134,7 +135,7 @@ Stale:
 		// We _could_ scan for compose variants and pick one... even that would fail, because there can because
 		// multiple...
 		fulldir := path.Join(dir, e.Name())
-		comp := compose.New(e.Name(), "root", fulldir, "", nil, nil, nil)
+		comp := compose.New(e.Name(), "root", fulldir, "", "", nil, nil, nil)
 		if _, err := comp.Stop(nil); err != nil {
 			log.Infof("[%s]: Trying to stop (stale) service %q: %s", e.Name(), e.Name(), err)
 		}
@@ -162,7 +163,7 @@ func (s *Service) InitGitAndCompose(dir string) error {
 	}
 
 	s.Git = git.New(s.Name, s.Repository, s.User, s.Branch, dir)
-	s.Compose = compose.New(s.Name, s.User, dir, s.ComposeFile, s.Registries, s.Networks, s.Env)
+	s.Compose = compose.New(s.Name, s.User, dir, s.ComposeFile, s.DataDir, s.Registries, s.Networks, s.Env)
 	s.dir = dir
 	return nil
 }

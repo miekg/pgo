@@ -14,6 +14,7 @@ type Compose struct {
 	name       string
 	user       string   // what user to use
 	dir        string   // where to put it
+	datadir    string   // datadir from config
 	nets       []string // allowed networks from config
 	env        []string // extra environment variables
 	file       string   // alternate compose file name
@@ -23,7 +24,8 @@ type Compose struct {
 }
 
 // New returns a pointer to an intialized Compose.
-func New(name, user, directory, file string, registries []string, nets, env []string) *Compose {
+// TODO(miek): just put a Config in here already!
+func New(name, user, directory, file, datadir string, registries []string, nets, env []string) *Compose {
 	g := &Compose{
 		name:       name,
 		user:       user,
@@ -112,6 +114,7 @@ func (c *Compose) Exec(args []string) ([]byte, error) {
 
 // Load loads the compose files and returns any errors.
 func (c *Compose) Load(args []string) ([]byte, error) {
+	// TOdO volums
 	if err := c.AllowedExternalNetworks(); err != nil {
 		return nil, err
 	}
