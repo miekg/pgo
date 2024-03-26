@@ -118,6 +118,9 @@ func (c *Compose) Load(args []string) ([]byte, error) {
 	if err := c.AllowedExternalNetworks(); err != nil {
 		return nil, err
 	}
+	if err := c.AllowedVolumes(); err != nil {
+		return nil, err
+	}
 	if err := c.Disallow(); err != nil {
 		return nil, err
 	}

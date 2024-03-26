@@ -255,6 +255,8 @@ func (s *Service) Track(ctx context.Context, duration time.Duration) {
 
 	if err := s.Compose.AllowedExternalNetworks(); err != nil {
 		log.Warningf("[%s]: External network usage outside of allowed networks: %v", s.Name, err)
+	} else if err := s.Compose.AllowedVolumes(); err != nil {
+		log.Warningf("[%s]: Volumes' source outside allowed paths: %v", s.Name, err)
 	} else if err := s.Compose.Disallow(); err != nil && s.User != "root" {
 		log.Errorf("[%s]: Disallowed options used, or generic error: %v", s.Name, err)
 	} else {
@@ -328,6 +330,11 @@ func (s *Service) Track(ctx context.Context, duration time.Duration) {
 
 		if err := s.Compose.AllowedExternalNetworks(); err != nil {
 			log.Warningf("[%s]: External network usage outside of allowed networks: %v", s.Name, err)
+			continue
+		}
+
+		if err := s.Compose.AllowedVolumes(); err != nil {
+			log.Warningf("[%s]: Volumes' source outside allowed paths: %v", s.Name, err)
 			continue
 		}
 
