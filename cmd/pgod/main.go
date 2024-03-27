@@ -27,6 +27,7 @@ type ExecContext struct {
 	Debug        bool
 	Restart      bool
 	Dir          string
+	DataDir      string
 	Duration     time.Duration
 	Version      bool
 }
@@ -40,6 +41,7 @@ func (exec *ExecContext) RegisterFlags(fs *flag.FlagSet) {
 	fs.StringVarP(&exec.SAddr, "ssh", "s", ":2222", "address for SSH to listen on")
 	fs.StringVarP(&exec.MAddr, "metric", "m", ":9112", "address for Prometheus metrics to listen on")
 	fs.StringVarP(&exec.Dir, "dir", "d", "/var/lib/pgo", "directory to check out the git repositories")
+	fs.StringVarP(&exec.DataDir, "datadir", "", "/data", "directory to mount NFS shares")
 	fs.BoolVarP(&exec.Debug, "debug", "", false, "enable debug logging")
 	fs.BoolVarP(&exec.Restart, "restart", "", true, "send SIGHUP when config changes")
 	fs.BoolVarP(&exec.Version, "version", "v", false, "show version and exit")
@@ -110,7 +112,7 @@ func run(exec *ExecContext) error {
 		return fmt.Errorf("parsing config: %v", err)
 	}
 	for _, s := range c.Services {
-		if err := s.InitGitAndCompose(exec.Dir); err != nil {
+		if err := s.InitGitAndCompose(exec.Dir, exec.DataDir); err != nil {
 			return err
 		}
 	}

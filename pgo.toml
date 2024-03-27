@@ -15,3 +15,4 @@ user = "miek"
 repository = "https://github.com/miekg/pgo"
 env = [ "SECRET=mysecret" ]
 urls = { "slashdot.org" = "pgo:8080" }
+mount = "nfs://nfs.miek.nl/share"

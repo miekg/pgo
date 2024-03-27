@@ -10,6 +10,7 @@ import (
 	"net"
 	"net/url"
 	"os"
+	"os/exec"
 	"path"
 	"strings"
 	"syscall"
@@ -34,15 +35,16 @@ type Service struct {
 	ComposeFile string   `toml:"compose,omitempty"` // alternative compose file
 	Branch      string
 	Import      string            // filename of caddy file to generate
-	Reload      string            // reload command to use for caddy.
+	Reload      string            // reload command to use for caddy
+	Mount       string            // Optional (NFS) mount
 	URLs        map[string]string // url -> host:port
 	Env         []string
 	Networks    []string
 	Git         *git.Git         `toml:"-"`
 	Compose     *compose.Compose `toml:"-"`
-	DataDir     string           // Directory under which all absolute volumes should exist
 
 	dir        string   // where is repo checked out
+	datadir    string   // where to find the share
 	importdata []byte   // caddy's import file data
 	reloadcmd  []string // parsed Reload command, should exec service ...
 }
@@ -90,6 +92,9 @@ func Parse(doc []byte) (*Config, error) {
 			// ret error?
 			log.Errorf("[%s]: Import is set, but there is no reload command", s.Name)
 		}
+		if s.Mount != "" && !strings.HasPrefix(s.Mount, "nfs://") {
+			return c, fmt.Errorf("bad mount, must start with nfs://")
+		}
 		if s.Reload != "" {
 			reloadcmd, reloadname := "", ""
 			_, reloadname, reloadcmd, err = ParseCommand(s.Reload)
@@ -131,11 +136,13 @@ Stale:
 			}
 		}
 
+		// TODO(miek): look for /datadir/<service> and umount
+
 		// If the (now deleted) compose config references a non-standard compose, this dance will fail.
 		// We _could_ scan for compose variants and pick one... even that would fail, because there can because
 		// multiple...
 		fulldir := path.Join(dir, e.Name())
-		comp := compose.New(e.Name(), "root", fulldir, "", "", nil, nil, nil)
+		comp := compose.New(e.Name(), "root", fulldir, "", "", nil, nil, nil, "")
 		if _, err := comp.Stop(nil); err != nil {
 			log.Infof("[%s]: Trying to stop (stale) service %q: %s", e.Name(), e.Name(), err)
 		}
@@ -149,22 +156,33 @@ Stale:
 	return nil
 }
 
-func (s *Service) InitGitAndCompose(dir string) error {
+func (s *Service) InitGitAndCompose(dir, datadir string) error {
 	dir = path.Join(dir, s.Name)
+	// TODO(miek) +t here?
 	if err := os.MkdirAll(dir, 0777); err != nil { // all users (possible) in the config, need to access this dir
 		return err
 	}
+
+	datadir = path.Join(datadir, s.Name)
+	if err := os.MkdirAll(datadir, 0777); err != nil { // all user need to access the toplevel, dir
+		return err
+	}
+	log.Infof("[%s]: Created git and data dir: %q, %q", s.Name, dir, datadir)
 	if os.Geteuid() == 0 {
-		// chown entire path to correct user
+		// chown last path to correct user
 		uid, gid := osutil.User(s.User)
 		if err := os.Chown(dir, int(uid), int(gid)); err != nil {
+			return err
+		}
+		if err := os.Chown(datadir, int(uid), int(gid)); err != nil {
 			return err
 		}
 	}
 
 	s.Git = git.New(s.Name, s.Repository, s.User, s.Branch, dir)
-	s.Compose = compose.New(s.Name, s.User, dir, s.ComposeFile, s.DataDir, s.Registries, s.Networks, s.Env)
+	s.Compose = compose.New(s.Name, s.User, dir, s.ComposeFile, datadir, s.Registries, s.Networks, s.Env, s.Mount)
 	s.dir = dir
+	s.datadir = datadir
 	return nil
 }
 
@@ -210,6 +228,28 @@ func (s *Service) IsForcedDown() bool {
 	return !errors.Is(err, os.ErrNotExist)
 }
 
+func (s *Service) MountStorage() error {
+	if s.Mount == "" {
+		return nil
+	}
+	u, err := url.Parse(s.Mount)
+	if err != nil {
+		return err
+	}
+	nfsmount := u.Host + ":" + u.Path
+	// TODO(miek): private mounts?
+	// TODO(miek): umount -l in Stale?
+	args := []string{"-t", "nfs", "-o", "rw,nosuid,hard", nfsmount, s.datadir}
+	log.Debugf("Attempting mount %v", args)
+	ctx := context.TODO()
+	cmd := exec.CommandContext(ctx, "/usr/bin/mount", args...)
+	out, err := cmd.CombinedOutput()
+	if len(out) > 0 {
+		log.Errorf("[%s]: %s", s.Name, string(out))
+	}
+	return err
+}
+
 func (s *Service) Track(ctx context.Context, duration time.Duration) {
 	log.Infof("[%s]: Launched tracking routine for %q", s.Name, s.Name)
 
@@ -232,6 +272,10 @@ func (s *Service) Track(ctx context.Context, duration time.Duration) {
 		}
 	}
 	log.Infof("[%s]: Succeeded with check out", s.Name)
+
+	if err := s.MountStorage(); err != nil {
+		log.Errorf("[%s]: Failed to mount %q: %s", s.Name, s.Mount, err)
+	}
 
 	var errok error
 	if _, err := s.Git.Pull(nil); err != nil {

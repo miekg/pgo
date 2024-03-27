@@ -1,4 +1,3 @@
-version: "2"
 services:
     frontend:
       image: docker.io/busybox
@@ -7,14 +6,16 @@ services:
       environment:
         SECRET_KEY2: aabbcc
         ENV_IS_SET2:
-      ports:
+      expose:
         - "8080"
       labels:
         my.label: my_value
       networks:
-        - caddynet
+        - reverseproxy
+        - busybox
 
 networks:
-  caddynet:
+  reverseproxy:
     external: true
-    name: caddy
+    name: reverseproxy
+  busybox:

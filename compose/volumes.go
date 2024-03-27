@@ -9,7 +9,7 @@ import (
 	"github.com/compose-spec/compose-go/v2/types"
 )
 
-// AllowedVolumes returns an error if any of the volumes reference a directory outside of c.DataDir
+// AllowedVolumes returns an error if any of the volumes reference a directory outside of c.datadir
 func (c *Compose) AllowedVolumes() error {
 	if c.datadir == "" {
 		return nil
