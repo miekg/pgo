@@ -53,6 +53,7 @@ networks = [ "reverseproxy" ]
 datadir = "/data"
 # import = "Caddyfile-import"
 # reload = "localhost:caddy//exec caddy reload --config /etc/caddy/Caddyfile --adapter caddyfile"
+# mount =  "nfs://server.example.org/share"
 ```
 
 This file is used by `pgod` and should be updated for each project you want to onboard. To go over
@@ -68,11 +69,12 @@ this file:
 - `urls`: what DNS names need to be assigned to this server and to what network and port should they forward.
 - `env`: specify extra environment variables in "VAR=VALUE" notation (i.e. secrets).
 - `networks`: which external network can this service use. Empty means all.
-- `datadir`: if specified, all referenced volumes, that have an absolute path should be mounted
-   under: `<datadir>/<name>`.
+- `datadir`: if specified, an absolute path where the NFS volumes are mounted. Volumes are mounted under: `<datadir>/<name>`.
 - `import`: create a Caddyfile snippet with reverse proxy statements for all URLs in all services
   and write this in the directory where the repository is checked out.
-- `load`: a exec command in pgoctl(1) syntax to reload caddy when a new import file is written.
+- `reload`: a exec command in pgoctl(1) syntax to reload caddy when a new import file is written.
+- `mount`: specific a NFS volume that will be mounted in `<datadir>/<name>`. This NFS mount gets
+  mounted with default options: "rw,nosuid,hard".
 
 For non-root accounts, docker compose will be run with the normal supplementary groups to which the
 *local* docker group has been added. This allows those user to transparently access the docker
@@ -199,14 +201,14 @@ services:
     volumes:
       - ./caddy/:/etc/caddy/
     networks:
-      - caddynet
+      - reverseproxy
 
 networks:
-    caddynet:
-      name: caddy
+    reverseproxy:
+      name: reverseproxy
 ~~~
 
-Where the network created is called `caddy` and the `Caddyfile-import` is written, by pgod(8), into
+Where the network created is called `reverseproxy` and the `Caddyfile-import` is written, by pgod(8), into
 the directory that gets mounted as a volume inside the caddy container. The `pgo-caddy` git
 repository has an .gitignore for `caddy/Caddyfile-import`.
 
@@ -215,18 +217,15 @@ pgo.toml config to make things work, i.e. in those `compose.yaml` they need:
 
 ~~~ yaml
 networks:
-  caddynet:
+  reverseproxy:
     external: true
-    name: caddy
+    name: reverseproxy
+  myownnetwork:
 ~~~
 
-and a
-~~~ yaml
-networks:
-  - caddynet
-~~~
 in each service that need a reverse proxy, and then _also_ a `urls` section in `pgo.toml` that ties
-everything together: `urls = { "example.org": frontend:8080" }`.
+everything together: `urls = { "example.org": frontend:8080" }`. The lone `myownnetwork` is needed
+because we want every "compose" to be in its own network. This might be enforced in the future.
 
 ## pgod
 

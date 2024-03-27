@@ -83,6 +83,7 @@ urls = { "example.org" = "pgo:5006" }
 networks = [ "reverse_proxy" ]
 import = "Caddyfile-import"
 reload = "localhost:caddy//exec caddy reload --config /etc/caddy/Caddyfile --adapter caddyfile"
+mount = "nfs://server/share"
 ~~~
 
 Here we define:
@@ -125,6 +126,9 @@ reload:
 : `localhost:caddy//exec caddy --config Caddyfile --adapter caddyfile`, this is a pgoctl(1) exec
 command line that runs `docker compose exec caddy caddy --config...`, to reload caddy in its
 container. Note that the machine (here `localhost`) is not used, and could be anything.
+
+mount:
+: `nfs://server/share`, mount this NFS share.
 
 ## Reverse Proxy
 

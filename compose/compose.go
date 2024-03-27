@@ -18,15 +18,16 @@ type Compose struct {
 	nets       []string // allowed networks from config
 	env        []string // extra environment variables
 	file       string   // alternate compose file name
+	mount      string   // optional mount
 	registries []string // private docker registries
 
 	pullLock sync.RWMutex // protects docker pull and hence docker login
 }
 
 // New returns a pointer to an intialized Compose.
-// TODO(miek): just put a Config in here already!
-func New(name, user, directory, file, datadir string, registries []string, nets, env []string) *Compose {
-	g := &Compose{
+func New(name, user, directory, file, datadir string, registries []string, nets, env []string, mount string) *Compose {
+	// TODO(miek): can't use conf.Service here because of import cycle.
+	c := &Compose{
 		name:       name,
 		user:       user,
 		dir:        directory,
@@ -34,8 +35,9 @@ func New(name, user, directory, file, datadir string, registries []string, nets,
 		nets:       nets,
 		file:       file,
 		env:        env,
+		mount:      mount,
 	}
-	return g
+	return c
 }
 
 func (c *Compose) run(args ...string) ([]byte, error) {

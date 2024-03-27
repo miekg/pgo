@@ -34,7 +34,8 @@ type Service struct {
 	ComposeFile string   `toml:"compose,omitempty"` // alternative compose file
 	Branch      string
 	Import      string            // filename of caddy file to generate
-	Reload      string            // reload command to use for caddy.
+	Reload      string            // reload command to use for caddy
+	Mount       string            // Optional (NFS) mount
 	URLs        map[string]string // url -> host:port
 	Env         []string
 	Networks    []string
@@ -89,6 +90,9 @@ func Parse(doc []byte) (*Config, error) {
 		if s.Import != "" && s.Reload == "" {
 			// ret error?
 			log.Errorf("[%s]: Import is set, but there is no reload command", s.Name)
+		}
+		if s.Mount != "" && !strings.HasPrefix(s.Mount, "nfs://") {
+			return c, fmt.Errorf("bad mount, must start with nfs://")
 		}
 		if s.Reload != "" {
 			reloadcmd, reloadname := "", ""
@@ -163,7 +167,7 @@ func (s *Service) InitGitAndCompose(dir string) error {
 	}
 
 	s.Git = git.New(s.Name, s.Repository, s.User, s.Branch, dir)
-	s.Compose = compose.New(s.Name, s.User, dir, s.ComposeFile, s.DataDir, s.Registries, s.Networks, s.Env)
+	s.Compose = compose.New(s.Name, s.User, dir, s.ComposeFile, s.DataDir, s.Registries, s.Networks, s.Env, s.Mount)
 	s.dir = dir
 	return nil
 }
