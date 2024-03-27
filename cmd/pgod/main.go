@@ -152,13 +152,13 @@ func run(exec *ExecContext) error {
 	go func() {
 		log.Fatal(http.ListenAndServe(exec.MAddr, nil))
 	}()
-	log.Infof("Launched server on port %s (prometheus)", exec.MAddr)
+	log.Infof("[-] Launched server on port %s (prometheus)", exec.MAddr)
 
 	sshHandler := newRouter(c)
 	if err := serveSSH(exec, &controllerWG, &workerWG, sshHandler); err != nil {
 		return err
 	}
-	log.Infof("Launched server on port %s (ssh) with %d services tracked", exec.SAddr, len(c.Services))
+	log.Infof("[-] Launched server on port %s (ssh) with %d services tracked", exec.SAddr, len(c.Services))
 
 	done := make(chan os.Signal, 1)
 	signal.Notify(done, syscall.SIGINT, syscall.SIGTERM, syscall.SIGHUP)
