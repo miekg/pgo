@@ -20,6 +20,7 @@ import (
 	"github.com/miekg/pgo/compose"
 	"github.com/miekg/pgo/git"
 	"github.com/miekg/pgo/osutil"
+	"github.com/moby/sys/mount"
 	toml "github.com/pelletier/go-toml/v2"
 	"go.science.ru.nl/log"
 )
@@ -156,18 +157,23 @@ Stale:
 }
 
 func (s *Service) InitGitAndCompose(dir, datadir string) error {
+	// TODO(miek) +t here?
 	dir = path.Join(dir, s.Name)
+
 	if err := os.MkdirAll(dir, 0777); err != nil { // all users (possible) in the config, need to access this dir
 		return err
 	}
-	dir = path.Join(datadir, s.Name)
-	if err := os.MkdirAll(datadir, 0777); err != nil { // all users (possible) in the config, need to access this dir
+	datadir = path.Join(datadir, s.Name)
+	if err := os.MkdirAll(datadir, 0777); err != nil { // all user need to access the toplevel, dir
 		return err
 	}
 	if os.Geteuid() == 0 {
-		// chown entire path to correct user
+		// chown last path to correct user
 		uid, gid := osutil.User(s.User)
 		if err := os.Chown(dir, int(uid), int(gid)); err != nil {
+			return err
+		}
+		if err := os.Chown(datadir, int(uid), int(gid)); err != nil {
 			return err
 		}
 	}
@@ -221,8 +227,13 @@ func (s *Service) IsForcedDown() bool {
 }
 
 func (s *Service) MountStorage() error {
-
-	return nil
+	u, err := url.Parse(s.Mount)
+	if err != nil {
+		return err
+	}
+	nfsmount := u.Host + ":" + u.Path
+	// TODO(miek): private mounts?
+	return mount.Mount(nfsmount, s.datadir, "nfs", "rw,nosuid,hard")
 }
 
 func (s *Service) Track(ctx context.Context, duration time.Duration) {
