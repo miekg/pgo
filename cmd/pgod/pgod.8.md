@@ -56,6 +56,9 @@ The options are:
 **-t, --duration duration**
 :  default duration between pulls (default 5m0s)
 
+**--datadir string**
+:  directory where to NFS mount shares. Shares will be available under **datadir**/**servicename**.
+
 **--debug**
 :  enable debug logging
 

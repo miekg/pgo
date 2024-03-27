@@ -45,7 +45,7 @@ The options are:
 
 .TP
 \fB-c, --config string\fP
-config file to read, when not given this default to \fB\fC/etc/pgo.toml\fR
+config file to read, when not given this defaults to \fB\fC/etc/pgo.toml\fR
 .TP
 \fB-d, --dir string\fP
 directory where to check out the git repositories, this must be a directory that is not wiped
@@ -57,6 +57,9 @@ ssh address to listen on (default ":2222")
 .TP
 \fB-t, --duration duration\fP
 default duration between pulls (default 5m0s)
+.TP
+\fB--datadir string\fP
+directory where to NFS mount shares. Shares will be available under \fBdatadir\fP/\fBservicename\fP.
 .TP
 \fB--debug\fP
 enable debug logging
@@ -89,6 +92,7 @@ urls = { "example.org" = "pgo:5006" }
 networks = [ "reverse\_proxy" ]
 import = "Caddyfile\-import"
 reload = "localhost:caddy//exec caddy reload \-\-config /etc/caddy/Caddyfile \-\-adapter caddyfile"
+mount = "nfs://server/share"
 
 .fi
 .RE
@@ -135,6 +139,9 @@ reload:
 \fB\fClocalhost:caddy//exec caddy --config Caddyfile --adapter caddyfile\fR, this is a pgoctl(1) exec
 command line that runs \fB\fCdocker compose exec caddy caddy --config...\fR, to reload caddy in its
 container. Note that the machine (here \fB\fClocalhost\fR) is not used, and could be anything.
+.TP
+mount:
+\fB\fCnfs://server/share\fR, mount this NFS share.
 
 
 .SH "REVERSE PROXY"

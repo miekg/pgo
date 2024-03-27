@@ -50,7 +50,6 @@ branch = "main"
 env = [ "MYENV=bla", "OTHERENV=bliep"]
 urls = { "pgo.science.ru.nl" = "pgo:5007" }
 networks = [ "reverseproxy" ]
-datadir = "/data"
 # import = "Caddyfile-import"
 # reload = "localhost:caddy//exec caddy reload --config /etc/caddy/Caddyfile --adapter caddyfile"
 # mount =  "nfs://server.example.org/share"
@@ -69,11 +68,10 @@ this file:
 - `urls`: what DNS names need to be assigned to this server and to what network and port should they forward.
 - `env`: specify extra environment variables in "VAR=VALUE" notation (i.e. secrets).
 - `networks`: which external network can this service use. Empty means all.
-- `datadir`: if specified, an absolute path where the NFS volumes are mounted. Volumes are mounted under: `<datadir>/<name>`.
 - `import`: create a Caddyfile snippet with reverse proxy statements for all URLs in all services
   and write this in the directory where the repository is checked out.
 - `reload`: a exec command in pgoctl(1) syntax to reload caddy when a new import file is written.
-- `mount`: specific a NFS volume that will be mounted in `<datadir>/<name>`. This NFS mount gets
+- `mount`: specific a NFS volume that will be mounted in `<datadir>/<name>`, see pgod(8). This NFS mount gets
   mounted with default options: "rw,nosuid,hard".
 
 For non-root accounts, docker compose will be run with the normal supplementary groups to which the

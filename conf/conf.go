@@ -41,9 +41,9 @@ type Service struct {
 	Networks    []string
 	Git         *git.Git         `toml:"-"`
 	Compose     *compose.Compose `toml:"-"`
-	DataDir     string           // Directory under which all absolute volumes should exist
 
 	dir        string   // where is repo checked out
+	datadir    string   // where to find the share
 	importdata []byte   // caddy's import file data
 	reloadcmd  []string // parsed Reload command, should exec service ...
 }
@@ -135,11 +135,13 @@ Stale:
 			}
 		}
 
+		// TODO(miek): look for /datadir/<service> and umount
+
 		// If the (now deleted) compose config references a non-standard compose, this dance will fail.
 		// We _could_ scan for compose variants and pick one... even that would fail, because there can because
 		// multiple...
 		fulldir := path.Join(dir, e.Name())
-		comp := compose.New(e.Name(), "root", fulldir, "", "", nil, nil, nil)
+		comp := compose.New(e.Name(), "root", fulldir, "", "", nil, nil, nil, "")
 		if _, err := comp.Stop(nil); err != nil {
 			log.Infof("[%s]: Trying to stop (stale) service %q: %s", e.Name(), e.Name(), err)
 		}
@@ -153,9 +155,13 @@ Stale:
 	return nil
 }
 
-func (s *Service) InitGitAndCompose(dir string) error {
+func (s *Service) InitGitAndCompose(dir, datadir string) error {
 	dir = path.Join(dir, s.Name)
 	if err := os.MkdirAll(dir, 0777); err != nil { // all users (possible) in the config, need to access this dir
+		return err
+	}
+	dir = path.Join(datadir, s.Name)
+	if err := os.MkdirAll(datadir, 0777); err != nil { // all users (possible) in the config, need to access this dir
 		return err
 	}
 	if os.Geteuid() == 0 {
@@ -167,7 +173,7 @@ func (s *Service) InitGitAndCompose(dir string) error {
 	}
 
 	s.Git = git.New(s.Name, s.Repository, s.User, s.Branch, dir)
-	s.Compose = compose.New(s.Name, s.User, dir, s.ComposeFile, s.DataDir, s.Registries, s.Networks, s.Env, s.Mount)
+	s.Compose = compose.New(s.Name, s.User, dir, s.ComposeFile, datadir, s.Registries, s.Networks, s.Env, s.Mount)
 	s.dir = dir
 	return nil
 }
@@ -214,6 +220,11 @@ func (s *Service) IsForcedDown() bool {
 	return !errors.Is(err, os.ErrNotExist)
 }
 
+func (s *Service) MountStorage() error {
+
+	return nil
+}
+
 func (s *Service) Track(ctx context.Context, duration time.Duration) {
 	log.Infof("[%s]: Launched tracking routine for %q", s.Name, s.Name)
 
@@ -236,6 +247,10 @@ func (s *Service) Track(ctx context.Context, duration time.Duration) {
 		}
 	}
 	log.Infof("[%s]: Succeeded with check out", s.Name)
+
+	if err := s.MountStorage(); err != nil {
+		log.Errorf("[%s]: Failed to mount %q: %s", s.Name, s.Mount, err)
+	}
 
 	var errok error
 	if _, err := s.Git.Pull(nil); err != nil {

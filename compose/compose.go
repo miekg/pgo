@@ -25,12 +25,13 @@ type Compose struct {
 }
 
 // New returns a pointer to an intialized Compose.
-func New(name, user, directory, file, datadir string, registries []string, nets, env []string, mount string) *Compose {
+func New(name, user, directory, file, datadirectory string, registries []string, nets, env []string, mount string) *Compose {
 	// TODO(miek): can't use conf.Service here because of import cycle.
 	c := &Compose{
 		name:       name,
 		user:       user,
 		dir:        directory,
+		datadir:    datadirectory,
 		registries: registries,
 		nets:       nets,
 		file:       file,
