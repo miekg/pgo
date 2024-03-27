@@ -245,7 +245,7 @@ func (s *Service) MountStorage() error {
 	cmd := exec.CommandContext(ctx, "/usr/bin/mount", args...)
 	out, err := cmd.CombinedOutput()
 	if len(out) > 0 {
-		log.Debugf("[%s]: %s", s.Name, string(out))
+		log.Errorf("[%s]: %s", s.Name, string(out))
 	}
 	return err
 }

@@ -6,7 +6,7 @@ services:
       environment:
         SECRET_KEY2: aabbcc
         ENV_IS_SET2:
-      ports:
+      expose:
         - "8080"
       labels:
         my.label: my_value
