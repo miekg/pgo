@@ -10,6 +10,7 @@ import (
 	"net"
 	"net/url"
 	"os"
+	"os/exec"
 	"path"
 	"strings"
 	"syscall"
@@ -20,7 +21,6 @@ import (
 	"github.com/miekg/pgo/compose"
 	"github.com/miekg/pgo/git"
 	"github.com/miekg/pgo/osutil"
-	"github.com/moby/sys/mount"
 	toml "github.com/pelletier/go-toml/v2"
 	"go.science.ru.nl/log"
 )
@@ -157,16 +157,17 @@ Stale:
 }
 
 func (s *Service) InitGitAndCompose(dir, datadir string) error {
-	// TODO(miek) +t here?
 	dir = path.Join(dir, s.Name)
-
+	// TODO(miek) +t here?
 	if err := os.MkdirAll(dir, 0777); err != nil { // all users (possible) in the config, need to access this dir
 		return err
 	}
+
 	datadir = path.Join(datadir, s.Name)
 	if err := os.MkdirAll(datadir, 0777); err != nil { // all user need to access the toplevel, dir
 		return err
 	}
+	log.Infof("[%s]: Created git and data dir: %q, %q", s.Name, dir, datadir)
 	if os.Geteuid() == 0 {
 		// chown last path to correct user
 		uid, gid := osutil.User(s.User)
@@ -181,6 +182,7 @@ func (s *Service) InitGitAndCompose(dir, datadir string) error {
 	s.Git = git.New(s.Name, s.Repository, s.User, s.Branch, dir)
 	s.Compose = compose.New(s.Name, s.User, dir, s.ComposeFile, datadir, s.Registries, s.Networks, s.Env, s.Mount)
 	s.dir = dir
+	s.datadir = datadir
 	return nil
 }
 
@@ -227,13 +229,25 @@ func (s *Service) IsForcedDown() bool {
 }
 
 func (s *Service) MountStorage() error {
+	if s.Mount == "" {
+		return nil
+	}
 	u, err := url.Parse(s.Mount)
 	if err != nil {
 		return err
 	}
 	nfsmount := u.Host + ":" + u.Path
 	// TODO(miek): private mounts?
-	return mount.Mount(nfsmount, s.datadir, "nfs", "rw,nosuid,hard")
+	// TODO(miek): umount -l in Stale?
+	args := []string{"-t", "nfs", "-o", "rw,nosuid,hard", nfsmount, s.datadir}
+	log.Debugf("Attempting mount %v", args)
+	ctx := context.TODO()
+	cmd := exec.CommandContext(ctx, "/usr/bin/mount", args...)
+	out, err := cmd.CombinedOutput()
+	if len(out) > 0 {
+		log.Debugf("[%s]: %s", s.Name, string(out))
+	}
+	return err
 }
 
 func (s *Service) Track(ctx context.Context, duration time.Duration) {
