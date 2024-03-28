@@ -322,7 +322,7 @@ func (s *Service) Track(ctx context.Context, duration time.Duration) {
 		log.Infof("[%s]: Tracking upstream from %q", s.Name, s.Git.Hash())
 	}
 
-	if s.Import != "" && len(s.importdata) > 0 {
+	if s.Import != "" {
 		name := path.Join(s.dir, s.Import)
 		log.Infof("[%s]: Writing Caddy import file %q", s.Name, s.Import)
 		os.WriteFile(name, s.importdata, 0644) // with 644 we shouldn't care about ownership
