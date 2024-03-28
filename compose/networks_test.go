@@ -29,6 +29,6 @@ func TestAllowedExternalNetworks(t *testing.T) {
 	c.nets = []string{"a", "b", "reverse_proxy"}
 	err = c.AllowedExternalNetworks()
 	if err != nil {
-		t.Fatal(err)
+		t.Fatalf("expected no error, got: %s", err)
 	}
 }

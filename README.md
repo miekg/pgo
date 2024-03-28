@@ -24,8 +24,10 @@ with all that. The compose file is parsed and the following settings are *disall
 - privileged=true
 - network_mode=host
 - ipc=host
-- volumes can only reference an absolute path (specified in pgo.toml).
-- volumes can only be of type 'bind'
+- volumes can only reference an absolute path under datadir/<servicename> (see --datadir of
+  pgod(8)), and volumes can only be of type 'bind'
+- each service must have a network that is _not_ in pgo.toml's `networks` for this service, this
+  only enforced if `networks` is set
 
 Servers running pgod(8) as still special in some regard, as a developers needs to know which server runs
 their compose file. Moving services to a different machine is as easy as starting the compose there,

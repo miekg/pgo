@@ -13,6 +13,14 @@ func (c *Compose) AllowedExternalNetworks() error {
 	if c.file != "" {
 		comp = c.file
 	}
+	allnets, err := loadNetworks(comp, c.name, c.env)
+	if err != nil {
+		return err
+	}
+	if len(allnets) < 2 {
+		return fmt.Errorf("file %q you must have at least 2 (have %v) networks, one of them should be external", comp, allnets)
+	}
+
 	nets, err := loadExternalNetworks(comp, c.name, c.env)
 	if err != nil {
 		return err
@@ -25,14 +33,13 @@ func (c *Compose) AllowedExternalNetworks() error {
 			}
 		}
 		if !ok {
-			return fmt.Errorf("network %s is not allowed, allowed networks: %v", n, c.nets)
+			return fmt.Errorf("file %q network %s is not allowed, allowed networks: %v", comp, n, c.nets)
 		}
 	}
 
 	return nil
 }
 
-// mayby make it have an io.reader instead, of just the yaml?
 func loadExternalNetworks(file, name string, env []string) ([]string, error) {
 	tp, err := load(file, name, env)
 	if err != nil {
@@ -43,6 +50,18 @@ func loadExternalNetworks(file, name string, env []string) ([]string, error) {
 		if n.External {
 			nets = append(nets, n.Name) // use n.Name, not n.External.Name
 		}
+	}
+	return nets, nil
+}
+
+func loadNetworks(file, name string, env []string) ([]string, error) {
+	tp, err := load(file, name, env)
+	if err != nil {
+		return nil, err
+	}
+	nets := []string{}
+	for _, n := range tp.Networks {
+		nets = append(nets, n.Name) // use n.Name, not n.External.Name
 	}
 	return nets, nil
 }
