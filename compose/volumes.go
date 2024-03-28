@@ -2,7 +2,6 @@ package compose
 
 import (
 	"fmt"
-	"path"
 	"path/filepath"
 	"strings"
 
@@ -24,12 +23,11 @@ func (c *Compose) AllowedVolumes() error {
 	}
 	// These are the Sources for the bind volumes, these must fall either under the pgo dir OR under
 	// /<datadir>/<service>. The later is c.dataDir / basename(c.dir)
-	datadir := path.Join(c.datadir, path.Base(c.dir))
 	for _, v := range vols {
-		ok1 := allowedPath(datadir, v)
+		ok1 := allowedPath(c.datadir, v)
 		ok2 := allowedPath(c.dir, v)
 		if !ok1 && !ok2 {
-			return fmt.Errorf("volume source path %s does not fall below %q or %q", v, datadir, c.dir)
+			return fmt.Errorf("volume source path %s does not fall below %q or %q", v, c.datadir, c.dir)
 		}
 	}
 	return nil
