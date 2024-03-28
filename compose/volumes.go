@@ -43,8 +43,8 @@ func loadVolumes(file, name string, env []string) ([]string, error) {
 	vols := []string{}
 	for _, s := range tp.Services {
 		for _, v := range s.Volumes {
-			if v.Type != types.VolumeTypeBind {
-				return nil, fmt.Errorf("volumes %s:%s, is not of type %q: %s", v.Source, v.Target, types.VolumeTypeBind, v.Type)
+			if v.Type != types.VolumeTypeBind && v.Type != types.VolumeTypeVolume {
+				return nil, fmt.Errorf("volumes %s:%s, is not of correct type: %s", v.Source, v.Target, v.Type)
 			}
 			vols = append(vols, v.Source)
 		}
