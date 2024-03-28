@@ -190,10 +190,9 @@ The services that are exporting into the caddy snippet only need an "url" in the
 `pgo-caddy` config is a normal pgo service and has this compose config:
 
 ~~~ yaml
-version: '3.6'
 services:
   caddy:
-    image: docker.io/caddy:2.6-alpine
+    image: docker.io/caddy:2.7-alpine
     restart: unless-stopped
     ports:
       - "80:80"
