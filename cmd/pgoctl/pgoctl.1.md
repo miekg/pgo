@@ -13,7 +13,7 @@ pgoctl - interact remotely with pgod(8)
 
 ## Synopsis
 
-`pgoctl [OPTION]...` *host*:*name*//*commands*
+`pgoctl [OPTION]...` -- *host*:*name*//*commands*
 
 ## Description
 
