@@ -25,7 +25,7 @@ with all that. The compose file is parsed and the following settings are *disall
 - network_mode=host
 - ipc=host
 - volumes can only reference an absolute path under datadir/<servicename> (see --datadir of
-  pgod(8)), and volumes can only be of type 'bind'
+  pgod(8)), and volumes can only be of type 'bind' or 'volume'
 - each service must have a network that is _not_ in pgo.toml's `networks` for this service, this
   only enforced if `networks` is set
 
