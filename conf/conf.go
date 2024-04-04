@@ -174,7 +174,9 @@ func (s *Service) InitGitAndCompose(dir, datadir string) error {
 		if err := os.Chown(dir, int(uid), int(gid)); err != nil {
 			return err
 		}
+		// data chown is allowed to file - if NFS mounted we can't access it.
 		if err := os.Chown(datadir, int(uid), int(gid)); err != nil {
+			log.Warningf("[%s]: Failed to chown %q: %v", s.Name, err)
 			return err
 		}
 	}
