@@ -2,6 +2,7 @@ package compose
 
 import (
 	"fmt"
+	"path/filepath"
 	"strings"
 )
 
@@ -10,7 +11,7 @@ import (
 func (c *Compose) Disallow() error {
 	comp := Find(c.dir)
 	if c.file != "" {
-		comp = c.file
+		comp = filepath.Join(c.dir, c.file)
 	}
 	return disallow(comp, c.name, c.env)
 }
