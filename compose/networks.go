@@ -2,6 +2,7 @@ package compose
 
 import (
 	"fmt"
+	"path/filepath"
 )
 
 // AllowedExternalNetworks returns an error if any of the external networks are not allowed.
@@ -11,7 +12,7 @@ func (c *Compose) AllowedExternalNetworks() error {
 	}
 	comp := Find(c.dir)
 	if c.file != "" {
-		comp = c.file
+		comp = filepath.Join(c.dir, c.file)
 	}
 	allnets, err := loadNetworks(comp, c.name, c.env)
 	if err != nil {

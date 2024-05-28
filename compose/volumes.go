@@ -15,7 +15,7 @@ func (c *Compose) AllowedVolumes() error {
 	}
 	comp := Find(c.dir)
 	if c.file != "" {
-		comp = c.file
+		comp = filepath.Join(c.dir, c.file)
 	}
 	vols, err := loadVolumes(comp, c.name, c.env)
 	if err != nil {
