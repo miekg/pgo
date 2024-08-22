@@ -149,7 +149,7 @@ func parseCommand(s []string) (name, command string, args []string, error error)
 
 func exitSession(ses ssh.Session, data []byte, err error) {
 	if err != nil {
-		warnSession(ses, fmt.Sprintf("An error occurred in command in connection for user %q: %s", ses.User(), err), http.StatusInternalServerError)
+		warnSession(ses, fmt.Sprintf("An error occurred in command in connection for user %q: %s\nCaptured output:\n%s", ses.User(), err, data), http.StatusInternalServerError)
 		return
 	}
 	ses.Write(data)
