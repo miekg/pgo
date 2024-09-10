@@ -35,7 +35,7 @@ The supported commands are:
 * `ps` run `docker-compose ps`
 * `pull` run `docker-compose pull`
 * `logs` run `docker-compose logs`
-* `journal `run `journalctl _UID=<uid>` - show the system logs (if any)
+* `journal` run `journalctl _UID=<uid>` - show the system logs (if any)
 * `exec` run `docker-compose -T exec` - run any command in a container
 * `load` load the compose file and returns errors or disallowed options
 * `git` **COMMAND**
