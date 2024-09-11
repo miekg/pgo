@@ -103,7 +103,15 @@ func (g *Git) Pull(names []string) (bool, error) {
 		// error and return false, nil
 		errmsg := strings.ToLower(err.Error())
 		if strings.HasPrefix(errmsg, "fatal: unable to access") && strings.HasSuffix(errmsg, "connection refused") {
+			log.Warningf("Error pulling repo: %s, treating as transient error and ignoring", errmsg)
 			return false, nil
+		}
+		// also softerr for: 'remote: HTTP Basic: Access denied. ....'
+		// fatal: Authentication failed for
+		if strings.HasPrefix(errmsg, "fatal: Authentication failed for") {
+			log.Warningf("Error pulling repo: %s, treating as transient error and ignoring", errmsg)
+			return false, nil
+
 		}
 		return false, err
 	}
