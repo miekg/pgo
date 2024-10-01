@@ -83,6 +83,16 @@ func (c *Compose) Stop(args []string) ([]byte, error) {
 	return c.run(append([]string{"stop"}, args...)...)
 }
 func (c *Compose) Up(args []string) ([]byte, error) {
+	// On compose up, I've seen pulls, as well, so take the lock...?
+	if len(c.registries) > 0 {
+		c.pullLock.Lock()
+		defer c.pullLock.Unlock()
+	}
+	err := c.Login("login")
+	if err != nil {
+		return nil, err
+	}
+	defer c.Login("logout")
 	return c.run(append([]string{"up", "-d"}, args...)...)
 }
 func (c *Compose) Start(args []string) ([]byte, error) {
@@ -101,9 +111,8 @@ func (c *Compose) Pull(args []string) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	out, err := c.run(append([]string{"pull"}, args...)...)
-	c.Login("logout")
-	return out, err
+	defer c.Login("logout")
+	return c.run(append([]string{"pull"}, args...)...)
 }
 func (c *Compose) Logs(args []string) ([]byte, error) {
 	return c.run(append([]string{"logs"}, args...)...)
@@ -117,7 +126,7 @@ func (c *Compose) Exec(args []string) ([]byte, error) {
 
 // Load loads the compose files and returns any errors.
 func (c *Compose) Load(args []string) ([]byte, error) {
-	// TOdO volums
+	// TODO: check and reject volumes?
 	if err := c.AllowedExternalNetworks(); err != nil {
 		return nil, err
 	}
