@@ -1,8 +1,12 @@
 package osutil
 
 import (
+	"os"
 	"os/user"
+	"path/filepath"
 	"strconv"
+
+	"go.science.ru.nl/log"
 )
 
 // User looks up the username u and return the uid and gid. If the username can't be found 0, 0 is returned.
@@ -21,6 +25,21 @@ func Home(u string) string {
 	u1, err := user.Lookup(u)
 	if err != nil {
 		return ""
+	}
+	switch u1.HomeDir {
+	case "/":
+		fallthrough
+	case "/bestaat-niet":
+		fallthrough
+	case "/non-existent":
+		// Create a home dir, to store docker login credentials.
+		dockerhome := filepath.Join(filepath.Join(os.TempDir(), u), ".docker")
+		if _, err := os.Stat(dockerhome); os.IsNotExist(err) {
+			if err := os.MkdirAll(dockerhome, 750); err != nil {
+				log.Errorf("Failed to create %q: %s", dockerhome, err)
+			}
+		}
+		return dockerhome
 	}
 	return u1.HomeDir
 }

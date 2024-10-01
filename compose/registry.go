@@ -11,7 +11,7 @@ import (
 	"go.science.ru.nl/log"
 )
 
-func (c *Compose) Login(login string) error {
+func (c *Compose) Login(login string /*logout*/) error {
 	if len(c.registries) == 0 {
 		return nil
 	}
