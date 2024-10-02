@@ -44,7 +44,7 @@ func New(name, user, directory, file, datadirectory string, registries []string,
 func (c *Compose) run(args ...string) ([]byte, error) {
 	ctx := context.TODO()
 	if c.file != "" {
-		args = append([]string{"-f", c.file}, args...)
+		args = append([]string{"--file", c.file}, args...)
 	}
 	args = append([]string{"compose"}, args...)
 	cmd := exec.CommandContext(ctx, "docker", args...)
