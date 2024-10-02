@@ -44,7 +44,7 @@ func New(name, user, directory, file, datadirectory string, registries []string,
 func (c *Compose) run(args ...string) ([]byte, error) {
 	ctx := context.TODO()
 	if c.file != "" {
-		args = append([]string{"-f", c.file}, args...)
+		args = append([]string{"--file", c.file}, args...)
 	}
 	args = append([]string{"compose"}, args...)
 	cmd := exec.CommandContext(ctx, "docker", args...)
@@ -92,8 +92,13 @@ func (c *Compose) Up(args []string) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer c.Login("logout")
-	return c.run(append([]string{"up", "-d"}, args...)...)
+	log.Infof("[%s]: %s", c.name, "Successfully logged into docker registry")
+	if out, err := c.run(append([]string{"up", "-d"}, args...)...); err != nil {
+		c.Login("logout")
+		return out, err
+	}
+	err = c.Login("logout")
+	return nil, err
 }
 func (c *Compose) Start(args []string) ([]byte, error) {
 	return c.run(append([]string{"start"}, args...)...)
@@ -111,8 +116,13 @@ func (c *Compose) Pull(args []string) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer c.Login("logout")
-	return c.run(append([]string{"pull"}, args...)...)
+	log.Infof("[%s]: %s", c.name, "Successfully logged into docker registry")
+	if out, err := c.run(append([]string{"pull"}, args...)...); err != nil {
+		c.Login("logout")
+		return out, err
+	}
+	err = c.Login("logout")
+	return nil, err
 }
 func (c *Compose) Logs(args []string) ([]byte, error) {
 	return c.run(append([]string{"logs"}, args...)...)
