@@ -36,7 +36,7 @@ func Home(u string) string {
 		home := filepath.Join(filepath.Join(os.TempDir(), u))
 		dockerhome := filepath.Join(home, ".docker")
 		if _, err := os.Stat(dockerhome); os.IsNotExist(err) {
-			if err := os.MkdirAll(dockerhome, 750); err != nil {
+			if err := os.MkdirAll(dockerhome, 0750); err != nil {
 				log.Errorf("Failed to create %q: %s", dockerhome, err)
 			}
 		}
