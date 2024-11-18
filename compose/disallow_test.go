@@ -17,3 +17,11 @@ func TestDisallowPorts(t *testing.T) {
 	}
 	t.Logf(err.Error())
 }
+
+func TestDisallowConfigs(t *testing.T) {
+	err := disallow("testdata/docker-compose_configs.yml", "", nil)
+	if err == nil {
+		t.Fatal("expected error, got none")
+	}
+	t.Logf(err.Error())
+}

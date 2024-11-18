@@ -304,7 +304,7 @@ func (s *Service) Track(ctx context.Context, duration time.Duration) {
 	if err := s.Compose.AllowedVolumes(); err != nil {
 		log.Warningf("[%s]: Volumes' source outside allowed paths: %v", s.Name, err)
 	}
-	if err := s.Compose.Disallow(); err != nil && s.User != "root" {
+	if err := s.Compose.Disallow(); err != nil { // we need a special check for caddy or our proxy container.
 		log.Errorf("[%s]: Disallowed options used, or generic error: %v", s.Name, err)
 	}
 	// Don't make the warnings kill the project this yet.
