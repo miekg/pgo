@@ -31,6 +31,10 @@ func disallow(file, name string, env []string) error {
 	}
 
 	for _, s := range tp.Services {
+		if len(s.SecurityOpt) > 1 {
+			// enfore '"no-new-privileges=true"' is set soon.
+			return fmt.Errorf("Service %q sets more than 1 security option", s.Name)
+		}
 		if s.Ipc != "" {
 			return fmt.Errorf("Service %q sets ipc", s.Name)
 		}

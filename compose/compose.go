@@ -136,7 +136,6 @@ func (c *Compose) Exec(args []string) ([]byte, error) {
 
 // Load loads the compose files and returns any errors.
 func (c *Compose) Load(args []string) ([]byte, error) {
-	// TODO: check and reject volumes?
 	if err := c.AllowedExternalNetworks(); err != nil {
 		return nil, err
 	}
