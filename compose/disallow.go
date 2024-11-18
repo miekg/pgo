@@ -24,15 +24,21 @@ func disallow(file, name string, env []string) error {
 	}
 
 	if len(tp.Configs) > 0 {
-		return fmt.Errorf("Compile files %q uses configs", name)
+		return fmt.Errorf("Compose file %q uses configs", name)
 	}
 	if len(tp.Secrets) > 0 {
-		return fmt.Errorf("Compile files %q uses secrets", name)
+		return fmt.Errorf("Compose file %q uses secrets", name)
 	}
 
 	for _, s := range tp.Services {
 		if s.Privileged {
 			return fmt.Errorf("Service %q sets privileged = true", s.Name)
+		}
+		if len(s.Devices) > 0 {
+			return fmt.Errorf("Service %q uses devices", s.Name)
+		}
+		if len(s.CapAdd) > 0 {
+			return fmt.Errorf("Service %q want to expand it capabilities", s.Name)
 		}
 		if strings.ToLower(s.NetworkMode) == "host" {
 			return fmt.Errorf("Service %q sets network_mode = 'host'", s.Name)
