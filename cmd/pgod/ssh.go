@@ -4,12 +4,10 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"os/exec"
 	"strings"
 
 	"github.com/gliderlabs/ssh"
 	"github.com/miekg/pgo/conf"
-	"github.com/miekg/pgo/metric"
 	"github.com/miekg/pgo/osutil"
 	"go.science.ru.nl/log"
 )
@@ -112,22 +110,25 @@ var routes = map[string]func(s *conf.Service, args []string) ([]byte, error){
 	},
 
 	"journal": func(c *conf.Service, args []string) ([]byte, error) {
-		for i := range args {
-			if args[i] == "-f" || args[i] == "--follow" {
-				return nil, fmt.Errorf("journal: following logs is not possible")
+		return nil, fmt.Errorf("disabled")
+		/*
+			for i := range args {
+				if args[i] == "-f" || args[i] == "--follow" {
+					return nil, fmt.Errorf("journal: following logs is not possible")
+				}
 			}
-		}
 
-		uid, _ := osutil.User(c.User)
-		args = append([]string{fmt.Sprintf("_UID=%d", uid)}, args...)
-		cmd := exec.Command("journalctl", args...)
-		log.Debugf("[%s]: running in %q as %q %v", c.Name, cmd.Dir, c.User, cmd.Args)
+			uid, _ := osutil.User(c.User)
+			args = append([]string{fmt.Sprintf("_UID=%d", uid)}, args...)
+			cmd := exec.Command("journalctl", args...)
+			log.Debugf("[%s]: running in %q as %q %v", c.Name, cmd.Dir, c.User, cmd.Args)
 
-		out, err := cmd.CombinedOutput()
-		if err != nil {
-			metric.CmdErrorCount.WithLabelValues(c.Name, "journal", args[0]).Inc()
-		}
-		return out, err
+			out, err := cmd.CombinedOutput()
+			if err != nil {
+				metric.CmdErrorCount.WithLabelValues(c.Name, "journal", args[0]).Inc()
+			}
+			return out, err
+		*/
 	},
 
 	"ping": func(c *conf.Service, _ []string) ([]byte, error) {
