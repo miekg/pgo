@@ -1,0 +1,5 @@
+services:
+  alp:
+    image: docker.io/alpine
+    command: /bin/sleep infinity
+    privileged: true

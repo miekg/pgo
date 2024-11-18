@@ -31,11 +31,17 @@ func disallow(file, name string, env []string) error {
 	}
 
 	for _, s := range tp.Services {
+		if s.Ipc != "" {
+			return fmt.Errorf("Service %q sets ipc", s.Name)
+		}
 		if s.Privileged {
 			return fmt.Errorf("Service %q sets privileged = true", s.Name)
 		}
 		if len(s.Devices) > 0 {
 			return fmt.Errorf("Service %q uses devices", s.Name)
+		}
+		if len(s.StorageOpt) > 0 {
+			return fmt.Errorf("Service %q uses storage opts", s.Name)
 		}
 		if len(s.CapAdd) > 0 {
 			return fmt.Errorf("Service %q want to expand it capabilities", s.Name)

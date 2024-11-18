@@ -1,0 +1,8 @@
+alp:
+  command: /bin/sleep infinity
+  configs:
+    - bla
+
+configs:
+  bla:
+    file: /etc/bla
