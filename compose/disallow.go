@@ -22,6 +22,14 @@ func disallow(file, name string, env []string) error {
 	if err != nil {
 		return err
 	}
+
+	if len(tp.Configs) > 0 {
+		return fmt.Errorf("Compile files %q uses configs", name)
+	}
+	if len(tp.Secrets) > 0 {
+		return fmt.Errorf("Compile files %q uses secrets", name)
+	}
+
 	for _, s := range tp.Services {
 		if s.Privileged {
 			return fmt.Errorf("Service %q sets privileged = true", s.Name)
